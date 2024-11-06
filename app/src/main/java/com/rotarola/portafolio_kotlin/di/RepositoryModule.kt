@@ -1,13 +1,12 @@
 package com.rotarola.portafolio_kotlin.di
 
-import com.example.feature_login.domain.repositories.UserRepository
-import com.example.feature_login.domain.repositories.UserRepositoryImpl
-import com.rotarola.data.repository.UserDBRepository
-import com.rotarola.data.util.database.RealmDBService
+import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
+import com.rotarola.portafolio_kotlin.domain.repositories.UserRepositoryImpl
+import com.rotarola.portafolio_kotlin.data.repository.UserDBRepository
+import com.rotarola.portafolio_kotlin.core.database.RealmDBService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -22,7 +21,6 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
-
 
     companion object {
         @Provides

@@ -83,7 +83,6 @@ dependencies {
     implementation(libs.realm.sync)
 
     implementation(libs.kotlinx.stdlib.jdk8)
-    implementation(libs.lottie.compose)
 
 
 

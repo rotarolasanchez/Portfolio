@@ -10,14 +10,7 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.text.input.KeyboardType
-import com.rotarola.feature_ui.presentation.atoms.EditextM3
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
-import org.junit.Test
 
 class TextTest {
 
