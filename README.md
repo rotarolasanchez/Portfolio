@@ -1,7 +1,11 @@
 
 ## Portfolio
-#### Ronald Otarola
+#### Capibara
+![Capibara]( https://brandemia.org/sites/default/files/inline/images/logo_youtube.jpg )
+
+
 #### The following technologies were used in this template:
+
 
 ## ✨ Features
 
@@ -33,9 +37,29 @@
 
 ## :rocket: Quick start
 
-You can download it using this statement in your git:
-```
+Start developing locally.
+
+### Step 1: Clone the repo
+
+Fork the repository. then clone the repo locally by doing -
+
+```sh
 git clone https://github.com/rotarolasanchez/Portfolio.git
 ```
+
+### Step 2: cd into the directory
+
+```sh
+cd 
+```
+
+# installs dependencies
+
+```sh
+npm install
+```
+
+ <p> Builds and serves assets with hot-reload </p>
+
 #### Contact:
 [Linkedin](https://www.linkedin.com/in/ronald-eduardo-otarola-sanchez-15512088)
