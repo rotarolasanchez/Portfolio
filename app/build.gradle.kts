@@ -68,11 +68,13 @@ android {
         }
     }
 
-    packagingOptions {
+    /*packagingOptions {
         exclude("META-INF/gradle/incremental.annotation.processors")
+    }*/
+
+    packaging {
+        resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
     }
-
-
 
 }
 
@@ -89,9 +91,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
+    //debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    debugImplementation(libs.ui.tooling)
+    //debugImplementation(libs.ui.tooling)
 
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)

@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import com.rotarola.feature_ui.presentation.view.theme.Feature_UITheme
 import com.rotarola.portafolio_kotlin.presentation.view.pages.NavigationMain
