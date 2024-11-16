@@ -1,3 +1,4 @@
+
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -71,6 +72,8 @@ android {
         exclude("META-INF/gradle/incremental.annotation.processors")
     }
 
+
+
 }
 
 dependencies {
@@ -101,7 +104,4 @@ dependencies {
 
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
-
-
-
 }
