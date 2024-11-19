@@ -1,3 +1,4 @@
+
 name: CI
 on:
   push:
@@ -13,8 +14,14 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
+      - name: Run Lint
+        run: ./gradlew lint
+
+      - name: Debug artifacts
+        run: ls -R app/build/reports
+
       - name: Upload html test report
         uses: actions/upload-artifact@v4
         with:
-          name: lint.html
+          name: lint-report
           path: app/build/reports/lint-results-debug.html
