@@ -62,7 +62,7 @@ jobs:
 
   instrumentation-test:
     needs: [unit-test]
-    runs-on: macos-latest
+    runs-on: ubuntu-latest # Cambia de macos-latest a ubuntu-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -81,7 +81,8 @@ jobs:
         with:
           api-level: 29
           script: ./gradlew connectedCheck
-
+          device: pixel_4 # Especifica un dispositivo compatible
+          abi: arm64-v8a # Especifica una arquitectura compatible
       - name: Upload test report
         uses: actions/upload-artifact@v4
         with:
