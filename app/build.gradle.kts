@@ -7,7 +7,9 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
+    //alias(libs.plugins.sonarqube.plugin)
     id("io.realm.kotlin") version libs.versions.realm.get() // Realm plugin
+
 }
 
 android {
@@ -106,4 +108,5 @@ dependencies {
 
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
+    implementation(libs.sonarqubePlugin)
 }
