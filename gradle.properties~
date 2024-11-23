@@ -25,4 +25,4 @@ systemProg.sonar.sources=./src/main
 systemProg.sonar.host.url=http://sonarcloud.io/
 systemProg.sonar.organization=rotarolasanchez
 systemProg.sonar.proyectKey=rotarolasanchez_Portfolio
-systemProg.sonar.projectName=Portfolio
+systemProg.sonar.projectName=portafolio-kotlin
