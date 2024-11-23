@@ -23,6 +23,6 @@ kotlin.code.style=official
 android.nonTransitiveRClass=true
 systemProg.sonar.sources=./src/main
 systemProg.sonar.host.url=https://sonarcloud.io
-systemProg.sonar.organization=rotarolasanchez
+systemProg.sonar.organizationKey=rotarolasanchez
 systemProg.sonar.proyectKey=rotarolasanchez_Portfolio
 systemProg.sonar.projectName=Portfolio
