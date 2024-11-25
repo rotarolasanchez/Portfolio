@@ -89,38 +89,38 @@ jobs:
           name: instrumentation_test_report
           path: app/build/reports/androidTests/connected/
 
-#static-code-analysis:
-#    needs: [ instrumentation-test ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout the code
- #       uses: actions/checkout@v2
+  static-code-analysis:
+    needs: [ instrumentation-test ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
 
-#      - name: Set up JDK 11
-#        uses: actions/setup-java@v2
-#        with:
-#          java-version: '11'
-#          distribution: 'adopt'
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
 
-#      - name: Cache Gradle packages
-#        uses: actions/cache@v2
-#        with:
-#          path: |
-#            ~/.gradle/caches
-#            ~/.gradle/wrapper
-#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-#          restore-keys: |
-#            ${{ runner.os }}-gradle
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle
 
-#      - name: Grant execute permission for gradlew
-#        run: chmod +x ./gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
 
-#      - name: SonarCloud Scan
-#        run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN2 }}
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}-->
+      - name: SonarCloud Scan
+        run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN2 }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   package:
-    needs: [instrumentation-test]
+    needs: [static-code-analysis]
     name: Generate APK
     runs-on: ubuntu-latest
     steps:
