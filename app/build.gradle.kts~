@@ -43,9 +43,9 @@ android {
 
     sonar {
         properties {
-            property("sonar.projectKey", "rotarolasanchez_Portfolio")
-            property("sonar.organization", "rotarolasanchez")
-            property("sonar.host.url", "https://sonarcloud.io")
+            property "sonar.projectKey", "rotarolasanchez_Portfolio"
+            property "sonar.organization", "rotarolasanchez"
+            property "sonar.host.url", "https://sonarcloud.io"
         }
     }
 
