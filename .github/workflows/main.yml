@@ -145,3 +145,16 @@ jobs:
         with:
           name: portafolio.apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Send APK via email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: APK Build
+          body: The latest APK build is attached.
+          to: rotarolasanchez@gmail.com
+          from: ${{ secrets.EMAIL_USERNAME }}
+          attachments: app/build/outputs/apk/debug/app-debug.apk
