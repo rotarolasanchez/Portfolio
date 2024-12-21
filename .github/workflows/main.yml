@@ -142,11 +142,14 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Compress APK
+        run: zip -r app-debug.zip app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload compressed APK
         uses: actions/upload-artifact@v4
         with:
-          name: portafolio.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: portafolio.zip
+          path: app-debug.zip
 
       - name: Send APK via email
         uses: dawidd6/action-send-mail@v3
@@ -159,4 +162,4 @@ jobs:
           body: The latest APK build is attached.
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
-          attachments: app/build/outputs/apk/debug/app-debug.apk
+          attachments: app-debug.zip
