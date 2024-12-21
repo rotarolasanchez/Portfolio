@@ -154,7 +154,7 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
           body: The latest APK build is attached.
           to: rotarolasanchez@gmail.com
