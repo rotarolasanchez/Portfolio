@@ -145,13 +145,16 @@ jobs:
       - name: Compress APK
         run: zip -r app-debug.zip app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload compressed APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: portafolio.zip
-          path: app-debug.zip
+      - name: Upload APK to Google Drive
+        run: |
+            curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
+            chmod +x gdrive
+            ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent <1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB> app-debug.zip
+          env:
+            GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+            GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
 
-      - name: Send APK via email
+      - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -159,7 +162,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is attached.
+          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=<1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB>&export=download).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
-          attachments: app-debug.zip
