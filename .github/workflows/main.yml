@@ -146,12 +146,12 @@ jobs:
 
       - name: Upload APK to Google Drive
         run: |
-            curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
-            chmod +x gdrive
-            ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent <1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB> app-debug.zip
-          env:
-            GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
-            GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
+          chmod +x gdrive
+          ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent <1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB> app-debug.zip
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
 
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
