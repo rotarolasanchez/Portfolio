@@ -148,7 +148,7 @@ jobs:
         run: |
           curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
           chmod +x gdrive
-          ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent <1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB> app-debug.zip
+          ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
@@ -161,6 +161,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=<1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB>&export=download).
+          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB&export=download).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
