@@ -146,11 +146,11 @@ jobs:
 
       - name: Upload APK to Google Drive
         run: |
-          # Download the gdrive binary from an alternative source
-          curl -L -o gdrive https://raw.githubusercontent.com/gdrive-org/gdrive/master/bin/gdrive-linux-x64
+          # Descargar el binario gdrive desde una fuente alternativa
+          curl -L -o gdrive https://github.com/glotlabs/gdrive/releases/download/2.1.0/gdrive-linux-x64
           chmod +x gdrive
           
-          # Verify the download
+          # Verificar la descarga
           if [ -f "gdrive" ]; then
             echo "gdrive binary downloaded successfully."
           else
@@ -158,7 +158,7 @@ jobs:
             exit 1
           fi
           
-          # Upload the file to Google Drive
+          # Subir el archivo a Google Drive
           ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
