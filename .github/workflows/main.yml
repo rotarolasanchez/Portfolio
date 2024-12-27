@@ -146,8 +146,11 @@ jobs:
 
       - name: Upload APK to Google Drive
         run: |
+          # Verificar que el token se ha configurado correctamente
+          echo "GDRIVE_REFRESH_TOKEN: ${GDRIVE_REFRESH_TOKEN:0:4}****"
+          
           # Descargar el binario gdrive desde una fuente alternativa
-          curl -L -o gdrive https://github.com/glotlabs/gdrive/releases/download/2.1.0/gdrive-linux-x64
+          curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
           chmod +x gdrive
           
           # Verificar la descarga
@@ -159,10 +162,11 @@ jobs:
           fi
           
           # Subir el archivo a Google Drive
-          ./gdrive upload --refresh-token ${{ secrets.GDRIVE_REFRESH_TOKEN }} --parent https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
+          ./gdrive upload --refresh-token $GDRIVE_REFRESH_TOKEN --parent 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
 
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
