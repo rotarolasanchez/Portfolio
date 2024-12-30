@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
         //
         try {
         setContent {
-            Log.e("MainActivity", "setContent")
+            Log.e("MainActivity", "setContent___")
             Feature_UITheme {
                 NavigationMain()
                 }
