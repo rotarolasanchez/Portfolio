@@ -71,3 +71,4 @@ jobs:
           subject: APK Build
           body: The latest APK build is available for download [here](https://drive.google.com/uc?id=1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB&export=download).
           to: rotarolasanchez@gmail.com
+          from: ${{ secrets.EMAIL_USERNAME }}
