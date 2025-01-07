@@ -32,22 +32,15 @@ jobs:
       - name: Compress APK
         run: zip -r app-debug.zip app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Download gdrive binary
+        run: |
+          curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive-linux-amd64
+          chmod +x gdrive
+          ./gdrive version
+
       - name: Upload APK to Google Drive
         run: |
           echo "GDRIVE_REFRESH_TOKEN: ${GDRIVE_REFRESH_TOKEN:0:4}****"
-
-          curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
-          chmod +x gdrive
-
-          if [ -f "gdrive" ]; then
-            echo "gdrive binary downloaded successfully."
-          else
-            echo "Failed to download gdrive binary."
-            exit 1
-          fi
-
-          ./gdrive version
-
           ./gdrive upload --refresh-token $GDRIVE_REFRESH_TOKEN --parent 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
