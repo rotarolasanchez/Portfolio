@@ -34,7 +34,7 @@ jobs:
 
       - name: Download gdrive binary
         run: |
-          wget https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64 -O gdrive
+          wget https://docs.google.com/uc?export=download&id=16Q4wXw-x670rY4o6o3Q-u8l8_e6Q-u8l -O gdrive
           chmod +x gdrive
           file_size=$(stat -c %s gdrive)
           if [ "$file_size" -gt 1000000 ]; then
@@ -71,4 +71,3 @@ jobs:
           subject: APK Build
           body: The latest APK build is available for download [here](https://drive.google.com/uc?id=1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB&export=download).
           to: rotarolasanchez@gmail.com
-          from: ${{ secrets.EMAIL_USERNAME }}
