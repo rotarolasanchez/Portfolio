@@ -121,6 +121,7 @@ jobs:
         run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   package:
     needs: [static-code-analysis]
     name: Generate APK
@@ -133,7 +134,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin' # Usar la distribución de Temurin
+          distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
@@ -146,22 +147,20 @@ jobs:
 
       - name: Upload APK to Google Drive
         run: |
-          # Verificar que el token se ha configurado correctamente
           echo "GDRIVE_REFRESH_TOKEN: ${GDRIVE_REFRESH_TOKEN:0:4}****"
-          
-          # Descargar el binario gdrive desde una fuente alternativa
+
           curl -L -o gdrive https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64
           chmod +x gdrive
-          
-          # Verificar la descarga
+
           if [ -f "gdrive" ]; then
             echo "gdrive binary downloaded successfully."
           else
             echo "Failed to download gdrive binary."
             exit 1
           fi
-          
-          # Subir el archivo a Google Drive
+
+          ./gdrive version
+
           ./gdrive upload --refresh-token $GDRIVE_REFRESH_TOKEN --parent 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
