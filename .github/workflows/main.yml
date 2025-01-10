@@ -32,27 +32,12 @@ jobs:
       - name: Compress APK
         run: zip -r app-debug.zip app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Download gdrive binary
-        run: |
-          wget https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64 -O gdrive
-          chmod +x gdrive
-          file_size=$(stat -c %s gdrive)
-          if [ "$file_size" -gt 1000000 ]; then
-            echo "gdrive binary downloaded successfully."
-            ./gdrive version
-          else
-            echo "Failed to download gdrive binary. File size: $file_size"
-            exit 1
-          fi
-
       - name: Upload APK to Google Drive
-        run: |
-          echo "GDRIVE_REFRESH_TOKEN: ${GDRIVE_REFRESH_TOKEN:0:4}****"
-          ./gdrive upload --refresh-token $GDRIVE_REFRESH_TOKEN --parent 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB app-debug.zip
-        env:
-          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
-          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
-          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+        uses: appleboy/google-drive-upload@v1.0.1
+        with:
+          service_account_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          file_path: app-debug.zip
+          folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
 
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
@@ -62,6 +47,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB&export=download).
+          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}&export=download).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
