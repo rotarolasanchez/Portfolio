@@ -32,21 +32,9 @@ jobs:
       - name: Compress APK
         run: zip -r app-debug.zip app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload APK to Google Drive
-        uses: appleboy/google-drive-upload@v1.0.1
+      - name: Upload a file to Google Drive
+        uses: willo32/google-drive-upload-action@v1
         with:
-          service_account_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          file_path: app-debug.zip
-          folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-
-      - name: Send APK download link via email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_APP_PASSWORD }}
-          subject: APK Build
-          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}&export=download).
-          to: rotarolasanchez@gmail.com
-          from: ${{ secrets.EMAIL_USERNAME }}
+            target: <LOCAL_PATH_TO_YOUR_FILE>
+            credentials: ${{ secrets.<YOUR_SERVICE_ACCOUNT_CREDENTIALS> }}
+            parent_folder_id: <YOUR_DRIVE_FOLDER_ID>
