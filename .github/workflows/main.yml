@@ -34,19 +34,12 @@ jobs:
 
       - name: Download gdrive binary
         run: |
-          wget https://docs.google.com/uc?export=download&id=16Q4wXw-x670rY4o6o3Q-u8l8_e6Q-u8l -O gdrive
+          wget https://github.com/prasmussen/gdrive/releases/download/2.1.0/gdrive-linux-x64 -O gdrive
           chmod +x gdrive
           file_size=$(stat -c %s gdrive)
           if [ "$file_size" -gt 1000000 ]; then
             echo "gdrive binary downloaded successfully."
-            head -c 10 gdrive | hexdump -C
-            if head -c 10 gdrive | grep -q "ELF"; then
-              echo "gdrive binary is an ELF file."
-              ./gdrive version
-            else
-              echo "gdrive binary is not an ELF file."
-              exit 1
-            fi
+            ./gdrive version
           else
             echo "Failed to download gdrive binary. File size: $file_size"
             exit 1
