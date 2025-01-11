@@ -40,20 +40,26 @@ jobs:
           parent_folder_id: 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB
 
       - name: Make the file public and retrieve download link
+        id: make_public
         run: |
-            curl -X POST \
-              -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "role": "reader",
-                "type": "anyone"
-              }' \
-              "https://www.googleapis.com/drive/v3/files/$(cat file_id)/permissions"
-            
-            PUBLIC_URL=$(curl -s -X GET \
-              -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
-              "https://www.googleapis.com/drive/v3/files/$(cat file_id)?fields=webViewLink" | jq -r .webViewLink)
-            echo $PUBLIC_URL > public_url.txt
+          FILE_ID=$(jq -r '.id' <<< ${{ steps.upload_to_drive.outputs.response }})
+          echo $FILE_ID > file_id.txt
+
+          # Make file public
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "role": "reader",
+              "type": "anyone"
+            }' \
+            "https://www.googleapis.com/drive/v3/files/$FILE_ID/permissions"
+
+          # Get public URL
+          PUBLIC_URL=$(curl -s -X GET \
+            -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
+            "https://www.googleapis.com/drive/v3/files/$FILE_ID?fields=webViewLink" | jq -r .webViewLink)
+          echo $PUBLIC_URL > public_url.txt
 
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
@@ -63,6 +69,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download [here]($(cat public_url.txt)).
+          body: "The latest APK build is available for download [here]($(cat public_url.txt))."
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
