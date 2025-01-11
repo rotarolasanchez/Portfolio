@@ -38,3 +38,21 @@ jobs:
           target: app-debug.zip
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           parent_folder_id: 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB
+
+      - name: Get Google Drive File Link
+        id: get_link
+        run: |
+          FILE_ID=$(echo "${{ steps.upload.outputs.fileId }}" | jq -r '.id')
+          echo "FILE_LINK=https://drive.google.com/uc?id=${FILE_ID}&export=download" >> $GITHUB_ENV
+
+      - name: Send APK download link via email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_APP_PASSWORD }}
+          subject: APK Build
+          body: The latest APK build is available for download [here](${FILE_LINK}).
+          to: rotarolasanchez@gmail.com
+          from: ${{ secrets.EMAIL_USERNAME }}
