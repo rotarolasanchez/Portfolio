@@ -47,6 +47,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download in the shared folder: [Google Drive Folder](https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB?usp=sharing).
+          body: "The latest APK build is available for download in the shared folder: [Google Drive Folder](https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB?usp=sharing)."
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
