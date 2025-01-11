@@ -39,6 +39,22 @@ jobs:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           parent_folder_id: 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB
 
+      - name: Make the file public and retrieve download link
+        run: |
+            curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "role": "reader",
+                "type": "anyone"
+              }' \
+              "https://www.googleapis.com/drive/v3/files/$(cat file_id)/permissions"
+            
+            PUBLIC_URL=$(curl -s -X GET \
+              -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
+              "https://www.googleapis.com/drive/v3/files/$(cat file_id)?fields=webViewLink" | jq -r .webViewLink)
+            echo $PUBLIC_URL > public_url.txt
+
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -47,6 +63,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB&export=download).
+          body: The latest APK build is available for download [here]($(cat public_url.txt)).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
