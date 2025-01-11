@@ -42,8 +42,7 @@ jobs:
       - name: Get Google Drive File Link
         id: get_link
         run: |
-          FILE_ID=$(echo "${{ steps.upload.outputs.fileId }}" | jq -r '.id')
-          echo "FILE_LINK=https://drive.google.com/uc?id=${FILE_ID}&export=download" >> $GITHUB_ENV
+          echo "FILE_LINK=https://drive.google.com/uc?id=${{ steps.upload.outputs.fileId }}&export=download" >> $GITHUB_ENV
 
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
