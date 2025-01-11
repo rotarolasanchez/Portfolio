@@ -39,14 +39,6 @@ jobs:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           parent_folder_id: 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB
 
-      - name: Get Google Drive File Link
-        id: get_link
-        run: |
-          FILE_ID="${{ steps.upload.outputs.fileId }}"
-          echo "FILE_LINK=https://drive.google.com/uc?id=${FILE_ID}&export=download" >> $GITHUB_ENV
-        env:
-          GITHUB_ENV: ${{ steps.upload.outputs.fileId }}
-
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -55,6 +47,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download [here](${{ env.FILE_LINK }}).
+          body: The latest APK build is available for download [here](https://drive.google.com/uc?id=1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB&export=download).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
