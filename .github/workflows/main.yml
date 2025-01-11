@@ -53,6 +53,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: The latest APK build is available for download [here](${FILE_LINK}).
+          body: The latest APK build is available for download [here](${{ env.FILE_LINK }}).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
