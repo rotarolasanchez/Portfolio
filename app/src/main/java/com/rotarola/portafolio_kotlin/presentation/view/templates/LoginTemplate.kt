@@ -56,7 +56,7 @@ fun LoginTemplate(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit
 ) {
-    Log.e("LoginTemplate______", "LoginTemplate")
+    Log.e("LoginTemplate_______", "LoginTemplate")
     val userCode = loginViewModel.userCode.collectAsState()
     val userPassword = loginViewModel.userPassword.collectAsState()
     val isSnackBackBarSucessful = loginViewModel.isSnackBackBarSucessful.collectAsState()
