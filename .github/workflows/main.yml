@@ -39,38 +39,6 @@ jobs:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           parent_folder_id: 1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB
 
-      - name: Inspect upload response
-        run: echo "${{ steps.upload_to_drive.outputs.response }}"
-
-      - name: Make the file public and retrieve download link
-        id: make_public
-        run: |
-          # Simulación para inspeccionar la salida de response
-          echo "Response recibido: '${{ steps.upload_to_drive.outputs.response }}'"
-          FILE_ID=$(echo '${{ steps.upload_to_drive.outputs.response }}' | jq -r '.id')
-          echo "File ID obtenido: $FILE_ID"
-
-          if [ -z "$FILE_ID" ]; then
-            echo "Error: El FILE_ID está vacío. Revisa la salida de la acción de carga."
-            exit 1
-          fi
-
-          # Hacer el archivo público
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "role": "reader",
-              "type": "anyone"
-            }' \
-            "https://www.googleapis.com/drive/v3/files/$FILE_ID/permissions"
-
-          # Obtener URL pública
-          PUBLIC_URL=$(curl -s -X GET \
-            -H "Authorization: Bearer ${{ secrets.GDRIVE_ACCESS_TOKEN }}" \
-            "https://www.googleapis.com/drive/v3/files/$FILE_ID?fields=webViewLink" | jq -r .webViewLink)
-          echo $PUBLIC_URL > public_url.txt
-
       - name: Send APK download link via email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -79,6 +47,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: "The latest APK build is available for download [here]($(cat public_url.txt))."
+          body: The latest APK build is available for download in the shared folder: [Google Drive Folder](https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB?usp=sharing).
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
