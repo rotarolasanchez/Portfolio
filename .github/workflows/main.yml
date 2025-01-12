@@ -2,12 +2,16 @@
 name: CI
 on:
   push:
-    branches: [ main ]
+    branches: [ release ]
+    paths:
+      - '**'
+    tags-ignore:
+      - '**'
   pull_request:
-    branches: [ main ]
+    branches: [ release ]
   workflow_dispatch:
   issues:
-    types: [opened]
+    types: [ opened ]
 
 jobs:
   package:
