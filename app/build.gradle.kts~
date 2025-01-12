@@ -1,9 +1,15 @@
+
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
+    //alias(libs.plugins.sonarqube.plugin)
     id("io.realm.kotlin") version libs.versions.realm.get() // Realm plugin
+    id("org.sonarqube") version libs.versions.sonarqube.get()
 }
 
 android {
@@ -14,14 +20,35 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 4
+        versionName = "1.1.4"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
+
+    signingConfigs {
+        create("release") {
+            val keystorePropertiesFile = file("keystore.properties")
+            val keystoreProperties = Properties()
+            keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
+
+    sonar {
+        properties {
+            property "sonar.projectKey", "rotarolasanchez_Portfolio"
+            property "sonar.organization", "rotarolasanchez"
+            property "sonar.host.url", "https://sonarcloud.io"
+        }
+    }
+
 
     buildTypes {
         release {
@@ -51,9 +78,14 @@ android {
         }
     }
 
-    packagingOptions {
+    /*packagingOptions {
         exclude("META-INF/gradle/incremental.annotation.processors")
+    }*/
+
+    packaging {
+        resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
     }
+
 }
 
 dependencies {
@@ -69,9 +101,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
+    //debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    debugImplementation(libs.ui.tooling)
+    //debugImplementation(libs.ui.tooling)
 
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
@@ -83,7 +115,7 @@ dependencies {
     implementation(libs.realm.sync)
 
     implementation(libs.kotlinx.stdlib.jdk8)
-
+    implementation(libs.lottie.compose)
 
 
 }
