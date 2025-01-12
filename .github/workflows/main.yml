@@ -47,7 +47,8 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_APP_PASSWORD }}
           subject: APK Build
-          body: "The latest APK build is available for download in the shared folder: [Google Drive Folder](https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB?usp=sharing)." # Cambia el enlace de descarga
-                "Please use the following link to create a QA observation issue: [Create a new issue](https://github.com/rotarolasanchez/Portfolio/issues/new?assignees=&labels=qa&template=issue_template.md&title=%5BQA+Observation%5D)"
+          body: |
+            The latest APK build is available for download in the shared folder: [Google Drive Folder](https://drive.google.com/drive/folders/1hkMqnYBwdcF7rlE3aacsR7K7bvO3GbOB?usp=sharing).
+            Please use the following link to create a QA observation issue: [Create a new issue](https://github.com/rotarolasanchez/Portfolio/issues/new?assignees=&labels=qa&template=issue_template.md&title=%5BQA+Observation%5D)
           to: rotarolasanchez@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
