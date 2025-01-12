@@ -11,7 +11,6 @@ on:
 
 jobs:
   sonarcloud:
-    needs: [ instrumentation-test ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
