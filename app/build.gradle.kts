@@ -117,5 +117,11 @@ dependencies {
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
 
+    //test
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.coroutines.test)
+
 
 }
