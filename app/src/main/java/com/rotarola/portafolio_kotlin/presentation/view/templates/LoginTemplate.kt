@@ -1,6 +1,7 @@
 package com.rotarola.feature_login.presentation.view.templates
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +56,8 @@ fun LoginTemplate(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit
 ) {
+    Log.e("LoginTemplate____________" +
+            "", "LoginTemplate")
     val userCode = loginViewModel.userCode.collectAsState()
     val userPassword = loginViewModel.userPassword.collectAsState()
     val isSnackBackBarSucessful = loginViewModel.isSnackBackBarSucessful.collectAsState()
