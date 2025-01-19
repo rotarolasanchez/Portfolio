@@ -10,11 +10,15 @@ plugins {
     //alias(libs.plugins.sonarqube.plugin)
     id("io.realm.kotlin") version libs.versions.realm.get() // Realm plugin
     id("org.sonarqube") version libs.versions.sonarqube.get()
+    id ("jacoco")
 }
+
+
 
 android {
     namespace = "com.rotarola.portafolio_kotlin"
     compileSdk = 34
+
 
     defaultConfig {
         applicationId = "com.rotarola.portafolio_kotlin"

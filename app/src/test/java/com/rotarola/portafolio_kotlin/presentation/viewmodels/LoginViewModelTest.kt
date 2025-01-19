@@ -19,7 +19,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-/*
+
 @RunWith(JUnit4::class)
 class LoginViewModelTest {
 
@@ -34,10 +34,10 @@ class LoginViewModelTest {
 
    @Test
    fun `when getUsersApp is successful then update usersRequest`() = runBlockingTest {
-       val users = listOf(User("1", "username", "password"))
-       `when`(loginUseCase.geUsersApp("code", "password")).thenReturn(flowOf(RequestState.Success(users)))
+       val users = listOf(User("1", "Ronald", "1234"))
+       `when`(loginUseCase.geUsersApp("rotarola", "1234")).thenReturn(flowOf(RequestState.Success(users)))
 
-       viewModel.getUsersApp("code", "password")
+       viewModel.getUsersApp("rotarola", "1234")
 
        viewModel.usersRequest.collect { state ->
            assertEquals(state, RequestState.Success(users))
@@ -45,4 +45,4 @@ class LoginViewModelTest {
    }
 
 }
-*/
+
