@@ -23,9 +23,9 @@ class LoginUseCaseTest {
 
     @Before
     fun setUp() {
-        `when`(userRepository.geUsersApp("code", "password")).thenReturn(
+        `when`(userRepository.geUsersApp("rotarola", "1234")).thenReturn(
             flow {
-                emit(listOf(User("1", "username", "password")))
+                emit(listOf(User("1", "Ronald", "1234")))
             }
         )
     }
@@ -33,7 +33,7 @@ class LoginUseCaseTest {
      @Test
     fun `when user is valid then return success`() {
          runBlocking {
-             val value = loginUseCase.isUserValid("code", "password")
+             val value = loginUseCase.isUserValid("rotarola", "1234")
              assertEquals(value, true)
          }
      }
@@ -48,7 +48,7 @@ class LoginUseCaseTest {
 
     @Test
     fun `when getUserAPP is valid then return Success`() = runBlocking {
-        val flow = loginUseCase.geUsersApp("code", "password")
+        val flow = loginUseCase.geUsersApp("rotarola", "1234")
         flow.collect { requestState ->
             when (requestState) {
                 is RequestState.Success -> {
