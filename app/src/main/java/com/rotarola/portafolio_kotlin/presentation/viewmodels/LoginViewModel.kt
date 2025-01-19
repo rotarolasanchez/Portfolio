@@ -45,17 +45,6 @@ class LoginViewModel @Inject constructor(
         _snackbarHostState.value = snackbarHostState
     }
 
-    /*class LoginViewModelFactory(
-        private val loginUseCase: LoginUseCase
-    ): ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return LoginViewModel(
-                loginUseCase
-            ) as T
-        }
-    }*/
-
     fun updateIsSnackBarSuccessful(isSnackBarSuccessful: Boolean) {
         Log.e("REOS", "LoginViewModel-updateIsSnackBarSuccessful called")
         _isSnackBackBarSucessful.value = isSnackBarSuccessful
