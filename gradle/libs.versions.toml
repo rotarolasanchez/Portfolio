@@ -26,6 +26,7 @@ hilt-navigation-compose = "1.0.0-rc01"
 sonarqube = "4.3.0.3225"
 mockito= "4.0.0"
 coroutines-test = "1.6.0"
+jacoco = "0.8.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -64,6 +65,7 @@ sonarqubePlugin = { module = "org.sonarsource.scanner.gradle:sonarqube-gradle-pl
 mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
+jacoco = { module = "org.jacoco:org.jacoco.core", version.ref = "jacoco" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
