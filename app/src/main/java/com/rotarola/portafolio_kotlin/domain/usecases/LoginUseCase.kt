@@ -13,12 +13,7 @@ class LoginUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
     fun geUsersApp(code: String, password: String): Flow<RequestState<List<User>>> {
-        Log.e("LoginUseCase", "geUsersApp: $code $password")
         return flow {
-            Log.e(
-                "LoginUseCase",
-                "geUsersApp: isUserValid(code, password): " + isUserValid(code, password)
-            )
             if (isUserValid(code, password)) {
                 try {
                     val users = userRepository.geUsersApp(code, password)
@@ -39,32 +34,4 @@ class LoginUseCase @Inject constructor(
     fun isUserValid(code: String?, password: String?): Boolean {
         return !code.isNullOrBlank() && !password.isNullOrBlank()
     }
-
-    /*fun geUsersApp(code: String, password: String): Flow<RequestState<List<User>>> = flow {
-        validateUser(code, password)
-        emit(fetchUsers(code, password))
-    }.catch { e ->
-        emit(handleUserFetchError(e))
-    }
-
-
-    private fun validateUser(code: String, password: String) {
-        if (!isUserValid(code, password)) {
-            throw IllegalArgumentException("Usuario no válido")
-        }
-    }
-
-    private suspend fun fetchUsers(code: String, password: String): RequestState<List<User>> {
-        val users = userRepository.geUsersApp(code, password)
-        return if (users.last().size > 0 && users.last().isNotEmpty()) {
-            RequestState.Success(users.last())
-        } else {
-            RequestState.Error(Exception("Usuario no existe"))
-        }
-    }
-
-    private fun handleUserFetchError(exception: Throwable): RequestState.Error {
-        return RequestState.Error(Exception("Error al obtener usuarios", exception))
-    }*/
-
 }

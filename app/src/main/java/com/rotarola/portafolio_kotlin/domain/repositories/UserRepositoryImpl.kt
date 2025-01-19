@@ -12,9 +12,9 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     override fun geUsersApp(code: String,password: String): Flow<List<com.rotarola.portafolio_kotlin.domain.entities.User>> = flow {
-        Log.e("REOS", "UserRepositoryImpl-geUsersApp.init")
+        //Log.e("REOS", "UserRepositoryImpl-geUsersApp.init")
         val response = datasource.geUsersApp(code, password)
-        Log.e("REOS", "UserRepositoryImpl-geUsersApp.response: $response")
+        //Log.e("REOS", "UserRepositoryImpl-geUsersApp.response: $response")
         emit(response.toUser() ?: listOf())
     }
 
