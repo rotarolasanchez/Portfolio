@@ -13,7 +13,30 @@ plugins {
     id ("jacoco")
 }
 
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
 
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.named("testDebugUnitTest"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    classDirectories.setFrom(
+        fileTree("${buildDir}/intermediates/javac/debug") {
+            include("**/classes/**")
+        }
+    )
+    sourceDirectories.setFrom(files("src/main/java"))
+    executionData.setFrom(files("${buildDir}/jacoco/testDebugUnitTest.exec"))
+}
+
+tasks.withType<Test> {
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
 
 android {
     namespace = "com.rotarola.portafolio_kotlin"
@@ -50,6 +73,7 @@ android {
             property("sonar.projectKey", "rotarolasanchez_Portfolio")
             property("sonar.organization", "rotarolasanchez")
             property("sonar.host.url", "https://sonarcloud.io")
+            property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
         }
     }
 
