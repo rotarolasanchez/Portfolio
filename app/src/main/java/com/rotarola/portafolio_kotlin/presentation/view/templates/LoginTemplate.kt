@@ -57,7 +57,7 @@ fun LoginTemplate(
     onLoginSuccess: () -> Unit
 ) {
     Log.e("LoginTemplate" +
-            "", "LoginTemplate_____")
+            "", "LoginTemplate______")
     val userCode = loginViewModel.userCode.collectAsState()
     val userPassword = loginViewModel.userPassword.collectAsState()
     val isSnackBackBarSucessful = loginViewModel.isSnackBackBarSucessful.collectAsState()
