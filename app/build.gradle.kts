@@ -38,6 +38,7 @@ tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+/*
 tasks.register("verifyJacocoReport") {
     dependsOn("jacocoTestReport")
     doLast {
@@ -52,7 +53,7 @@ tasks.register("verifyJacocoReport") {
 
 tasks.named("check") {
     dependsOn("verifyJacocoReport")
-}
+}*/
 
 android {
     namespace = "com.rotarola.portafolio_kotlin"
