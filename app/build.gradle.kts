@@ -38,6 +38,22 @@ tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+tasks.register("verifyJacocoReport") {
+    dependsOn("jacocoTestReport")
+    doLast {
+        val reportFile = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+        if (!reportFile.exists()) {
+            throw GradleException("Jacoco report not found: ${reportFile.absolutePath}")
+        } else {
+            println("Jacoco report generated successfully: ${reportFile.absolutePath}")
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn("verifyJacocoReport")
+}
+
 android {
     namespace = "com.rotarola.portafolio_kotlin"
     compileSdk = 34
