@@ -43,8 +43,8 @@ jobs:
       - name: Build and run tests with coverage
         run: ./gradlew clean build jacocoTestReport
 
-      - name: List files in build/reports/jacoco
-        run: ls -R build/reports/jacoco
+      - name: List files in build directory
+        run: ls -R build
 
       - name: SonarCloud Scan
         run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
