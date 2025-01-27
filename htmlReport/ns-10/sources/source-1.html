@@ -1,0 +1,276 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LoginViewModel</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.rotarola.portafolio_kotlin.presentation.viewmodels</a>
+</div>
+
+<h1>Coverage Summary for Class: LoginViewModel (com.rotarola.portafolio_kotlin.presentation.viewmodels)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LoginViewModel</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/23)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">LoginViewModel$getUsersApp$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">LoginViewModel$getUsersApp$1$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">LoginViewModel$getUsersApp$1$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">LoginViewModel$insertUser$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/33)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.rotarola.portafolio_kotlin.presentation.viewmodels
+&nbsp;
+&nbsp;import android.util.Log
+&nbsp;import androidx.compose.material3.SnackbarHostState
+&nbsp;import androidx.lifecycle.ViewModel
+&nbsp;import androidx.lifecycle.viewModelScope
+&nbsp;import com.rotarola.portafolio_kotlin.domain.entities.User
+&nbsp;import com.rotarola.portafolio_kotlin.data.model.RequestState
+&nbsp;import com.rotarola.portafolio_kotlin.data.model.UserApp
+&nbsp;import com.rotarola.portafolio_kotlin.core.database.RealmDBService
+&nbsp;import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
+&nbsp;import dagger.hilt.android.lifecycle.HiltViewModel
+&nbsp;//import com.rotarola.data.util.database.RealmDB
+&nbsp;import kotlinx.coroutines.Dispatchers
+&nbsp;import kotlinx.coroutines.flow.MutableStateFlow
+&nbsp;import kotlinx.coroutines.flow.StateFlow
+&nbsp;import kotlinx.coroutines.flow.catch
+&nbsp;import kotlinx.coroutines.launch
+&nbsp;import javax.inject.Inject
+&nbsp;
+&nbsp;@HiltViewModel
+&nbsp;class LoginViewModel @Inject constructor(
+<b class="nc">&nbsp;    private val loginUseCase: LoginUseCase</b>
+<b class="nc">&nbsp;) : ViewModel() {</b>
+&nbsp;
+<b class="nc">&nbsp;    private val realmDBService = RealmDBService()</b>
+&nbsp;
+<b class="nc">&nbsp;    private val _userCode = MutableStateFlow(&quot;&quot;)</b>
+<b class="nc">&nbsp;    val userCode: StateFlow&lt;String&gt; get() = _userCode</b>
+&nbsp;
+<b class="nc">&nbsp;    private val _userPassword = MutableStateFlow(&quot;&quot;)</b>
+<b class="nc">&nbsp;    val userPassword: StateFlow&lt;String&gt; get() = _userPassword</b>
+&nbsp;
+<b class="nc">&nbsp;    private val _usersRequest = MutableStateFlow&lt;RequestState&lt;List&lt;User&gt;&gt;&gt;(RequestState.Idle)</b>
+<b class="nc">&nbsp;    val usersRequest: StateFlow&lt;RequestState&lt;List&lt;User&gt;&gt;&gt; get() = _usersRequest</b>
+&nbsp;
+<b class="nc">&nbsp;    private val _isSnackBackBarSucessful = MutableStateFlow(false)</b>
+<b class="nc">&nbsp;    val isSnackBackBarSucessful: StateFlow&lt;Boolean&gt; get() = _isSnackBackBarSucessful</b>
+&nbsp;
+<b class="nc">&nbsp;    private val _snackbarHostState = MutableStateFlow&lt;SnackbarHostState&gt;(SnackbarHostState())</b>
+<b class="nc">&nbsp;    val snackbarHostState: StateFlow&lt;SnackbarHostState&gt; get() = _snackbarHostState</b>
+&nbsp;
+&nbsp;    fun setSnackbarHostState(snackbarHostState: SnackbarHostState) {
+<b class="nc">&nbsp;        Log.e(&quot;REOS&quot;, &quot;LoginViewModel-setSnackbarHostState called&quot;)</b>
+<b class="nc">&nbsp;        _snackbarHostState.value = snackbarHostState</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    fun updateIsSnackBarSuccessful(isSnackBarSuccessful: Boolean) {
+<b class="nc">&nbsp;        Log.e(&quot;REOS&quot;, &quot;LoginViewModel-updateIsSnackBarSuccessful called&quot;)</b>
+<b class="nc">&nbsp;        _isSnackBackBarSucessful.value = isSnackBarSuccessful</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    fun updateUserLogin(user: String) {
+<b class="nc">&nbsp;        _userCode.value = user</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    fun updatePasswordLogin(password: String) {
+<b class="nc">&nbsp;        _userPassword.value = password</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    fun validateUserPassword(user: String, password: String){
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    fun insertUser( userApp: UserApp) {
+<b class="nc">&nbsp;        viewModelScope.launch(Dispatchers.IO) {</b>
+<b class="nc">&nbsp;            Log.e(&quot;REOS&quot;, &quot;LoginViewModel-initRealm called&quot;)</b>
+<b class="nc">&nbsp;            realmDBService.insertUserAPP(userApp)</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    fun getUsersApp(code: String, password: String) {
+<b class="nc">&nbsp;        Log.e(&quot;REOS&quot;, &quot;LoginViewModel-getUsersApp called&quot;)</b>
+<b class="nc">&nbsp;        viewModelScope.launch {</b>
+<b class="nc">&nbsp;            _usersRequest.value = RequestState.Loading</b>
+<b class="nc">&nbsp;            loginUseCase.geUsersApp(code, password)</b>
+<b class="nc">&nbsp;                .catch { e -&gt;</b>
+<b class="nc">&nbsp;                    _usersRequest.value = RequestState.Error(e)</b>
+<b class="nc">&nbsp;                    Log.e(&quot;REOS&quot;, &quot;LoginViewModel-getUsersApp error: $e&quot;)</b>
+&nbsp;                }
+<b class="nc">&nbsp;                .collect { users -&gt;</b>
+<b class="nc">&nbsp;                    _usersRequest.value =  users // users</b>
+<b class="nc">&nbsp;                    Log.e(&quot;REOS&quot;, &quot;LoginViewModel-getUsersApp users: $users&quot;)</b>
+&nbsp;                }
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-01-23 23:02</div>
+</div>
+</body>
+</html>

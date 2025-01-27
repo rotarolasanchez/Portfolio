@@ -26,18 +26,29 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     }
 
     classDirectories.setFrom(
-        fileTree("${buildDir}/intermediates/javac/debug") {
-            include("**/classes/**")
+        fileTree("${buildDir}/tmp/kotlin-classes/debug") {
+            include("**/*.class")
+            exclude(
+                "**/di/**",
+                "**/hilt_aggregated_deps/**",
+                "**/*_Factory*"
+            )
         }
     )
-    sourceDirectories.setFrom(files("src/main/java"))
+    sourceDirectories.setFrom(
+        files("src/main/java", "src/main/kotlin")
+    )
     executionData.setFrom(files("${buildDir}/jacoco/testDebugUnitTest.exec"))
 }
-
 tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
 /*
 tasks.register("verifyJacocoReport") {
     dependsOn("jacocoTestReport")
@@ -107,17 +118,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.5"
     }
     packaging {
         resources {
@@ -132,6 +143,7 @@ android {
     packaging {
         resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
     }
+
 
 }
 
