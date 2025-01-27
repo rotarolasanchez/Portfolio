@@ -102,7 +102,7 @@ android {
             property("sonar.organization", "rotarolasanchez")
             property("sonar.host.url", "https://sonarcloud.io")
             property("sonar.token", "SONAR_TOKEN")
-            property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+            property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
             property("sonar.junit.reportPaths", "${buildDir}/test-results/test")
         }
     }
