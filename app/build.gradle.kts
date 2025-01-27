@@ -22,6 +22,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     reports {
         xml.required.set(true)
+        xml.outputLocation.set(file("${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
         html.required.set(true)
     }
 
@@ -40,6 +41,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     )
     executionData.setFrom(files("${buildDir}/jacoco/testDebugUnitTest.exec"))
 }
+
 tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
@@ -146,6 +148,8 @@ android {
 
 
 }
+
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
