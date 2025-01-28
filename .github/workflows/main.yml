@@ -56,7 +56,8 @@ jobs:
 
       - name: Check Quality Gate
         run: |
-          status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=rotarolasanchez_Portfolio" | jq -r '.projectStatus.status')
+          branch=$(echo $GITHUB_REF_NAME)
+          status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=rotarolasanchez_Portfolio&branch=$branch" | jq -r '.projectStatus.status')
           if [ "$status" != "OK" ]; then
             echo "Quality gate failed: $status"
             exit 1
