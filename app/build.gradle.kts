@@ -80,7 +80,8 @@ android {
         versionCode = 4
         versionName = "2.0.0"
         multiDexEnabled = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -160,31 +161,39 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
+    implementation(libs.ui.test.junit4.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     //debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     //debugImplementation(libs.ui.tooling)
-
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
+
+    //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.android.compiler)
 
+    //Realm
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
+
 
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
 
-    //test
+    //junit
     testImplementation(libs.junit)
     testImplementation(libs.mockito)
     testImplementation(libs.mockito.inline)
     testImplementation(libs.coroutines.test)
 
-
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

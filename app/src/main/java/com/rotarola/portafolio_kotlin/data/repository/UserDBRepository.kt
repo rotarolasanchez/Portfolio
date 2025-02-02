@@ -15,7 +15,7 @@ class UserDBRepository @Inject constructor(
                 .query("code == $0 && password == $1", code, password)
                 .find() // Execute the query
         } catch (e: Exception) {
-            Log.e("REOS", "UserDBRepository-geUsersApp: ${e.message}")
+            //Log.e("REOS", "UserDBRepository-geUsersApp: ${e.message}")
         }
         return list
     }
