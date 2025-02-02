@@ -2,13 +2,16 @@ package com.rotarola.portafolio_kotlin.presentation.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.Observer
+import com.rotarola.portafolio_kotlin.core.database.RealmDBService
 import com.rotarola.portafolio_kotlin.data.model.RequestState
 import com.rotarola.portafolio_kotlin.domain.entities.User
 import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Rule
@@ -19,31 +22,37 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 
-/*
-@RunWith(JUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
 
-   private val loginUseCase = mock(LoginUseCase::class.java)
-   private lateinit var viewModel: LoginViewModel
+    @Mock
+    private lateinit var loginUseCase: LoginUseCase
 
-   @Before
-   fun setUp() {
-       Dispatchers.setMain(Dispatchers.Unconfined)
-       viewModel = LoginViewModel(loginUseCase)
-   }
+    @Mock
+    private lateinit var realmDBService: RealmDBService
 
-   @Test
-   fun `when getUsersApp is successful then update usersRequest`() = runBlockingTest {
-       val users = listOf(User("1", "Ronald", "1234"))
-       `when`(loginUseCase.geUsersApp("rotarola", "1234")).thenReturn(flowOf(RequestState.Success(users)))
+    private lateinit var loginViewModel: LoginViewModel
 
-       viewModel.getUsersApp("rotarola", "1234")
+    @Before
+    fun setUp() {
+        MockitoAnnotations.openMocks(this)
+        realmDBService = mock(RealmDBService::class.java)
+        loginViewModel = LoginViewModel(loginUseCase, realmDBService)
+    }
 
-       viewModel.usersRequest.collect { state ->
-           assertEquals(state, RequestState.Success(users))
-       }
-   }
+    @Test
+    fun testUpdateUserLogin() = runTest {
+        val user = "rotarola"
+        loginViewModel.updateUserLogin(user)
+        assertEquals(user, loginViewModel.userCode.value)
+    }
 
+    @Test
+    fun testUpdatePasswordLogin() = runTest {
+        val password = "testPassword"
+        loginViewModel.updatePasswordLogin(password)
+        assertEquals(password, loginViewModel.userPassword.value)
+    }
 }
-*/
