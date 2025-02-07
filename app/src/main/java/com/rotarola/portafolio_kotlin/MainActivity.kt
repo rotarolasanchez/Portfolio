@@ -27,7 +27,7 @@ import dagger.hilt.android.HiltAndroidApp
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        /*enableEdgeToEdge()
         //
         try {
         setContent {
@@ -38,7 +38,21 @@ class MainActivity : ComponentActivity() {
         }
         }catch (e: Exception) {
             Log.e("MainActivity", "Error: ${e.message}")
+        }*/
+        if (!isInTestMode()) {
+            setContent {
+                MyApp()
+            }
         }
+    }
+    private fun isInTestMode(): Boolean {
+        return "true" == System.getProperty("IS_TEST_MODE")
     }
 }
 
+@Composable
+fun MyApp() {
+    Feature_UITheme {
+        NavigationMain()
+    }
+}

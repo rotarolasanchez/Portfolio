@@ -81,7 +81,8 @@ android {
         versionName = "2.0.0"
         multiDexEnabled = true
         //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
+        //testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
+        testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -150,6 +151,12 @@ android {
 
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-java:3.21.12") // O la versión que funcione en tu caso
+    }
+}
+
 
 
 dependencies {
@@ -162,14 +169,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
     implementation(libs.ui.test.junit4.android)
+    implementation(libs.androidx.runner)
 
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    //debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    //debugImplementation(libs.ui.tooling)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
 
@@ -179,6 +183,7 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.android.compiler)
+    androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
     //Realm
     implementation(libs.realm.base)
