@@ -64,7 +64,6 @@ fun LoginTemplate(
     val isSnackBackBarSucessful = loginViewModel.isSnackBackBarSucessful.collectAsState()
 
     HandleSnackBar(
-        loginViewModel = loginViewModel,
         onLoginSuccess = onLoginSuccess
     )
 
@@ -72,7 +71,6 @@ fun LoginTemplate(
         userCode = userCode.value,
         userPassword = userPassword.value,
         isSnackBackBarSuccessful = isSnackBackBarSucessful.value,
-        loginViewModel= loginViewModel,
         onLoginClick = { code, password ->
             loginViewModel.getUsersApp(code, password)
         },
@@ -84,7 +82,7 @@ fun LoginTemplate(
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun HandleSnackBar(
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -131,7 +129,7 @@ fun LoginContent(
     userCode: String,
     userPassword: String,
     isSnackBackBarSuccessful: Boolean,
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onLoginClick: (String, String) -> Unit,
     onUserCodeChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit
