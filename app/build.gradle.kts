@@ -163,6 +163,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
     implementation(libs.ui.test.junit4.android)
+    implementation(libs.androidx.runner)
 
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
