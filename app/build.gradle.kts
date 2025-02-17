@@ -11,6 +11,7 @@ plugins {
     id("io.realm.kotlin") version libs.versions.realm.get() // Realm plugin
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id ("jacoco")
+    alias(libs.plugins.kotlin.compose)
 }
 
 jacoco {
@@ -70,13 +71,12 @@ tasks.named("check") {
 
 android {
     namespace = "com.rotarola.portafolio_kotlin"
-    compileSdk = 34
-
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 4
         versionName = "2.0.0"
         multiDexEnabled = true
@@ -121,15 +121,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
     }
+    /*
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.5"
     }
@@ -137,16 +138,16 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-    }
+    }*/
 
     /*packagingOptions {
         exclude("META-INF/gradle/incremental.annotation.processors")
     }*/
-
+/*
     packaging {
         resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
     }
-
+*/
 
 }
 
