@@ -81,7 +81,8 @@ android {
         versionName = "2.0.0"
         multiDexEnabled = true
         //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
+        //testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
+        testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
