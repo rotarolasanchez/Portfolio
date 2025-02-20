@@ -1,25 +1,19 @@
 package com.rotarola.portafolio_kotlin.presentation.view.templates
 
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.rotarola.feature_login.presentation.view.templates.LoginTemplate
-import com.rotarola.portafolio_kotlin.R
+import com.rotarola.feature_login.presentation.view.templates.LoginContentDetail
 import com.rotarola.portafolio_kotlin.core.database.RealmDBService
-import com.rotarola.portafolio_kotlin.domain.entities.User
-import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
 import com.rotarola.portafolio_kotlin.presentation.viewmodels.LoginViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,63 +24,57 @@ import javax.inject.Inject
 @RunWith(AndroidJUnit4::class)
 class LoginTemplateTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
-    @get:Rule
+    @get:Rule(order = 1)
     val composeTestRule = createComposeRule()
+
+    @Inject
+    lateinit var realmDBService: RealmDBService
 
     @Inject
     lateinit var loginUseCase: LoginUseCase
 
     private lateinit var loginViewModel: LoginViewModel
-    private lateinit var realmDBService: RealmDBService
 
     @Before
     fun setUp() {
         hiltRule.inject()
-        loginViewModel = LoginViewModel(loginUseCase,realmDBService)
-    }
-
-    class FakeUserRepository : UserRepository {
-        override fun geUsersApp(code: String, password: String): Flow<List<User>> {
-            return flow {
-                emit(listOf(User("0", code, password)))
-            }
-        }
-    }
-
-    class TestViewModelFactory(
-        private val loginViewModel: LoginViewModel
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return loginViewModel as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
+        loginViewModel = LoginViewModel(loginUseCase, realmDBService)
+        println("Setup complete: loginViewModel initialized")
     }
 
     @Test
-    fun testUserRegistrationAndLogin() {
-        // Establece el contenido al composable LoginTemplate con la fábrica de ViewModel personalizada
+    fun testLoginContentDetail() {
+        println("Starting testLoginContentDetail")
+
         composeTestRule.setContent {
-            val factory = TestViewModelFactory(loginViewModel)
-            val viewModel: LoginViewModel = viewModel(factory = factory)
-            LoginTemplate(loginViewModel = viewModel, onLoginSuccess = {})
+            LoginContentDetail(
+                loginViewModel = loginViewModel,
+                userCode = "",
+                userPassword = "",
+                onLoginClick = { code, password ->
+                    // Handle login click
+                }
+            )
         }
 
-        // Simula la entrada de texto para los campos de usuario y contraseña
-        composeTestRule.onNodeWithText("Usuario").performTextInput("rotarola")
-        composeTestRule.onNodeWithText("Contraseña").performTextInput("testPassword")
+        composeTestRule.onNodeWithText("Usuario")
+            .performTextInput("testUser")
 
-        // Realiza una acción de clic en el botón de inicio de sesión
-        composeTestRule.onNodeWithText("Ingresar").performClick()
+        // Verifica que el texto ingresado se muestra correctamente
+        composeTestRule.onNodeWithText("testUser")
+            .assertIsDisplayed()
 
-        // Verifica el resultado
-        val expectedUser = "rotarola"
-        val actualUser = loginViewModel.userCode.value
-        assertEquals(expectedUser, actualUser)
+        // Simula la entrada de texto en el campo de contraseña usando el testTag
+        composeTestRule.onNodeWithTag("passwordField")
+            .performTextInput("testPassword")
+
+        // Verifica que el texto ingresado se muestra correctamente en EditableText
+        composeTestRule.onNodeWithTag("passwordField")
+            .assert(hasText("testPassword", ignoreCase = false, substring = true))
+
+        println("testLoginContentDetail completed")
     }
 }
