@@ -26,7 +26,6 @@ import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
-
     @Mock
     private lateinit var loginUseCase: LoginUseCase
 
@@ -39,6 +38,7 @@ class LoginViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         realmDBService = mock(RealmDBService::class.java)
+        loginUseCase = mock(LoginUseCase::class.java)
         loginViewModel = LoginViewModel(loginUseCase, realmDBService)
     }
 

@@ -64,6 +64,7 @@ fun LoginTemplate(
     val isSnackBackBarSucessful = loginViewModel.isSnackBackBarSucessful.collectAsState()
 
     HandleSnackBar(
+        loginViewModel = loginViewModel,
         onLoginSuccess = onLoginSuccess
     )
 
@@ -74,8 +75,6 @@ fun LoginTemplate(
         onLoginClick = { code, password ->
             loginViewModel.getUsersApp(code, password)
         },
-        onUserCodeChange = { loginViewModel.updateUserLogin(it) },
-        onPasswordChange = { loginViewModel.updatePasswordLogin(it) }
     )
 }
 
@@ -130,9 +129,7 @@ fun LoginContent(
     userPassword: String,
     isSnackBackBarSuccessful: Boolean,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onLoginClick: (String, String) -> Unit,
-    onUserCodeChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onLoginClick: (String, String) -> Unit
 ) {
     val snackbarHostState = loginViewModel.snackbarHostState.collectAsState()
     Scaffold(
@@ -159,9 +156,7 @@ fun LoginContent(
                 LoginContentDetail(
                     userCode = userCode,
                     userPassword = userPassword,
-                    onLoginClick = onLoginClick,
-                    onUserCodeChange = onUserCodeChange,
-                    onPasswordChange = onPasswordChange
+                    onLoginClick = onLoginClick
                 )
             }
         }
@@ -170,21 +165,14 @@ fun LoginContent(
 
 @Composable
 fun LoginContentDetail(
+    loginViewModel: LoginViewModel = hiltViewModel(),
     userCode: String,
     userPassword: String,
-    onLoginClick: (String, String) -> Unit,
-    onUserCodeChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onLoginClick: (String, String) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
-        /*HeaderImage(
-            modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.CenterHorizontally),
-            type = "Login"
-        )*/
         Image(
             painter = painterResource(id = R.mipmap.capibara_family),
             contentDescription = "My image"
@@ -205,26 +193,31 @@ fun LoginContentDetail(
             trailingiconStatus = false,
             trailingiconEvent = {},
             countMaxCharacter = 20,
-            resultEditText = onUserCodeChange
+            resultEditText = {
+                loginViewModel.updateUserLogin(it)
+            }
         )
 
         EditextM3(
-            id = 0,
+            id = 1,
             status = true,
             value = userPassword,
             placeholder = "",
             label = "Contraseña",
             leadingiconResourceId = rememberVectorPainter(image = Icons.Filled.Lock),
-            keyboardType = KeyboardType.Password,
+            keyboardType = KeyboardType.Text,
             trailingiconResourceId = painterResource(id = R.drawable.baseline_visibility_24),
             textDownEditext = "",
             trailingiconStatus = false,
             trailingiconEvent = {},
             countMaxCharacter = 20,
-            isPasswordField = true,
-            isPasswordVisible = isPasswordVisible,
-            onPasswordVisibilityChanged = { newVisibility -> isPasswordVisible = newVisibility },
-            resultEditText = onPasswordChange
+            isPasswordField = false,
+            //isPasswordVisible = isPasswordVisible,
+            //onPasswordVisibilityChanged = { newVisibility -> isPasswordVisible = newVisibility },
+            resultEditText= {
+                loginViewModel.updatePasswordLogin(it)
+            },
+            testTag = "passwordField"
         )
 
         ElevatedButtonM3(
