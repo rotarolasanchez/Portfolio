@@ -1,11 +1,11 @@
 [versions]
-agp = "8.1.4"
-kotlin = "1.9.20"
-coreKtx = "1.13.1"
+agp = "8.8.0"
+kotlin = "2.0.0"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.2"
+lifecycleRuntimeKtx = "2.8.7"
+activityCompose = "1.10.0"
 composeBom = "2024.04.01"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -16,7 +16,7 @@ lottie-compose = "6.5.1"
 uiTestJunit4Android = "1.7.3"
 androidxJunit = "1.2.1"
 hilt-version = "2.51.1"
-realm = "1.8.0"
+realm = "2.0.0"
 foundationLayoutAndroid = "1.7.3" # Or your preferred Realm version
 viewmodel-compose = "2.4.1"
 runtimeAndroid = "1.7.4"
@@ -68,5 +68,5 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 android-library = { id = "com.android.library", version.ref = "agp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
