@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rotarola.portafolio_kotlin.test">
+
+    <application
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:usesCleartextTraffic="true">
+        <uses-library android:name="android.test.runner" android:required="false"/>
+    </application>
+
+    <instrumentation
+        android:name="dagger.hilt.android.testing.HiltTestRunner"
+        android:targetPackage="com.rotarola.portafolio_kotlin"
+        android:handleProfiling="true"
+        android:functionalTest="true"/>
+</manifest>

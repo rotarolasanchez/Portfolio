@@ -151,7 +151,8 @@ fun EditextM3(
         isPasswordField: Boolean = false,     // Nuevo parámetro para campos de contraseña
         isPasswordVisible: Boolean = false,   // Estado de visibilidad del texto
         onPasswordVisibilityChanged: (Boolean) -> Unit = {}, // Evento para alternar visibilidad
-        resultEditText: (String) -> Unit
+        resultEditText: (String) -> Unit,
+        testTag: String = ""
     ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val text = remember { mutableStateOf(value) }
@@ -261,7 +262,7 @@ fun EditextM3(
                     keyboardActions = KeyboardActions(
                         onGo = { keyboardController?.hide() }
                     ),
-                    modifier = Modifier.fillMaxWidth().testTag("myEditText"),
+                    modifier = Modifier.fillMaxWidth().testTag(testTag),
                     visualTransformation =
                     //if (keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None
                     if (isPasswordField && !isPasswordVisible) {
@@ -279,7 +280,7 @@ fun EditextM3(
                         //leadingIconColor = leadingiconColor,
                         //trailingIconColor = trailingiconColor
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium,
+                    textStyle = MaterialTheme.typography.bodyMedium
                 )
                 if (statusMaxCharacter) {
                     Row {
