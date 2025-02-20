@@ -47,11 +47,12 @@ tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+/*
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
     }
-}
+}*/
 /*
 tasks.register("verifyJacocoReport") {
     dependsOn("jacocoTestReport")
@@ -72,6 +73,7 @@ tasks.named("check") {
 android {
     namespace = "com.rotarola.portafolio_kotlin"
     compileSdk = 35
+
 
     defaultConfig {
         applicationId = "com.rotarola.portafolio_kotlin"
@@ -131,8 +133,7 @@ android {
     buildFeatures {
         compose = true
     }
-    /*
-    composeOptions {
+    /*composeOptions {
         kotlinCompilerExtensionVersion = "1.5.5"
     }
     packaging {
@@ -148,8 +149,14 @@ android {
     packaging {
         resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
     }
-*/
 
+*/
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-java:3.21.12") // O la versión que funcione en tu caso
+    }
 }
 
 
@@ -169,10 +176,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    //debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    //debugImplementation(libs.ui.tooling)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
 
@@ -182,6 +185,7 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.android.compiler)
+    androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
     //Realm
     implementation(libs.realm.base)
