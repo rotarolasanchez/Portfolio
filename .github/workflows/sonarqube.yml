@@ -35,6 +35,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.TOLKEN_SONAR_SELF_HOSTED }}
         run: |
           ./gradlew sonarqube \
-            -Dsonar.projectKey=Portfolio_kotlin \
+            -Dsonar.projectKey=Portfolio_kotlin 
             -Dsonar.host.url=http://localhost:9000
             -Dsonar.login=$github-token-sonar-self-hosted
