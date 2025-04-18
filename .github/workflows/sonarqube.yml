@@ -3,7 +3,7 @@ name: SonarQube Analysis
 on:
   push:
     branches:
-      - release  # Puedes cambiarlo si deseas ejecutar en develop o main también
+      - release/*  # Puedes cambiarlo si deseas ejecutar en develop o main también
 
 jobs:
   sonar:
