@@ -106,7 +106,7 @@ android {
         properties {
             property("sonar.projectKey", "Portfolio_kotlin")
             property("sonar.organization", "")
-            property("sonar.host.url", "https://e6d7-38-43-111-130.ngrok-free.app")
+            property("sonar.host.url", "https://76a7-38-43-111-130.ngrok-free.app")
             property("sonar.token", "github-token-sonar-self-hosted")
             property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
             property("sonar.junit.reportPaths", "${buildDir}/test-results/test")
