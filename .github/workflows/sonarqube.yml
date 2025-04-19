@@ -36,5 +36,5 @@ jobs:
         run: |
           ./gradlew sonarqube \
             -Dsonar.projectKey=Portfolio_kotlin 
-            -Dsonar.host.url=https://e6d7-38-43-111-130.ngrok-free.app
-            -Dsonar.token=$github-token-sonar-self-hosted
+            -Dsonar.host.url=https://76a7-38-43-111-130.ngrok-free.app
+            -Dsonar.token=TOLKEN_SONAR_SELF_HOSTED
