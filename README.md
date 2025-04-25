@@ -34,11 +34,14 @@
     * Material Desing 3
     * Material Theme
 
-* CI/CD
-    * GIT
-    * GITHUB
-    * GITHUB ACTIONS
-    * SONARQUBE
+* CI/CD (GITHUB ACTIONS)
+   * CI
+       * LINT
+       * TEST UNIT
+       * TEST INSTRUMENTED
+       * SONARQUBE
+       * SEND APK GOOGLE DRIVE
+  
       
 ## :rocket: Quick start
 
