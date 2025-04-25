@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - release/*
   pull_request:
     branches:
-      - main
+      - release/*
   workflow_dispatch:
   issues:
     types: [ opened ]
@@ -98,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch full history to avoid shallow clone issues
 
@@ -112,7 +112,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -125,7 +125,7 @@ jobs:
         run: ./gradlew clean build jacocoTestReport
 
       - name: SonarCloud Scan
-        run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew app:sonar -Dsonar.login=${{ secrets.TOKEN_SONAR_SELF_HOSTED }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -135,15 +135,15 @@ jobs:
           name: coverage-report
           path: build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
 
-      - name: Check Quality Gate
+      - name: Check SonarQube Quality Gate
         run: |
-          status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=rotarolasanchez_Portfolio&branch=main" | jq -r '.projectStatus.status')
+          status=$(curl -s -u ${{ secrets.TOKEN_SONAR_SELF_HOSTED }}: "https://sonarqube.capibarafamily.online/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=main" | jq -r '.projectStatus.status')
           if [ "$status" != "OK" ]; then
             echo "Quality gate failed: $status"
             exit 1
           fi
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.TOKEN_SONAR_SELF_HOSTED }}
   package:
     name: Generate APK
     needs: [ sonarcloud ]
