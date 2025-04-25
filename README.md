@@ -1,7 +1,6 @@
 
 ## Portfolio
 #### Capibara
-![Capibara]( https://brandemia.org/sites/default/files/inline/images/logo_youtube.jpg )
 
 
 #### The following technologies were used in this template:
@@ -35,6 +34,12 @@
     * Material Desing 3
     * Material Theme
 
+* CI/CD
+    * GIT
+    * GITHUB
+    * GITHUB ACTIONS
+    * SONARQUBE
+      
 ## :rocket: Quick start
 
 Start developing locally.
