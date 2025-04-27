@@ -1,13 +1,19 @@
 ## Portfolio
 #### 🚀 Showcasing my expertise in mobile development
 
-Welcome to my portfolio! Here, you’ll find an overview of the technologies, patterns, and tools I use to build high-quality, scalable, and modern mobile applications.
+👋 Hi, I'm Ronald!  
+I'm passionate about creating modern and scalable Android applications, focusing on clean code, great user experiences, and continuous improvement.
+
+---
+
+### 🧰 Key Skills
+`Android Development` • `Jetpack Compose` • `Kotlin` • `Clean Architecture` • `CI/CD Pipelines` • `Docker` • `SonarQube` • `MongoDB Atlas`
 
 ---
 
 ### ✨ Features and Tools
 
-#### 🛠 Programming languages
+#### 🛠 Programming Languages
 - **Kotlin**
 - **Jetpack Compose**
 
@@ -36,7 +42,7 @@ Welcome to my portfolio! Here, you’ll find an overview of the technologies, pa
 
 ### 🔄 CI/CD Workflow
 
-My CI/CD pipeline is designed to ensure code quality, automate testing, and streamline deployments using **GitHub Actions**. The workflow includes the following automated steps:
+My CI/CD pipeline is designed to ensure code quality, automate testing, and streamline deployments using **GitHub Actions**. The workflow includes:
 
 1. **Code Linting**: Runs static analysis to enforce coding standards and identify potential issues early.
 2. **Unit Testing**: Executes unit tests to validate the functionality of individual components.
@@ -56,11 +62,25 @@ This pipeline ensures a reliable and efficient development process, catching iss
 
 ---
 
-### 📬 Contact Me
+### 📂 Repository Highlights
 
-Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/ronald-eduardo-otarola-sanchez-15512088) to discuss potential opportunities or collaborations!
+| Repository | Description | Tech Stack |
+|------------|-------------|------------|
+| [Vistony App](https://github.com/Vistonysac/vistony-app) | Salesforce app for managing multiple companies | Kotlin, Jetpack Compose, MVVM |
 
 ---
+
+### 📬 Contact Me
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/ronald-eduardo-otarola-sanchez-15512088)
+
+---
+
+### 🎉 Thanks for visiting!
+
+Thank you for visiting my portfolio! 🚀  
+Let's build something amazing together!
+
 
 ### 📂 Repository Highlights
 
