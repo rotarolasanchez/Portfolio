@@ -1,47 +1,46 @@
-
 ## Portfolio
-#### Capibara
+#### 🚀 Showcasing my expertise in mobile development
 
+Welcome to my portfolio! Here, you’ll find an overview of the technologies, patterns, and tools I use to build high-quality, scalable, and modern mobile applications.
 
-#### The following technologies were used in this template:
+---
 
+### ✨ Features and Tools
 
-## ✨ Features
+#### 🛠 Programming languages
+- **Kotlin**
+- **Jetpack Compose**
 
+#### 🏗 Architecture
+- **MVVM**
+- **Atomic Design**
+- **Clean Architecture**
 
-* Programming languages
-    * Kotlin
-    * Jetpack Compose
+#### 📐 Patterns
+- **Clean Code**
+- **SOLID Principles**
 
-* Arquitecture
-    *   MVVM
-    *   Atomic Design
-    *   Clean Arquitecture
+#### 💉 Dependency Injection
+- **Hilt**
 
-* Patterns
-    * Clean Code
-    * SOLID
+#### 💾 Persistence
+- **Realm**
+- **MongoDB Atlas**
 
-* Dependency injection
-    * Hilt
+#### 🎨 Design
+- **Figma**
+- **Material Design 3**
+- **Material Theme**
 
-* Persistence
-    * Realm
-    * MongoDB Atlas
+#### 🔄 CI/CD (GitHub Actions)
+- **CI**
+  - Lint
+  - Unit Tests
+  - Instrumented Tests
+  - SonarQube
+  - Send APK to Google Drive
 
-* Design
-    * FIGMA
-    * Material Desing 3
-    * Material Theme
+---
 
-* CI/CD (GITHUB ACTIONS)
-   * CI
-       * LINT
-       * TEST UNIT
-       * TEST INSTRUMENTED
-       * SONARQUBE
-       * SEND APK GOOGLE DRIVE
-  
-
-#### Contact:
-[Linkedin](https://www.linkedin.com/in/ronald-eduardo-otarola-sanchez-15512088)
+#### 📬 Contact Me
+Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/ronald-eduardo-otarola-sanchez-15512088) to discuss potential opportunities or collaborations!
