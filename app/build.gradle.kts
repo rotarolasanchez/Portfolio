@@ -104,9 +104,9 @@ android {
 
     sonar {
         properties {
-            property("sonar.projectKey", "rotarolasanchez_Portfolio")
-            property("sonar.organization", "rotarolasanchez")
-            property("sonar.host.url", "https://sonarcloud.io")
+            property("sonar.projectKey", "Portfolio_kotlin")
+            property("sonar.organization", "")
+            property("sonar.host.url", "https://sonarqube.capibarafamily.online/")
             property("sonar.token", "SONAR_TOKEN")
             property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
             property("sonar.junit.reportPaths", "${buildDir}/test-results/test")
