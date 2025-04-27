@@ -11,6 +11,7 @@ plugins {
     id("io.realm.kotlin") version libs.versions.realm.get() // Realm plugin
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id ("jacoco")
+    alias(libs.plugins.kotlin.compose)
 }
 
 jacoco {
@@ -46,11 +47,12 @@ tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+/*
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
     }
-}
+}*/
 /*
 tasks.register("verifyJacocoReport") {
     dependsOn("jacocoTestReport")
@@ -70,17 +72,19 @@ tasks.named("check") {
 
 android {
     namespace = "com.rotarola.portafolio_kotlin"
-    compileSdk = 34
+    compileSdk = 35
 
 
     defaultConfig {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 4
         versionName = "2.0.0"
         multiDexEnabled = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
+        testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -120,33 +124,39 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
     }
-    composeOptions {
+    /*composeOptions {
         kotlinCompilerExtensionVersion = "1.5.5"
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-    }
+    }*/
 
     /*packagingOptions {
         exclude("META-INF/gradle/incremental.annotation.processors")
     }*/
-
+/*
     packaging {
         resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
     }
 
+*/
+}
 
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-java:3.21.12") // O la versión que funcione en tu caso
+    }
 }
 
 
@@ -160,31 +170,37 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
+    implementation(libs.ui.test.junit4.android)
+    implementation(libs.androidx.runner)
 
     testImplementation(libs.junit)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    //debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    //debugImplementation(libs.ui.tooling)
-
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
+
+    //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.android.compiler)
+    androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
+    //Realm
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
+
 
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
 
-    //test
+    //junit
     testImplementation(libs.junit)
     testImplementation(libs.mockito)
     testImplementation(libs.mockito.inline)
     testImplementation(libs.coroutines.test)
 
-
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

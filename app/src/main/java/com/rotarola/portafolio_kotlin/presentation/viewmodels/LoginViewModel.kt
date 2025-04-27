@@ -20,10 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val realmDBService: RealmDBService
 ) : ViewModel() {
-
-    private val realmDBService = RealmDBService()
 
     private val _userCode = MutableStateFlow("")
     val userCode: StateFlow<String> get() = _userCode
@@ -41,15 +40,12 @@ class LoginViewModel @Inject constructor(
     val snackbarHostState: StateFlow<SnackbarHostState> get() = _snackbarHostState
 
     fun setSnackbarHostState(snackbarHostState: SnackbarHostState) {
-        Log.e("REOS", "LoginViewModel-setSnackbarHostState called")
         _snackbarHostState.value = snackbarHostState
     }
 
     fun updateIsSnackBarSuccessful(isSnackBarSuccessful: Boolean) {
-        Log.e("REOS", "LoginViewModel-updateIsSnackBarSuccessful called")
         _isSnackBackBarSucessful.value = isSnackBarSuccessful
     }
-
 
     fun updateUserLogin(user: String) {
         _userCode.value = user
@@ -59,30 +55,25 @@ class LoginViewModel @Inject constructor(
         _userPassword.value = password
     }
 
-    fun validateUserPassword(user: String, password: String){
-
-
+    fun validateUserPassword(user: String, password: String) {
+        // Implement validation logic
     }
 
-    fun insertUser( userApp: UserApp) {
+    fun insertUser(userApp: UserApp) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.e("REOS", "LoginViewModel-initRealm called")
             realmDBService.insertUserAPP(userApp)
         }
     }
 
     fun getUsersApp(code: String, password: String) {
-        Log.e("REOS", "LoginViewModel-getUsersApp called")
         viewModelScope.launch {
             _usersRequest.value = RequestState.Loading
             loginUseCase.geUsersApp(code, password)
                 .catch { e ->
                     _usersRequest.value = RequestState.Error(e)
-                    Log.e("REOS", "LoginViewModel-getUsersApp error: $e")
                 }
                 .collect { users ->
-                    _usersRequest.value =  users // users
-                    Log.e("REOS", "LoginViewModel-getUsersApp users: $users")
+                    _usersRequest.value = users
                 }
         }
     }
