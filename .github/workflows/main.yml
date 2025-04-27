@@ -125,7 +125,7 @@ jobs:
         run: ./gradlew clean build jacocoTestReport
 
       - name: SonarCloud Scan
-        run: ./gradlew app:sonar -Dsonar.login=${{ secrets.TOKEN_SONAR_SELF_HOSTED }}
+        run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -137,13 +137,13 @@ jobs:
 
       - name: Check SonarQube Quality Gate
         run: |
-          status=$(curl -s -u ${{ secrets.TOKEN_SONAR_SELF_HOSTED }}: "https://sonarqube.capibarafamily.online/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=main" | jq -r '.projectStatus.status')
+          status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarqube.capibarafamily.online/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=main" | jq -r '.projectStatus.status')
           if [ "$status" != "OK" ]; then
             echo "Quality gate failed: $status"
             exit 1
           fi
         env:
-          SONAR_TOKEN: ${{ secrets.TOKEN_SONAR_SELF_HOSTED }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   package:
     name: Generate APK
     needs: [ sonarcloud ]
