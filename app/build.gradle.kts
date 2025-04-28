@@ -106,9 +106,8 @@ android {
         properties {
             property("sonar.projectKey", "Portfolio_kotlin")
             property("sonar.organization", "")
-            property("sonar.host.url", "https://sonarqube.capibarafamily.online")
-            //property("sonar.token", "github-token-sonar-self-hosted")
-            property("sonar.token", System.getenv("TOKEN_SONAR_SELF_HOSTED"))
+            property("sonar.host.url", "https://sonarqube.capibarafamily.online/")
+            property("sonar.token", "SONAR_TOKEN")
             property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
             property("sonar.junit.reportPaths", "${buildDir}/test-results/test")
         }
