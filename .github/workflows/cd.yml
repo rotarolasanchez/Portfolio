@@ -1,5 +1,5 @@
-name: Android Deploy CI
 
+name: CD
 on:
   push:
     tags:
