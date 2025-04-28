@@ -47,7 +47,7 @@ class LoginTemplateTest {
 
     @Test
     fun testLoginContentDetail() {
-        println("Starting testLoginContentDetail")
+        println("Starting testLoginContentDetail--")
 
         composeTestRule.setContent {
             LoginContentDetail(
