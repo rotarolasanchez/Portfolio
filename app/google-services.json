@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64789628703",
+    "project_id": "portfolio-app-9a4bc",
+    "storage_bucket": "portfolio-app-9a4bc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64789628703:android:b7d7915b1388ccc545122a",
+        "android_client_info": {
+          "package_name": "com.rotarola.portafolio_kotlin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcdK7g8T-fgbX_t9bmeqJHh5NdDGBo45Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

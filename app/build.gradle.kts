@@ -12,6 +12,7 @@ plugins {
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id ("jacoco")
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 jacoco {
@@ -131,6 +132,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     /*composeOptions {
@@ -203,4 +205,8 @@ dependencies {
 
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }
