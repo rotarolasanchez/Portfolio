@@ -44,7 +44,7 @@ fun MyScreen() {
                     )
                 }
             }) {
-                Text("Show Snackbar")
+                Text("Show Snackbar1")
             }
         }
     }
