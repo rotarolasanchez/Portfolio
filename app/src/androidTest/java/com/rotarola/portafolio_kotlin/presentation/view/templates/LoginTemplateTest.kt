@@ -6,7 +6,9 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rotarola.feature_login.presentation.view.templates.LoginContentDetail
 import com.rotarola.portafolio_kotlin.core.database.RealmDBService
@@ -56,12 +58,26 @@ class LoginTemplateTest {
                 userPassword = "",
                 onLoginClick = { code, password ->
                     // Handle login click
+                },
+                onLoginSuccess = {
+
                 }
             )
         }
 
+        // Espera a que Compose esté listo
+        composeTestRule.waitForIdle()
+
+        // Imprime la jerarquía de nodos para depuración
+        composeTestRule.onRoot().printToLog("TAG")
+        //composeTestRule.onRoot().printToLog("TAG")
+
         composeTestRule.onNodeWithText("Usuario")
             .performTextInput("testUser")
+
+        composeTestRule.onNodeWithTag("guestButton")
+
+        composeTestRule.onNodeWithTag("versionButton")
 
         // Verifica que el texto ingresado se muestra correctamente
         composeTestRule.onNodeWithText("testUser")
