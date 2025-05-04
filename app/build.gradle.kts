@@ -81,7 +81,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = "2.1.0"
         multiDexEnabled = true
         //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"

@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -238,14 +239,11 @@ fun LoginContentDetail(
             onClick = { onLoginClick(userCode, userPassword) }
         )
 
-        /*Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            SimpleText("Ingresar como invitado")
-        }*/
-        Row(
-            modifier = Modifier.fillMaxWidth(),
+        //Nuevo
+       Row(
+            modifier = Modifier.fillMaxWidth()
+                .testTag("guestButton"),
+
             horizontalArrangement = Arrangement.Center
         ) {
             TextButton(
@@ -261,8 +259,12 @@ fun LoginContentDetail(
             }
         }
 
+        //Nuevo
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .testTag("versionButton"),
+
             horizontalArrangement = Arrangement.Center
         ) {
             TextButton(
@@ -275,14 +277,8 @@ fun LoginContentDetail(
                 }
             ) {
                 Text(text="Vs ${BuildConfig.VERSION_NAME} ")
+                //Text(text="Vs ${"1.0.1"} ")
             }
         }
-
-        /*Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            SimpleText(text="Vs ${BuildConfig.VERSION_NAME} ")
-        }*/
     }
 }
