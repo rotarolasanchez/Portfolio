@@ -49,7 +49,8 @@ jobs:
         run: |
           firebase appdistribution:distribute app/build/outputs/apk/debug/app-debug.apk \
             --app ${{ secrets.FIREBASE_APP_ID }} \
-            --groups "qa"
+            --groups "qa" \
+            --release-notes "Versión enviada desde CI automáticamente."
 
       - name: Clean up
         if: always()
