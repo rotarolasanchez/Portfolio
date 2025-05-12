@@ -14,6 +14,8 @@ jobs:
   Firebase:
     if: contains(github.event.head_commit.message, 'Send QA')
     runs-on: ubuntu-latest
+    env:  # 👈 AÑADIR ESTO AQUÍ
+      GOOGLE_APPLICATION_CREDENTIALS: firebase-key.json
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -41,12 +43,8 @@ jobs:
       - name: Verify Firebase CLI installation
         run: firebase --version
 
-      - name: Set up Firebase Service Account Key
-        env:
-          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=firebase-key.json
+      - name: Create Firebase key file
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-key.json
 
       - name: Upload to Firebase App Distribution
         run: |
