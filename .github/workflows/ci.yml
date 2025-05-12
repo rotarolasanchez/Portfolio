@@ -14,8 +14,6 @@ jobs:
   Firebase:
     if: contains(github.event.head_commit.message, 'Send QA')
     runs-on: ubuntu-latest
-    env:  # 👈 AÑADIR ESTO AQUÍ
-      GOOGLE_APPLICATION_CREDENTIALS: firebase-key.json
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -47,6 +45,8 @@ jobs:
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-key.json
 
       - name: Upload to Firebase App Distribution
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: firebase-key.json
         run: |
           firebase appdistribution:distribute app/build/outputs/apk/debug/app-debug.apk \
             --app ${{ secrets.FIREBASE_APP_ID }} \
