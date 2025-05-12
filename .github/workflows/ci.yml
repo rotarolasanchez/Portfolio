@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches:
@@ -8,7 +9,7 @@ on:
       - release/*
   workflow_dispatch:
   issues:
-    types: [ opened ]
+    types: [opened]
 
 jobs:
   Firebase:
@@ -41,12 +42,12 @@ jobs:
       - name: Verify Firebase CLI installation
         run: firebase --version
 
-      - name: Create Firebase key file
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase-key.json
+      - name: Set up Firebase credentials
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > "${{ github.workspace }}/firebase-key.json"
 
       - name: Upload to Firebase App Distribution
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: firebase-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: "${{ github.workspace }}/firebase-key.json"
         run: |
           firebase appdistribution:distribute app/build/outputs/apk/debug/app-debug.apk \
             --app ${{ secrets.FIREBASE_APP_ID }} \
@@ -55,3 +56,4 @@ jobs:
       - name: Clean up
         if: always()
         run: rm -f firebase-key.json
+
