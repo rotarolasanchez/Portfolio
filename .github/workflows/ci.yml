@@ -40,7 +40,7 @@ jobs:
           name: lint-report
           path: app/build/reports/lint-results-debug.html
 
-    unit-test:
+  unit-test:
       needs: [ lint ]
       runs-on: ubuntu-latest
       steps:
@@ -65,7 +65,7 @@ jobs:
             name: unit_test_report
             path: app/build/reports/tests/testDebugUnitTest/
 
-    instrumentation-test:
+  instrumentation-test:
       needs: [ unit-test ]
       runs-on: ubuntu-latest # Cambia de macos-latest a ubuntu-latest
       steps:
@@ -93,7 +93,7 @@ jobs:
           with:
             name: instrumentation_test_report
             path: app/build/reports/androidTests/connected/
-    sonarcloud:
+  sonarcloud:
       needs: [ instrumentation-test ]
       runs-on: ubuntu-latest
       steps:
@@ -144,9 +144,9 @@ jobs:
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   Firebase:
-    needs: [ sonarcloud ]
-    runs-on: ubuntu-latest
-    steps:
+      needs: [ sonarcloud ]
+      runs-on: ubuntu-latest
+      steps:
       - name: Checkout the code
         uses: actions/checkout@v2
 
