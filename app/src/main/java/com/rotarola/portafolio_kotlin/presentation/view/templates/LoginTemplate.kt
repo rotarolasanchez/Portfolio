@@ -1,6 +1,7 @@
 package com.rotarola.feature_login.presentation.view.templates
 
 import android.annotation.SuppressLint
+import android.os.Build.VERSION
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.magnifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
@@ -23,6 +25,8 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,6 +52,7 @@ import com.rotarola.feature_ui.presentation.atoms.EditextM3
 import com.rotarola.feature_ui.presentation.atoms.ElevatedButtonM3
 import com.rotarola.feature_ui.presentation.atoms.HeaderImage
 import com.rotarola.feature_ui.presentation.atoms.SimpleText
+import com.rotarola.portafolio_kotlin.BuildConfig
 import com.rotarola.portafolio_kotlin.R
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition",
@@ -56,9 +63,6 @@ fun LoginTemplate(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit
 ) {
-    Log.e("LoginTemplate" +
-            "", "LoginTemplate_________" +
-            "___________________")
     val userCode = loginViewModel.userCode.collectAsState()
     val userPassword = loginViewModel.userPassword.collectAsState()
     val isSnackBackBarSucessful = loginViewModel.isSnackBackBarSucessful.collectAsState()
@@ -75,6 +79,7 @@ fun LoginTemplate(
         onLoginClick = { code, password ->
             loginViewModel.getUsersApp(code, password)
         },
+        onLoginSuccess = onLoginSuccess
     )
 }
 
@@ -129,7 +134,8 @@ fun LoginContent(
     userPassword: String,
     isSnackBackBarSuccessful: Boolean,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onLoginClick: (String, String) -> Unit
+    onLoginClick: (String, String) -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     val snackbarHostState = loginViewModel.snackbarHostState.collectAsState()
     Scaffold(
@@ -152,11 +158,12 @@ fun LoginContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                AnimatedLiquidBackground()
+                //AnimatedLiquidBackground()
                 LoginContentDetail(
                     userCode = userCode,
                     userPassword = userPassword,
-                    onLoginClick = onLoginClick
+                    onLoginClick = onLoginClick,
+                    onLoginSuccess = onLoginSuccess
                 )
             }
         }
@@ -168,17 +175,19 @@ fun LoginContentDetail(
     loginViewModel: LoginViewModel = hiltViewModel(),
     userCode: String,
     userPassword: String,
-    onLoginClick: (String, String) -> Unit
+    onLoginClick: (String, String) -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(20.dp)
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.capibara_family),
-            contentDescription = "My image"
+            painter = painterResource(id = R.mipmap.capibara_family_not_background),
+            contentDescription = "My image",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        var isPasswordVisible by remember { mutableStateOf(false) }
+        //var isPasswordVisible by remember { mutableStateOf(false) }
 
         EditextM3(
             id = 0,
@@ -227,11 +236,46 @@ fun LoginContentDetail(
             onClick = { onLoginClick(userCode, userPassword) }
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
+        //Nuevo
+       Row(
+            modifier = Modifier.fillMaxWidth()
+                .testTag("guestButton"),
+
             horizontalArrangement = Arrangement.Center
         ) {
-            SimpleText("V.1.0.0")
+            TextButton(
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 5.dp),
+                enabled = true,
+                onClick = {
+                    //onClickDecidir(data)
+                        onLoginSuccess()
+                }
+            ) {
+                Text(text = "Ingresar como invitado")
+            }
+        }
+
+        //Nuevo
+        Row(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .testTag("versionButton"),
+
+            horizontalArrangement = Arrangement.Center
+        ) {
+            TextButton(
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 5.dp),
+                enabled = false,
+                onClick = {
+                    //onClickDecidir(data)
+                    //onLoginSuccess()
+                }
+            ) {
+                Text(text="Vs ${BuildConfig.VERSION_NAME} ")
+                //Text(text="Vs ${"1.0.1"} ")
+            }
         }
     }
 }
