@@ -80,8 +80,8 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "2.1.0"
+        versionCode = 5
+        versionName = "2.1.1"
         multiDexEnabled = true
         //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
