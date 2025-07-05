@@ -1,7 +1,7 @@
 package com.rotarola.portafolio_kotlin.domain.usecases
 
-import com.rotarola.portafolio_kotlin.data.model.RequestState
-import com.rotarola.portafolio_kotlin.domain.entities.User
+import com.rotarola.portafolio_kotlin.domain.model.RequestState
+import com.rotarola.portafolio_kotlin.domain.model.User
 import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.fail
@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.Request
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock

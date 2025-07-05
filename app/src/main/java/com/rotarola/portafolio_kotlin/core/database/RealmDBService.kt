@@ -2,6 +2,8 @@ package com.rotarola.portafolio_kotlin.core.database
 
 import android.security.keystore.UserNotAuthenticatedException
 import com.rotarola.portafolio_kotlin.core.utils.Constans.APP_ID
+import com.rotarola.portafolio_kotlin.data.entity.UserApp
+import com.rotarola.portafolio_kotlin.domain.model.RequestState
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.mongodb.App
@@ -24,12 +26,12 @@ class RealmDBService @Inject constructor() {
         scope.launch {
             user = app.login(Credentials.anonymous())
             val schema: Set<KClass<out RealmObject>> =
-                setOf(com.rotarola.portafolio_kotlin.data.model.UserApp::class)
+                setOf(com.rotarola.portafolio_kotlin.data.entity.UserApp::class)
             val config =
                 SyncConfiguration.Builder(user!!, schema) // Replace with your partition value
                     .initialSubscriptions(rerunOnOpen = true) { sub ->
                         add(
-                            query = sub.query<com.rotarola.portafolio_kotlin.data.model.UserApp>()
+                            query = sub.query<com.rotarola.portafolio_kotlin.data.entity.UserApp>()
                         )
                     }
                     .build()
@@ -41,20 +43,20 @@ class RealmDBService @Inject constructor() {
         return realm
     }
 
-    suspend fun insertUserAPP(userApp: com.rotarola.portafolio_kotlin.data.model.UserApp): com.rotarola.portafolio_kotlin.data.model.RequestState<com.rotarola.portafolio_kotlin.data.model.UserApp> {
+    suspend fun insertUserAPP(userApp: com.rotarola.portafolio_kotlin.data.entity.UserApp): RequestState<UserApp> {
         return if (user != null) {
             try {
                 realm.write {
                     val addedDiary = copyToRealm(userApp.apply {
                         ownerID = user!!.id // Asegúrate de establecer el ownerId correctamente
                     })
-                    com.rotarola.portafolio_kotlin.data.model.RequestState.Success(data = addedDiary)
+                    RequestState.Success(data = addedDiary)
                 }
             } catch (e: Exception) {
-                com.rotarola.portafolio_kotlin.data.model.RequestState.Error(e)
+                RequestState.Error(e)
             }
         } else {
-            com.rotarola.portafolio_kotlin.data.model.RequestState.Error(
+            RequestState.Error(
                 UserNotAuthenticatedException()
             )
         }

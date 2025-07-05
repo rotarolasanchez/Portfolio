@@ -30,6 +30,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     errorContainer = RedError40,
     onErrorContainer = RedError40,
+    onSecondary = CapibaraGreyLight
     //surface = Color(0xFFFFFBFE),
     //onPrimary = Color.White,
     //onSecondary = Color.White,

@@ -188,12 +188,12 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc">&nbsp;        scope.launch {</b>
 <b class="nc">&nbsp;            user = app.login(Credentials.anonymous())</b>
 <b class="nc">&nbsp;            val schema: Set&lt;KClass&lt;out RealmObject&gt;&gt; =</b>
-<b class="nc">&nbsp;                setOf(com.rotarola.portafolio_kotlin.data.model.UserApp::class)</b>
+<b class="nc">&nbsp;                setOf(com.rotarola.portafolio_kotlin.data.entity.UserApp::class)</b>
 <b class="nc">&nbsp;            val config =</b>
 <b class="nc">&nbsp;                SyncConfiguration.Builder(user!!, schema) // Replace with your partition value</b>
 <b class="nc">&nbsp;                    .initialSubscriptions(rerunOnOpen = true) { sub -&gt;</b>
 <b class="nc">&nbsp;                        add(</b>
-<b class="nc">&nbsp;                            query = sub.query&lt;com.rotarola.portafolio_kotlin.data.model.UserApp&gt;()</b>
+<b class="nc">&nbsp;                            query = sub.query&lt;com.rotarola.portafolio_kotlin.data.entity.UserApp&gt;()</b>
 &nbsp;                        )
 &nbsp;                    }
 <b class="nc">&nbsp;                    .build()</b>
@@ -205,20 +205,20 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc">&nbsp;        return realm</b>
 &nbsp;    }
 &nbsp;
-<b class="nc">&nbsp;    suspend fun insertUserAPP(userApp: com.rotarola.portafolio_kotlin.data.model.UserApp): com.rotarola.portafolio_kotlin.data.model.RequestState&lt;com.rotarola.portafolio_kotlin.data.model.UserApp&gt; {</b>
+<b class="nc">&nbsp;    suspend fun insertUserAPP(userApp: com.rotarola.portafolio_kotlin.data.entity.UserApp): com.rotarola.portafolio_kotlin.domain.model.RequestState&lt;com.rotarola.portafolio_kotlin.data.entity.UserApp&gt; {</b>
 <b class="nc">&nbsp;        return if (user != null) {</b>
 <b class="nc">&nbsp;            try {</b>
 <b class="nc">&nbsp;                realm.write {</b>
 <b class="nc">&nbsp;                    val addedDiary = copyToRealm(userApp.apply {</b>
 <b class="nc">&nbsp;                        ownerID = user!!.id // Asegúrate de establecer el ownerId correctamente</b>
 <b class="nc">&nbsp;                    })</b>
-<b class="nc">&nbsp;                    com.rotarola.portafolio_kotlin.data.model.RequestState.Success(data = addedDiary)</b>
+<b class="nc">&nbsp;                    com.rotarola.portafolio_kotlin.domain.model.RequestState.Success(data = addedDiary)</b>
 &nbsp;                }
 <b class="nc">&nbsp;            } catch (e: Exception) {</b>
-<b class="nc">&nbsp;                com.rotarola.portafolio_kotlin.data.model.RequestState.Error(e)</b>
+<b class="nc">&nbsp;                com.rotarola.portafolio_kotlin.domain.model.RequestState.Error(e)</b>
 &nbsp;            }
 &nbsp;        } else {
-<b class="nc">&nbsp;            com.rotarola.portafolio_kotlin.data.model.RequestState.Error(</b>
+<b class="nc">&nbsp;            com.rotarola.portafolio_kotlin.domain.model.RequestState.Error(</b>
 <b class="nc">&nbsp;                UserNotAuthenticatedException()</b>
 &nbsp;            )
 &nbsp;        }

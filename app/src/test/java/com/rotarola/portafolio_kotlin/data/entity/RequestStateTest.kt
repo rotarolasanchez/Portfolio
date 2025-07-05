@@ -1,5 +1,6 @@
-package com.rotarola.portafolio_kotlin.data.model
+package com.rotarola.portafolio_kotlin.data.entity
 
+import com.rotarola.portafolio_kotlin.domain.model.RequestState
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

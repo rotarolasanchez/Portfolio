@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun NavigationMain() {
     val navController = rememberNavController()
+
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -17,13 +18,26 @@ fun NavigationMain() {
         composable("login") {
             LoginPage(
                 onLoginSuccess = {
-                    // Navega a la página del menú
-                    navController.navigate("menu")
+                    navController.navigate("menu") {
+                        // Limpia el back stack para que no se pueda volver al login
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
             )
         }
+
         composable("menu") {
-            MenuTemplate()
+            MenuPage(
+                onNavigateToSection = { section ->
+                    // Aquí puedes manejar la navegación a las diferentes secciones
+                    when (section) {
+                        "Home" -> { /* navegar a home */ }
+                        "Profile" -> { /* navegar a perfil */ }
+                        "Settings" -> { /* navegar a configuración */ }
+                        "Help" -> { /* navegar a ayuda */ }
+                    }
+                }
+            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.rotarola.portafolio_kotlin.data.model
+package com.rotarola.portafolio_kotlin.domain.model
 
 sealed class RequestState<out T> {
     data object Idle : RequestState<Nothing>()

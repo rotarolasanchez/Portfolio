@@ -1,8 +1,7 @@
 package com.rotarola.portafolio_kotlin.domain.repositories
 
-import com.rotarola.portafolio_kotlin.data.model.UserApp
+import com.rotarola.portafolio_kotlin.data.entity.UserApp
 import com.rotarola.portafolio_kotlin.data.repository.UserDBRepository
-import com.rotarola.portafolio_kotlin.domain.entities.User
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Before

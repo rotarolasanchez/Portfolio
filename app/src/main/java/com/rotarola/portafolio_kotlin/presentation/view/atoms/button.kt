@@ -3,11 +3,13 @@ package com.rotarola.feature_ui.presentation.atoms
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
@@ -21,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun ElevatedButtonM3(
@@ -52,6 +56,45 @@ fun ElevatedButtonM3(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = title, color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun ButtonM3(
+    title: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    leadingiconResourceId: Int,
+    leadingIconStatus: Boolean=true,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        enabled = enabled,
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
+        modifier = modifier
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (leadingIconStatus)
+            {
+                Icon(
+                    painter = painterResource(leadingiconResourceId),
+                    contentDescription = "Agregar", tint = Color.White
+                    //,modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                color = Color.White
+            )
         }
     }
 }
