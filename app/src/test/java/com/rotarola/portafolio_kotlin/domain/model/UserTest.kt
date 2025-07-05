@@ -1,4 +1,4 @@
-package com.rotarola.portafolio_kotlin.domain.entities
+package com.rotarola.portafolio_kotlin.domain.model
 
 import junit.framework.TestCase.assertEquals
 import org.junit.Test

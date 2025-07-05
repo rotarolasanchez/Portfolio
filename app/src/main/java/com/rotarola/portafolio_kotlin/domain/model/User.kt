@@ -1,4 +1,4 @@
-package com.rotarola.portafolio_kotlin.domain.entities
+package com.rotarola.portafolio_kotlin.domain.model
 
 data class User(
     val id: String,

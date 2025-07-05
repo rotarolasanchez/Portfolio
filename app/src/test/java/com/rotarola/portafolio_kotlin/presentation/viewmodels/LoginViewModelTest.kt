@@ -1,27 +1,14 @@
 package com.rotarola.portafolio_kotlin.presentation.viewmodels
 
-import android.content.Context
-import androidx.lifecycle.Observer
 import com.rotarola.portafolio_kotlin.core.database.RealmDBService
-import com.rotarola.portafolio_kotlin.data.model.RequestState
-import com.rotarola.portafolio_kotlin.domain.entities.User
 import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)

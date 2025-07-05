@@ -134,7 +134,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="fc">&nbsp;    private val datasource: UserDBRepository</b>
 &nbsp;) : UserRepository {
 &nbsp;
-<b class="fc">&nbsp;    override fun geUsersApp(code: String,password: String): Flow&lt;List&lt;com.rotarola.portafolio_kotlin.domain.entities.User&gt;&gt; = flow {</b>
+<b class="fc">&nbsp;    override fun geUsersApp(code: String,password: String): Flow&lt;List&lt;com.rotarola.portafolio_kotlin.domain.model.User&gt;&gt; = flow {</b>
 &nbsp;        //Log.e(&quot;REOS&quot;, &quot;UserRepositoryImpl-geUsersApp.init&quot;)
 <b class="fc">&nbsp;        val response = datasource.geUsersApp(code, password)</b>
 &nbsp;        //Log.e(&quot;REOS&quot;, &quot;UserRepositoryImpl-geUsersApp.response: $response&quot;)
