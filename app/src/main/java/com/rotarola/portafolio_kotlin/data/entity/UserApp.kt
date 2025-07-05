@@ -1,4 +1,4 @@
-package com.rotarola.portafolio_kotlin.data.model
+package com.rotarola.portafolio_kotlin.data.entity
 
 import android.os.Build
 import androidx.annotation.RequiresApi

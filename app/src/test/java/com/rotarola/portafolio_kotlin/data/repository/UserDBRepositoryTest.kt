@@ -1,10 +1,9 @@
 package com.rotarola.portafolio_kotlin.data.repository
 
-import com.rotarola.portafolio_kotlin.data.model.UserApp
+import com.rotarola.portafolio_kotlin.data.entity.UserApp
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

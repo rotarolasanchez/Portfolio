@@ -1,8 +1,7 @@
 package com.rotarola.portafolio_kotlin.domain.usecases
 
-import android.util.Log
-import com.rotarola.portafolio_kotlin.domain.entities.User
-import com.rotarola.portafolio_kotlin.data.model.RequestState
+import com.rotarola.portafolio_kotlin.domain.model.User
+import com.rotarola.portafolio_kotlin.domain.model.RequestState
 import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
