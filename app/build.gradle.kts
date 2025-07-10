@@ -13,6 +13,7 @@ plugins {
     id ("jacoco")
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 jacoco {
@@ -174,6 +175,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.ui.test.junit4.android)
     implementation(libs.androidx.runner)
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
