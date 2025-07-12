@@ -1,30 +1,18 @@
 package com.rotarola.portafolio_kotlin.presentation.view.pages
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +31,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,7 +38,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -72,7 +58,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -90,10 +75,12 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.rememberCoroutineScope
 import com.rotarola.portafolio_kotlin.core.utils.GeminiService
+import com.rotarola.portafolio_kotlin.core.utils.correctImageOrientation
+import com.rotarola.portafolio_kotlin.core.utils.cropBitmapToGuideRect
 import kotlinx.coroutines.launch
 
 @Composable
-fun ScanPage(viewModel: ScanViewModel = hiltViewModel()) {
+fun ChatBotPage(viewModel: ScanViewModel = hiltViewModel()) {
     val scanState by viewModel.scanState.collectAsState()
     var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showCropper by remember { mutableStateOf(false) }
@@ -343,63 +330,6 @@ fun ResizeCorner(
     )
 }
 
-fun cropBitmapToGuideRect(
-    bitmap: Bitmap,
-    rectWidth: Dp,
-    rectHeight: Dp,
-    rectOffset: Offset,
-    previewSize: Size
-): Bitmap {
-    val density = Resources.getSystem().displayMetrics.density
-
-    // Convertir las dimensiones del rectángulo guía a píxeles
-    val guideWidthPx = rectWidth.value * density
-    val guideHeightPx = rectHeight.value * density
-
-    // Calcular la posición del rectángulo en el preview considerando el offset
-    val previewCenterX = previewSize.width / 2f
-    val previewCenterY = previewSize.height / 2f
-
-    // Aplicar el offset desde el centro
-    val guideLeft = previewCenterX - (guideWidthPx / 2f) + (rectOffset.x * density)
-    val guideTop = previewCenterY - (guideHeightPx / 2f) + (rectOffset.y * density)
-
-    // Calcular las proporciones para mapear del preview al bitmap original
-    val scaleX = bitmap.width.toFloat() / previewSize.width
-    val scaleY = bitmap.height.toFloat() / previewSize.height
-    val scale = minOf(scaleX, scaleY)
-
-    // Calcular las dimensiones del bitmap escalado
-    val scaledBitmapWidth = bitmap.width / scale
-    val scaledBitmapHeight = bitmap.height / scale
-
-    // Calcular el offset para centrar el bitmap escalado en el preview
-    val bitmapOffsetX = (previewSize.width - scaledBitmapWidth) / 2f
-    val bitmapOffsetY = (previewSize.height - scaledBitmapHeight) / 2f
-
-    // Calcular las coordenadas de recorte en el bitmap original
-    val cropLeft = ((guideLeft - bitmapOffsetX) * scale).toInt()
-        .coerceIn(0, bitmap.width - 1)
-    val cropTop = ((guideTop - bitmapOffsetY) * scale).toInt()
-        .coerceIn(0, bitmap.height - 1)
-    val cropWidth = (guideWidthPx * scale).toInt()
-        .coerceAtMost(bitmap.width - cropLeft)
-    val cropHeight = (guideHeightPx * scale).toInt()
-        .coerceAtMost(bitmap.height - cropTop)
-
-    return try {
-        Bitmap.createBitmap(
-            bitmap,
-            cropLeft,
-            cropTop,
-            cropWidth,
-            cropHeight
-        )
-    } catch (e: Exception) {
-        Log.e("CropBitmap", "Error cropping bitmap: ${e.message}")
-        bitmap
-    }
-}
 @Composable
 fun CameraPreviewWithCapture(
     onImageCaptureReady: (ImageCapture) -> Unit,
@@ -633,30 +563,7 @@ fun CropImageScreen(
     }
 }
 
-fun correctImageOrientation(bitmap: Bitmap, imagePath: String): Bitmap {
-    try {
-        val exif = ExifInterface(imagePath)
-        val orientation = exif.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_UNDEFINED
-        )
 
-        val matrix = Matrix()
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
-            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
-            else -> return bitmap
-        }
-
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    } catch (e: Exception) {
-        Log.e("ImageOrientation", "Error correcting image orientation: ${e.message}")
-        return bitmap
-    }
-}
 
 // Primero creamos un modelo para los mensajes
 data class ChatMessage(
@@ -664,77 +571,7 @@ data class ChatMessage(
     val isFromUser: Boolean,
     val timestamp: Long = System.currentTimeMillis()
 )
-/*
-@Composable
-fun ChatScreen(
-    initialProblem: String,
-    onClose: () -> Unit
-) {
-    var messages by remember { mutableStateOf(listOf(ChatMessage(initialProblem, true))) }
-    var isWaitingResponse by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Barra superior
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Resolución de Problemas",
-                style = MaterialTheme.typography.titleLarge
-            )
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Cerrar")
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            reverseLayout = true
-        ) {
-            items(messages.asReversed()) { message ->
-                ChatMessageBubble(message)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-        // Indicador de escritura
-        if (isWaitingResponse) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Resolviendo problema...")
-            }
-        }
-
-        // Botón para escanear nuevo problema
-        Button(
-            onClick = onClose,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text("Escanear nuevo problema")
-        }
-    }
-}*/
 // 3. Actualiza el ChatScreen para incluir la funcionalidad de Gemini
 @Composable
 fun ChatScreen(
@@ -875,37 +712,7 @@ fun ChatScreen(
         }
     }
 }
-/*
-@Composable
-fun ChatMessageBubble(message: ChatMessage) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = if (message.isFromUser) Arrangement.End else Arrangement.Start
-    ) {
-        Box(
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .background(
-                    color = if (message.isFromUser)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.secondary,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(12.dp)
-        ) {
-            Text(
-                text = message.text,
-                color = if (message.isFromUser)
-                    MaterialTheme.colorScheme.onPrimary
-                else
-                    MaterialTheme.colorScheme.onSecondary
-            )
-        }
-    }
-}*/
+
 // 4. Actualiza el ChatMessageBubble para mejor presentación
 @Composable
 fun ChatMessageBubble(message: ChatMessage) {
