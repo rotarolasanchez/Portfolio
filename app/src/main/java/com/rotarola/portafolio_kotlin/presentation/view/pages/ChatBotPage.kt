@@ -82,62 +82,52 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatBotPage(viewModel: ScanViewModel = hiltViewModel()) {
     val scanState by viewModel.scanState.collectAsState()
-    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showCropper by remember { mutableStateOf(false) }
-    var showCameraScreen by remember { mutableStateOf(true) }
-    var showChatScreen by remember { mutableStateOf(false) }
+    var showCameraScreen by remember { mutableStateOf(false) }
+    var showChatScreen by remember { mutableStateOf(true) }
     var detectedText by remember { mutableStateOf("") }
+    var showOverlay by remember { mutableStateOf(true) }
 
     when {
         showCameraScreen -> {
-            CameraWithOverlayScreen { bitmap ->
-                capturedBitmap = bitmap
-                showCropper = true
-                showCameraScreen = false
-            }
+            CameraWithOverlayScreen(
+                showOverlay = showOverlay,
+                onShowOverlayChange = { newValue -> showOverlay = newValue },
+                onImageCaptured = { bitmap ->
+                    viewModel.processImage(bitmap)
+                    showCameraScreen = false
+                }
+            )
         }
-        showCropper && capturedBitmap != null -> {
-            CropImageScreen(
-                originalBitmap = capturedBitmap!!,
-                onCropConfirmed = { croppedBitmap ->
-                    if (croppedBitmap != capturedBitmap) {
-                        viewModel.processImage(croppedBitmap)
-                    }
-                    showCropper = false
-                    capturedBitmap = null
+        showChatScreen -> {
+            ChatScreen(
+                initialProblem = detectedText,
+                onCameraClick = {
+                    showCameraScreen = true
+                    showChatScreen = false
                 }
             )
         }
     }
 
-    // Modificamos el manejo del texto detectado
     if (scanState is ScanState.Success) {
         detectedText = (scanState as ScanState.Success).text
         showChatScreen = true
         viewModel.reset()
     }
-
-    if (showChatScreen) {
-        ChatScreen(
-            initialProblem = detectedText,
-            onClose = {
-                showChatScreen = false
-                showCameraScreen = true
-            }
-        )
-    }
 }
 
 @Composable
 fun CameraWithOverlayScreen(
+    showOverlay: Boolean,
+    onShowOverlayChange: (Boolean) -> Unit, // Nueva función
     onImageCaptured: (Bitmap) -> Unit
-) {
+){
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val density = LocalDensity.current.density
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var isCapturing by remember { mutableStateOf(false) }
-
+    //var showOverlay by remember { mutableStateOf(true) } // Nuevo estado
     // Estado para el rectángulo guía
     var rectWidth by remember { mutableStateOf(250.dp) }
     var rectHeight by remember { mutableStateOf(150.dp) }
@@ -157,7 +147,7 @@ fun CameraWithOverlayScreen(
                 }
         )
 
-        if (previewSize != Size.Zero) {
+        if (previewSize != Size.Zero && showOverlay && !isCapturing) {
             // Canvas para el overlay y el rectángulo
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // Overlay semi-transparente
@@ -263,6 +253,7 @@ fun CameraWithOverlayScreen(
         Button(
             onClick = {
                 isCapturing = true
+                onShowOverlayChange(false) // Usar la función en lugar de asignar directamente
                 val outputOptions = ImageCapture.OutputFileOptions.Builder(
                     File.createTempFile("image", ".jpg", context.cacheDir)
                 ).build()
@@ -274,9 +265,11 @@ fun CameraWithOverlayScreen(
                         override fun onError(exception: ImageCaptureException) {
                             Log.e("Camera", "Capture failed: ${exception.message}")
                             isCapturing = false
+                            onShowOverlayChange(true)
                         }
 
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                            isCapturing = false
                             val file = File(output.savedUri?.path ?: return)
                             val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                             val correctedBitmap = correctImageOrientation(bitmap, file.absolutePath)
@@ -576,9 +569,14 @@ data class ChatMessage(
 @Composable
 fun ChatScreen(
     initialProblem: String,
-    onClose: () -> Unit
+    onCameraClick: () -> Unit
 ) {
-    var messages by remember { mutableStateOf(listOf(ChatMessage(initialProblem, true))) }
+    var messages by remember { mutableStateOf(
+        if (initialProblem.isNotBlank())
+            listOf(ChatMessage(initialProblem, true))
+        else
+            emptyList()
+    ) }
     var isWaitingResponse by remember { mutableStateOf(false) }
     var userInput by remember { mutableStateOf("") }
     val geminiService = remember { GeminiService() }
@@ -604,21 +602,61 @@ fun ChatScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         // Barra superior
-        Row(
+        /*Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Resolución de Problemas",
-                style = MaterialTheme.typography.titleLarge
-            )
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Cerrar")
+            IconButton(
+                onClick = onCameraClick,
+                enabled = !isWaitingResponse
+            ) {
+                Icon(
+                    Icons.Default.Call,
+                    contentDescription = "Tomar foto",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
-        }
+
+            OutlinedTextField(
+                value = userInput,
+                onValueChange = { userInput = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Haz una pregunta o toma una foto...") },
+                enabled = !isWaitingResponse,
+                maxLines = 3
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = {
+                    if (userInput.isNotBlank()) {
+                        val newUserMessage = ChatMessage(userInput, true)
+                        messages = messages + newUserMessage
+                        scope.launch {
+                            isWaitingResponse = true
+                            try {
+                                val response = geminiService.continueChatConversation(
+                                    messages.dropLast(1),
+                                    userInput
+                                )
+                                messages = messages + ChatMessage(response, false)
+                            } catch (e: Exception) {
+                                messages = messages + ChatMessage("Error: ${e.message}", false)
+                            }
+                            isWaitingResponse = false
+                        }
+                        userInput = ""
+                    }
+                },
+                enabled = !isWaitingResponse && userInput.isNotBlank()
+            ) {
+                Icon(Icons.Default.Send, contentDescription = "Enviar")
+            }
+        }*/
 
         // Lista de mensajes
         LazyColumn(
@@ -652,7 +690,7 @@ fun ChatScreen(
         }
 
         // Campo de entrada para nuevas preguntas
-        Row(
+        /*Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -696,10 +734,65 @@ fun ChatScreen(
             ) {
                 Icon(Icons.Default.Send, contentDescription = "Enviar")
             }
+        }*/
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onCameraClick,
+                enabled = !isWaitingResponse
+            ) {
+                Icon(
+                    Icons.Default.Call,
+                    contentDescription = "Tomar foto",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            OutlinedTextField(
+                value = userInput,
+                onValueChange = { userInput = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Haz una pregunta o toma una foto...") },
+                enabled = !isWaitingResponse,
+                maxLines = 3
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = {
+                    if (userInput.isNotBlank()) {
+                        val newUserMessage = ChatMessage(userInput, true)
+                        messages = messages + newUserMessage
+                        scope.launch {
+                            isWaitingResponse = true
+                            try {
+                                val response = geminiService.continueChatConversation(
+                                    messages.dropLast(1),
+                                    userInput
+                                )
+                                messages = messages + ChatMessage(response, false)
+                            } catch (e: Exception) {
+                                messages = messages + ChatMessage("Error: ${e.message}", false)
+                            }
+                            isWaitingResponse = false
+                        }
+                        userInput = ""
+                    }
+                },
+                enabled = !isWaitingResponse && userInput.isNotBlank()
+            ) {
+                Icon(Icons.Default.Send, contentDescription = "Enviar")
+            }
         }
 
         // Botón para escanear nuevo problema
-        Button(
+        /*Button(
             onClick = onClose,
             modifier = Modifier
                 .fillMaxWidth()
@@ -709,7 +802,7 @@ fun ChatScreen(
             Icon(Icons.Default.Call, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("Escanear nuevo problema")
-        }
+        }*/
     }
 }
 
