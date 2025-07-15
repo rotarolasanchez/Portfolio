@@ -15,55 +15,38 @@ fun cropBitmapToGuideRect(
     rectWidth: Dp,
     rectHeight: Dp,
     rectOffset: Offset,
-    previewSize: Size
+    previewSize: Size,
+    density: Float = 1f
 ): Bitmap {
-    val density = Resources.getSystem().displayMetrics.density
+    val centerX = previewSize.width / 2f + rectOffset.x * density
+    val centerY = previewSize.height / 2f + rectOffset.y * density
 
-    // Convertir las dimensiones del rectángulo guía a píxeles
-    val guideWidthPx = rectWidth.value * density
-    val guideHeightPx = rectHeight.value * density
+    val rectWidthPx = rectWidth.value * density
+    val rectHeightPx = rectHeight.value * density
 
-    // Calcular la posición del rectángulo en el preview considerando el offset
-    val previewCenterX = previewSize.width / 2f
-    val previewCenterY = previewSize.height / 2f
+    val left = (centerX - rectWidthPx / 2f).coerceAtLeast(0f)
+    val top = (centerY - rectHeightPx / 2f).coerceAtLeast(0f)
+    val right = (left + rectWidthPx).coerceAtMost(bitmap.width.toFloat())
+    val bottom = (top + rectHeightPx).coerceAtMost(bitmap.height.toFloat())
 
-    // Aplicar el offset desde el centro
-    val guideLeft = previewCenterX - (guideWidthPx / 2f) + (rectOffset.x * density)
-    val guideTop = previewCenterY - (guideHeightPx / 2f) + (rectOffset.y * density)
-
-    // Calcular las proporciones para mapear del preview al bitmap original
+    // Calcular las proporciones de escala
     val scaleX = bitmap.width.toFloat() / previewSize.width
     val scaleY = bitmap.height.toFloat() / previewSize.height
-    val scale = minOf(scaleX, scaleY)
 
-    // Calcular las dimensiones del bitmap escalado
-    val scaledBitmapWidth = bitmap.width / scale
-    val scaledBitmapHeight = bitmap.height / scale
+    val scaledLeft = (left * scaleX).toInt().coerceAtLeast(0)
+    val scaledTop = (top * scaleY).toInt().coerceAtLeast(0)
+    val scaledWidth = ((right - left) * scaleX).toInt().coerceAtMost(bitmap.width - scaledLeft)
+    val scaledHeight = ((bottom - top) * scaleY).toInt().coerceAtMost(bitmap.height - scaledTop)
 
-    // Calcular el offset para centrar el bitmap escalado en el preview
-    val bitmapOffsetX = (previewSize.width - scaledBitmapWidth) / 2f
-    val bitmapOffsetY = (previewSize.height - scaledBitmapHeight) / 2f
-
-    // Calcular las coordenadas de recorte en el bitmap original
-    val cropLeft = ((guideLeft - bitmapOffsetX) * scale).toInt()
-        .coerceIn(0, bitmap.width - 1)
-    val cropTop = ((guideTop - bitmapOffsetY) * scale).toInt()
-        .coerceIn(0, bitmap.height - 1)
-    val cropWidth = (guideWidthPx * scale).toInt()
-        .coerceAtMost(bitmap.width - cropLeft)
-    val cropHeight = (guideHeightPx * scale).toInt()
-        .coerceAtMost(bitmap.height - cropTop)
-
-    return try {
+    return if (scaledWidth > 0 && scaledHeight > 0) {
         Bitmap.createBitmap(
             bitmap,
-            cropLeft,
-            cropTop,
-            cropWidth,
-            cropHeight
+            scaledLeft,
+            scaledTop,
+            scaledWidth,
+            scaledHeight
         )
-    } catch (e: Exception) {
-        Log.e("CropBitmap", "Error cropping bitmap: ${e.message}")
+    } else {
         bitmap
     }
 }

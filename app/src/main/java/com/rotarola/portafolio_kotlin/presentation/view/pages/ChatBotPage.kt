@@ -45,7 +45,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -78,12 +77,15 @@ import com.rotarola.portafolio_kotlin.core.utils.GeminiService
 import com.rotarola.portafolio_kotlin.core.utils.correctImageOrientation
 import com.rotarola.portafolio_kotlin.core.utils.cropBitmapToGuideRect
 import kotlinx.coroutines.launch
+import androidx.compose.ui.Alignment
 
 @Composable
 fun ChatBotPage(viewModel: ScanViewModel = hiltViewModel()) {
     val scanState by viewModel.scanState.collectAsState()
     var showCameraScreen by remember { mutableStateOf(false) }
     var showChatScreen by remember { mutableStateOf(true) }
+    var showPreviewScreen by remember { mutableStateOf(false) }
+    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var detectedText by remember { mutableStateOf("") }
     var showOverlay by remember { mutableStateOf(true) }
 
@@ -93,8 +95,24 @@ fun ChatBotPage(viewModel: ScanViewModel = hiltViewModel()) {
                 showOverlay = showOverlay,
                 onShowOverlayChange = { newValue -> showOverlay = newValue },
                 onImageCaptured = { bitmap ->
-                    viewModel.processImage(bitmap)
+                    capturedBitmap = bitmap
                     showCameraScreen = false
+                    showPreviewScreen = true
+                }
+            )
+        }
+        showPreviewScreen && capturedBitmap != null -> {
+            ImagePreviewScreen(
+                bitmap = capturedBitmap!!,
+                onAccept = {
+                    viewModel.processImage(capturedBitmap!!)
+                    showPreviewScreen = false
+                    showChatScreen = true
+                },
+                onRetake = {
+                    capturedBitmap = null
+                    showPreviewScreen = false
+                    showCameraScreen = true
                 }
             )
         }
@@ -117,9 +135,103 @@ fun ChatBotPage(viewModel: ScanViewModel = hiltViewModel()) {
 }
 
 @Composable
+fun ImagePreviewScreen(
+    bitmap: Bitmap,
+    onAccept: () -> Unit,
+    onRetake: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        // Header con título
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Vista previa",
+                color = Color.White,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            IconButton(onClick = onRetake) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Cerrar",
+                    tint = Color.White
+                )
+            }
+        }
+
+        // Imagen capturada
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Imagen capturada",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+        }
+
+        // Texto informativo
+        Text(
+            text = "¿Es correcta la imagen? Se analizará para detectar texto matemático.",
+            color = Color.White,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+
+        // Botones de acción
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = onRetake,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Repetir foto")
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Button(
+                onClick = onAccept,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Analizar imagen")
+            }
+        }
+    }
+}
+
+@Composable
 fun CameraWithOverlayScreen(
     showOverlay: Boolean,
-    onShowOverlayChange: (Boolean) -> Unit, // Nueva función
+    onShowOverlayChange: (Boolean) -> Unit,
     onImageCaptured: (Bitmap) -> Unit
 ){
     val context = LocalContext.current
@@ -127,8 +239,6 @@ fun CameraWithOverlayScreen(
     val density = LocalDensity.current.density
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var isCapturing by remember { mutableStateOf(false) }
-    //var showOverlay by remember { mutableStateOf(true) } // Nuevo estado
-    // Estado para el rectángulo guía
     var rectWidth by remember { mutableStateOf(250.dp) }
     var rectHeight by remember { mutableStateOf(150.dp) }
     var rectOffset by remember { mutableStateOf(Offset.Zero) }
@@ -147,8 +257,33 @@ fun CameraWithOverlayScreen(
                 }
         )
 
+        // Header con instrucciones
+        if (!isCapturing) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(
+                        Color.Black.copy(alpha = 0.7f),
+                        RoundedCornerShape(8.dp)
+                    )
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = "Enfoca el problema matemático",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "Ajusta el área verde para enmarcar el texto",
+                    color = Color.White.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        // Overlay con rectángulo guía (mismo código existente)
         if (previewSize != Size.Zero && showOverlay && !isCapturing) {
-            // Canvas para el overlay y el rectángulo
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // Overlay semi-transparente
                 drawRect(
@@ -186,121 +321,216 @@ fun CameraWithOverlayScreen(
                 )
             }
 
-            // Rectángulo redimensionable
+            // Rectángulo redimensionable (mantener código existente)
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .offset(rectOffset.x.dp, rectOffset.y.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(rectWidth, rectHeight)
-                        .align(Alignment.Center)
-                        .pointerInput(Unit) {
-                            detectDragGestures { change, dragAmount ->
-                                change.consume()
+                    .size(rectWidth, rectHeight)
+                    .align(Alignment.Center)
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+
+                            // Validar que previewSize sea válido
+                            if (previewSize.width > 0 && previewSize.height > 0) {
+                                val rectWidthPx = rectWidth.toPx()
+                                val rectHeightPx = rectHeight.toPx()
+
+                                // Calcular límites seguros
+                                val halfScreenWidth = previewSize.width / 2f
+                                val halfScreenHeight = previewSize.height / 2f
+                                val halfRectWidth = rectWidthPx / 2f
+                                val halfRectHeight = rectHeightPx / 2f
+
+                                // Asegurar que los límites sean válidos
+                                val maxOffsetX = kotlin.math.max(0f, (halfScreenWidth - halfRectWidth) / density)
+                                val maxOffsetY = kotlin.math.max(0f, (halfScreenHeight - halfRectHeight) / density)
+                                val minOffsetX = -maxOffsetX
+                                val minOffsetY = -maxOffsetY
+
+                                val newOffsetX = rectOffset.x + dragAmount.x / density
+                                val newOffsetY = rectOffset.y + dragAmount.y / density
+
+                                // Solo aplicar coerceIn si los rangos son válidos
                                 rectOffset = Offset(
-                                    rectOffset.x + dragAmount.x / density,
-                                    rectOffset.y + dragAmount.y / density
+                                    if (maxOffsetX >= minOffsetX) {
+                                        newOffsetX.coerceIn(minOffsetX, maxOffsetX)
+                                    } else {
+                                        0f // Mantener en centro si el rango es inválido
+                                    },
+                                    if (maxOffsetY >= minOffsetY) {
+                                        newOffsetY.coerceIn(minOffsetY, maxOffsetY)
+                                    } else {
+                                        0f // Mantener en centro si el rango es inválido
+                                    }
                                 )
                             }
                         }
-                ) {
-                    // Esquina superior izquierda
-                    Box(modifier = Modifier.align(Alignment.TopStart)) {
-                        ResizeCorner(
-                            onDrag = { dragAmount ->
-                                rectWidth = (rectWidth.value - dragAmount.x / density).coerceIn(100f, 300f).dp
-                                rectHeight = (rectHeight.value - dragAmount.y / density).coerceIn(80f, 250f).dp
-                            }
-                        )
                     }
+            ){
+                    // Esquinas de redimensionamiento
+                ResizeCorner(
+                    modifier = Modifier.align(Alignment.TopStart),
+                    onDrag = { dragAmount ->
+                        if (previewSize.width > 0 && previewSize.height > 0) {
+                            val maxWidth = kotlin.math.min(400f, previewSize.width / density)
+                            val maxHeight = kotlin.math.min(300f, previewSize.height / density)
 
-                    // Esquina superior derecha
-                    Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                        ResizeCorner(
-                            onDrag = { dragAmount ->
-                                rectWidth = (rectWidth.value + dragAmount.x / density).coerceIn(100f, 300f).dp
-                                rectHeight = (rectHeight.value - dragAmount.y / density).coerceIn(80f, 250f).dp
-                            }
-                        )
-                    }
+                            val newWidth = (rectWidth.value - dragAmount.x / density).coerceIn(100f, maxWidth)
+                            val newHeight = (rectHeight.value - dragAmount.y / density).coerceIn(80f, maxHeight)
 
-                    // Esquina inferior izquierda
-                    Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                        ResizeCorner(
-                            onDrag = { dragAmount ->
-                                rectWidth = (rectWidth.value - dragAmount.x / density).coerceIn(100f, 300f).dp
-                                rectHeight = (rectHeight.value + dragAmount.y / density).coerceIn(80f, 250f).dp
-                            }
-                        )
-                    }
-
-                    // Esquina inferior derecha
-                    Box(modifier = Modifier.align(Alignment.BottomEnd)) {
-                        ResizeCorner(
-                            onDrag = { dragAmount ->
-                                rectWidth = (rectWidth.value + dragAmount.x / density).coerceIn(100f, 300f).dp
-                                rectHeight = (rectHeight.value + dragAmount.y / density).coerceIn(80f, 250f).dp
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        // Botón de captura
-        Button(
-            onClick = {
-                isCapturing = true
-                onShowOverlayChange(false) // Usar la función en lugar de asignar directamente
-                val outputOptions = ImageCapture.OutputFileOptions.Builder(
-                    File.createTempFile("image", ".jpg", context.cacheDir)
-                ).build()
-
-                imageCapture?.takePicture(
-                    outputOptions,
-                    ContextCompat.getMainExecutor(context),
-                    object : ImageCapture.OnImageSavedCallback {
-                        override fun onError(exception: ImageCaptureException) {
-                            Log.e("Camera", "Capture failed: ${exception.message}")
-                            isCapturing = false
-                            onShowOverlayChange(true)
-                        }
-
-                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                            isCapturing = false
-                            val file = File(output.savedUri?.path ?: return)
-                            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                            val correctedBitmap = correctImageOrientation(bitmap, file.absolutePath)
-                            val croppedBitmap = cropBitmapToGuideRect(
-                                correctedBitmap,
-                                rectWidth,
-                                rectHeight,
-                                rectOffset,
-                                previewSize
-                            )
-                            onImageCaptured(croppedBitmap)
+                            rectWidth = newWidth.dp
+                            rectHeight = newHeight.dp
                         }
                     }
                 )
-            },
+
+                ResizeCorner(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    onDrag = { dragAmount ->
+                        if (previewSize.width > 0 && previewSize.height > 0) {
+                            val maxWidth = kotlin.math.min(400f, previewSize.width / density)
+                            val maxHeight = kotlin.math.min(300f, previewSize.height / density)
+
+                            val newWidth = (rectWidth.value + dragAmount.x / density).coerceIn(100f, maxWidth)
+                            val newHeight = (rectHeight.value - dragAmount.y / density).coerceIn(80f, maxHeight)
+
+                            rectWidth = newWidth.dp
+                            rectHeight = newHeight.dp
+                        }
+                    }
+                )
+
+                ResizeCorner(
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    onDrag = { dragAmount ->
+                        if (previewSize.width > 0 && previewSize.height > 0) {
+                            val maxWidth = kotlin.math.min(400f, previewSize.width / density)
+                            val maxHeight = kotlin.math.min(300f, previewSize.height / density)
+
+                            val newWidth = (rectWidth.value - dragAmount.x / density).coerceIn(100f, maxWidth)
+                            val newHeight = (rectHeight.value + dragAmount.y / density).coerceIn(80f, maxHeight)
+
+                            rectWidth = newWidth.dp
+                            rectHeight = newHeight.dp
+                        }
+                    }
+                )
+
+                ResizeCorner(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    onDrag = { dragAmount ->
+                        if (previewSize.width > 0 && previewSize.height > 0) {
+                            val maxWidth = kotlin.math.min(400f, previewSize.width / density)
+                            val maxHeight = kotlin.math.min(300f, previewSize.height / density)
+
+                            val newWidth = (rectWidth.value + dragAmount.x / density).coerceIn(100f, maxWidth)
+                            val newHeight = (rectHeight.value + dragAmount.y / density).coerceIn(80f, maxHeight)
+
+                            rectWidth = newWidth.dp
+                            rectHeight = newHeight.dp
+                        }
+                    }
+                )
+                }
+            }
+        }
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Botón de captura mejorado
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
-            enabled = !isCapturing
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(if (isCapturing) "Capturando..." else "Capturar")
-        }
+            if (isCapturing) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Capturando imagen...",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                Button(
+                    onClick = {
+                        isCapturing = true
+                        onShowOverlayChange(false)
+                        val outputOptions = ImageCapture.OutputFileOptions.Builder(
+                            File.createTempFile("image", ".jpg", context.cacheDir)
+                        ).build()
 
-        if (isCapturing) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.primary
-            )
+                        imageCapture?.takePicture(
+                            outputOptions,
+                            ContextCompat.getMainExecutor(context),
+                            object : ImageCapture.OnImageSavedCallback {
+                                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                                    output.savedUri?.let { uri ->
+                                        try {
+                                            val bitmap = BitmapFactory.decodeFile(uri.path)
+                                            val correctedBitmap = correctImageOrientation(bitmap, uri.path ?: "")
+
+                                            // Validar que previewSize sea válido antes de procesar
+                                            val croppedBitmap = if (previewSize.width > 0 && previewSize.height > 0) {
+                                                cropBitmapToGuideRect(
+                                                    bitmap = correctedBitmap,
+                                                    rectWidth = rectWidth,
+                                                    rectHeight = rectHeight,
+                                                    rectOffset = rectOffset,
+                                                    previewSize = previewSize,
+                                                    density = density
+                                                )
+                                            } else {
+                                                // Si no hay previewSize válido, usar la imagen completa
+                                                correctedBitmap
+                                            }
+
+                                            onImageCaptured(croppedBitmap)
+                                        } catch (e: Exception) {
+                                            Log.e("CameraCapture", "Error al procesar imagen", e)
+                                            // En caso de error, usar la imagen original sin recortar
+                                            output.savedUri?.let { fallbackUri ->
+                                                try {
+                                                    val fallbackBitmap = BitmapFactory.decodeFile(fallbackUri.path)
+                                                    onImageCaptured(fallbackBitmap)
+                                                } catch (fallbackError: Exception) {
+                                                    Log.e("CameraCapture", "Error en fallback", fallbackError)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    isCapturing = false
+                                    onShowOverlayChange(true)
+                                }
+
+                                override fun onError(exception: ImageCaptureException) {
+                                    Log.e("CameraCapture", "Error al capturar imagen", exception)
+                                    isCapturing = false
+                                    onShowOverlayChange(true)
+                                }
+                            }
+                        )
+                    },
+                    enabled = !isCapturing,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.size(80.dp, 50.dp)
+                ) {
+                    Text("Capturar")
+                }
+            }
+        }
         }
     }
-}
+
 
 @Composable
 fun ResizeCorner(
@@ -601,63 +831,6 @@ fun ChatScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Barra superior
-        /*Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onCameraClick,
-                enabled = !isWaitingResponse
-            ) {
-                Icon(
-                    Icons.Default.Call,
-                    contentDescription = "Tomar foto",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            OutlinedTextField(
-                value = userInput,
-                onValueChange = { userInput = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Haz una pregunta o toma una foto...") },
-                enabled = !isWaitingResponse,
-                maxLines = 3
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = {
-                    if (userInput.isNotBlank()) {
-                        val newUserMessage = ChatMessage(userInput, true)
-                        messages = messages + newUserMessage
-                        scope.launch {
-                            isWaitingResponse = true
-                            try {
-                                val response = geminiService.continueChatConversation(
-                                    messages.dropLast(1),
-                                    userInput
-                                )
-                                messages = messages + ChatMessage(response, false)
-                            } catch (e: Exception) {
-                                messages = messages + ChatMessage("Error: ${e.message}", false)
-                            }
-                            isWaitingResponse = false
-                        }
-                        userInput = ""
-                    }
-                },
-                enabled = !isWaitingResponse && userInput.isNotBlank()
-            ) {
-                Icon(Icons.Default.Send, contentDescription = "Enviar")
-            }
-        }*/
-
         // Lista de mensajes
         LazyColumn(
             modifier = Modifier
@@ -688,53 +861,6 @@ fun ChatScreen(
                 Text("Procesando...")
             }
         }
-
-        // Campo de entrada para nuevas preguntas
-        /*Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = userInput,
-                onValueChange = { userInput = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Haz una pregunta sobre el problema...") },
-                enabled = !isWaitingResponse,
-                maxLines = 3
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = {
-                    if (userInput.isNotBlank()) {
-                        val newUserMessage = ChatMessage(userInput, true)
-                        messages = messages + newUserMessage
-
-                        scope.launch {
-                            isWaitingResponse = true
-                            try {
-                                val response = geminiService.continueChatConversation(
-                                    messages.dropLast(1), // Excluir el último mensaje que acabamos de agregar
-                                    userInput
-                                )
-                                messages = messages + ChatMessage(response, false)
-                            } catch (e: Exception) {
-                                messages = messages + ChatMessage("Error: ${e.message}", false)
-                            }
-                            isWaitingResponse = false
-                        }
-
-                        userInput = ""
-                    }
-                },
-                enabled = !isWaitingResponse && userInput.isNotBlank()
-            ) {
-                Icon(Icons.Default.Send, contentDescription = "Enviar")
-            }
-        }*/
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -790,19 +916,6 @@ fun ChatScreen(
                 Icon(Icons.Default.Send, contentDescription = "Enviar")
             }
         }
-
-        // Botón para escanear nuevo problema
-        /*Button(
-            onClick = onClose,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-        ) {
-            Icon(Icons.Default.Call, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Escanear nuevo problema")
-        }*/
     }
 }
 
