@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -29,43 +31,44 @@ import dagger.hilt.android.HiltAndroidApp
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*enableEdgeToEdge()
-        //
+
         try {
-        setContent {
-            Log.e("MainActivity", "setContent____")
-            Feature_UITheme {
-                NavigationMain()
-                }
-        }
-        }catch (e: Exception) {
-            Log.e("MainActivity", "Error: ${e.message}")
-        }*/
-        if (!isInTestMode()) {
             setContent {
-                MyApp()
-
-                // Creates a button that mimics a crash when pressed
-                /*val crashButton = Button(this)
-                crashButton.text = "Test Crash"
-                crashButton.setOnClickListener {
-                    throw RuntimeException("Test Crash") // Force a crash
+                Feature_UITheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        NavigationMain()
+                    }
                 }
-
-                addContentView(crashButton, ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT))*/
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onCreate", e)
+            // Fallback UI
+            setContent {
+                Feature_UITheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Error al cargar la aplicación")
+                        }
+                    }
+                }
             }
         }
     }
-    private fun isInTestMode(): Boolean {
-        return "true" == System.getProperty("IS_TEST_MODE")
-    }
-}
 
-@Composable
-fun MyApp() {
-    Feature_UITheme {
-        NavigationMain()
+    override fun onDestroy() {
+        try {
+            super.onDestroy()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onDestroy", e)
+        }
     }
 }
