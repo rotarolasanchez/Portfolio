@@ -1,4 +1,3 @@
-
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -7,12 +6,12 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
-    //alias(libs.plugins.sonarqube.plugin)
-    id("io.realm.kotlin") version libs.versions.realm.get() // Realm plugin
+    id("io.realm.kotlin") version libs.versions.realm.get()
     id("org.sonarqube") version libs.versions.sonarqube.get()
-    id ("jacoco")
+    id("jacoco")
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 jacoco {
@@ -52,16 +51,13 @@ android {
     namespace = "com.rotarola.portafolio_kotlin"
     compileSdk = 35
 
-
     defaultConfig {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 5
-        versionName = "2.1.1"
+        versionCode = 8
+        versionName = "2.3.0"
         multiDexEnabled = true
-        //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        //testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
         testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -71,12 +67,14 @@ android {
     signingConfigs {
         create("release") {
             val keystorePropertiesFile = file("keystore.properties")
-            val keystoreProperties = Properties()
-            keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+            if (keystorePropertiesFile.exists()) {
+                val keystoreProperties = Properties()
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
@@ -86,11 +84,10 @@ android {
             property("sonar.organization", "")
             property("sonar.host.url", "https://sonarqube.capibarafamily.online/")
             property("sonar.token", "SONAR_TOKEN")
-            property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-            property("sonar.junit.reportPaths", "${buildDir}/test-results/test")
+            property("sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml").get().asFile.absolutePath)
+            property("sonar.junit.reportPaths", layout.buildDirectory.dir("test-results/test").get().asFile.absolutePath)
         }
     }
-
 
     buildTypes {
         release {
@@ -99,18 +96,35 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            isDebuggable = true
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         buildConfig = true
         compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8"
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -133,6 +147,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.ui.test.junit4.android)
     implementation(libs.androidx.runner)
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
