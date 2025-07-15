@@ -11,6 +11,7 @@ plugins {
     id("jacoco")
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 jacoco {
@@ -54,8 +55,8 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 8  // Incrementar version code
-        versionName = "2.1.2"
+        versionCode = 8
+        versionName = "2.3.0"
         multiDexEnabled = true
         testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {
