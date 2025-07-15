@@ -22,12 +22,12 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
+        xml.outputLocation.set(file("${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
         html.required.set(true)
     }
 
     classDirectories.setFrom(
-        fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        fileTree("${buildDir}/tmp/kotlin-classes/debug") {
             include("**/*.class")
             exclude(
                 "**/di/**",
@@ -39,7 +39,11 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     sourceDirectories.setFrom(
         files("src/main/java", "src/main/kotlin")
     )
-    executionData.setFrom(files(layout.buildDirectory.file("jacoco/testDebugUnitTest.exec")))
+    executionData.setFrom(files("${buildDir}/jacoco/testDebugUnitTest.exec"))
+}
+
+tasks.withType<Test> {
+    finalizedBy(tasks.named("jacocoTestReport"))
 }
 
 android {
