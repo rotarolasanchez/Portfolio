@@ -48,29 +48,6 @@ tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
-/*
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}*/
-/*
-tasks.register("verifyJacocoReport") {
-    dependsOn("jacocoTestReport")
-    doLast {
-        val reportFile = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
-        if (!reportFile.exists()) {
-            throw GradleException("Jacoco report not found: ${reportFile.absolutePath}")
-        } else {
-            println("Jacoco report generated successfully: ${reportFile.absolutePath}")
-        }
-    }
-}
-
-tasks.named("check") {
-    dependsOn("verifyJacocoReport")
-}*/
-
 android {
     namespace = "com.rotarola.portafolio_kotlin"
     compileSdk = 35
@@ -135,24 +112,6 @@ android {
         buildConfig = true
         compose = true
     }
-    /*composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.5"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }*/
-
-    /*packagingOptions {
-        exclude("META-INF/gradle/incremental.annotation.processors")
-    }*/
-/*
-    packaging {
-        resources.excludes.add("META-INF/gradle/incremental.annotation.processors")
-    }
-
-*/
 }
 
 configurations.all {
