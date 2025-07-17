@@ -56,7 +56,7 @@ fun TextM3(
     text:String,
     placeholder:String,
     label:String,
-    leadingiconResourceId:Painter,
+    leadingiconResourceId:Painter = painterResource(id = R.drawable.ic_baseline_calendar_month_24),
     keyboardType:KeyboardType,
     statusMaxCharacter:Boolean=true,
     countMaxCharacter:Int=254,
