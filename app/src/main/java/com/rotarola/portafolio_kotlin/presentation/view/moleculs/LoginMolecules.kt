@@ -57,8 +57,6 @@ fun LoginActions(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier,
-        //
-        // verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         LoginButton(
             text = "Ingresar",

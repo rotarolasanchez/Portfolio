@@ -40,16 +40,16 @@ class TextRecognitionAnalyzer @Inject constructor() {
 class TextRecognitionAnalyzer @Inject constructor() {
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-    suspend fun analyzeImage(bitmap: Bitmap): String {
-        return withContext(Dispatchers.Default) {
-            try {
-                val image = InputImage.fromBitmap(bitmap, 0)
-                val result = recognizer.process(image).await()
-                result.text
-            } catch (e: Exception) {
-                Log.e("TextRecognition", "Error: ${e.message}")
-                ""
-            }
+    suspend fun recognizeText(bitmap: Bitmap): String = withContext(Dispatchers.IO) {
+        Log.e("TextRecognizer", "Ingreso a recognizeText con bitmap: $bitmap")
+        try {
+            val image = InputImage.fromBitmap(bitmap, 0)
+            val result = recognizer.process(image).await()
+            Log.e("TextRecognizer", "Texto reconocido: ${result.text}")
+            result.text
+        } catch (e: Exception) {
+            Log.e("TextRecognizer", "Error recognizing text", e)
+            throw e
         }
     }
 }

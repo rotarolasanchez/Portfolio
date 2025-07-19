@@ -1,7 +1,7 @@
 package com.rotarola.portafolio_kotlin.core.utils
 
 import com.google.ai.client.generativeai.GenerativeModel
-import com.rotarola.portafolio_kotlin.presentation.view.pages.ChatMessage
+import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
 
 // 2. Crea un servicio para manejar la API de Gemini
 class GeminiService {

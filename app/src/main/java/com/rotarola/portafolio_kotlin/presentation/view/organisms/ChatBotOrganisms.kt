@@ -8,7 +8,6 @@ import androidx.camera.core.ImageCaptureException
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
@@ -54,18 +54,29 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.rotarola.portafolio_kotlin.R
 import com.rotarola.portafolio_kotlin.core.utils.GeminiService
 import com.rotarola.portafolio_kotlin.core.utils.correctImageOrientation
 import com.rotarola.portafolio_kotlin.core.utils.cropBitmapToGuideRect
 import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
+import com.rotarola.portafolio_kotlin.presentation.view.atoms.ChatBotEditText
+import com.rotarola.portafolio_kotlin.presentation.view.atoms.LoginTextField
 import com.rotarola.portafolio_kotlin.presentation.view.moleculs.ChatMessageBubble
-import com.rotarola.portafolio_kotlin.presentation.view.pages.CameraPreviewWithCapture
-import com.rotarola.portafolio_kotlin.presentation.view.pages.ResizeCorner
+import com.rotarola.portafolio_kotlin.presentation.view.moleculs.LoginForm
 import kotlinx.coroutines.launch
 import java.io.File
+import androidx.compose.foundation.gestures.detectDragGestures as detectDragGestures1
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import com.rotarola.portafolio_kotlin.presentation.view.atoms.CameraPreviewWithCapture
+import com.rotarola.portafolio_kotlin.presentation.view.atoms.ChatBotButton
+import com.rotarola.portafolio_kotlin.presentation.view.atoms.LoginButton
+import com.rotarola.portafolio_kotlin.presentation.view.atoms.ResizeCorner
 
 @Composable
 fun CameraWithOverlaySection(
@@ -120,7 +131,7 @@ fun CameraWithOverlaySection(
             }
         }
 
-        // Overlay con rectángulo guía (mismo código existente)
+        // Overlay con rectángulo guía
         if (previewSize != Size.Zero && showOverlay && !isCapturing) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // Overlay semi-transparente
@@ -133,8 +144,8 @@ fun CameraWithOverlaySection(
                 // Calcular posición del rectángulo
                 val centerX = size.width / 2f + rectOffset.x * density
                 val centerY = size.height / 2f + rectOffset.y * density
-                val rectWidthPx = rectWidth.toPx()
-                val rectHeightPx = rectHeight.toPx()
+                val rectWidthPx = rectWidth.value * density
+                val rectHeightPx = rectHeight.value * density
 
                 // Área del rectángulo (transparente)
                 drawRect(
@@ -159,52 +170,59 @@ fun CameraWithOverlaySection(
                 )
             }
 
-            // Rectángulo redimensionable (mantener código existente)
+            // Box redimensionable
             Box(
                 modifier = Modifier
                     .size(rectWidth, rectHeight)
-                    .align(Alignment.Center)
+                    .offset(
+                        x = (previewSize.width / (2f * density)).dp + rectOffset.x.dp - rectWidth.div(
+                            2
+                        ),
+                        y = (previewSize.height / (2f * density)).dp + rectOffset.y.dp - rectHeight.div(
+                            2
+                        )
+                    )
                     .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
+                        detectDragGestures1 { change, dragAmount ->
                             change.consume()
 
-                            // Validar que previewSize sea válido
                             if (previewSize.width > 0 && previewSize.height > 0) {
-                                val rectWidthPx = rectWidth.toPx()
-                                val rectHeightPx = rectHeight.toPx()
+                                val rectWidthPx = rectWidth.value * density
+                                val rectHeightPx = rectHeight.value * density
 
-                                // Calcular límites seguros
                                 val halfScreenWidth = previewSize.width / 2f
                                 val halfScreenHeight = previewSize.height / 2f
                                 val halfRectWidth = rectWidthPx / 2f
                                 val halfRectHeight = rectHeightPx / 2f
 
-                                // Asegurar que los límites sean válidos
-                                val maxOffsetX = kotlin.math.max(0f, (halfScreenWidth - halfRectWidth) / density)
-                                val maxOffsetY = kotlin.math.max(0f, (halfScreenHeight - halfRectHeight) / density)
+                                val maxOffsetX =
+                                    kotlin.math.max(0f, (halfScreenWidth - halfRectWidth) / density)
+                                val maxOffsetY = kotlin.math.max(
+                                    0f,
+                                    (halfScreenHeight - halfRectHeight) / density
+                                )
                                 val minOffsetX = -maxOffsetX
                                 val minOffsetY = -maxOffsetY
 
                                 val newOffsetX = rectOffset.x + dragAmount.x / density
                                 val newOffsetY = rectOffset.y + dragAmount.y / density
 
-                                // Solo aplicar coerceIn si los rangos son válidos
                                 rectOffset = Offset(
                                     if (maxOffsetX >= minOffsetX) {
                                         newOffsetX.coerceIn(minOffsetX, maxOffsetX)
                                     } else {
-                                        0f // Mantener en centro si el rango es inválido
+                                        0f
                                     },
                                     if (maxOffsetY >= minOffsetY) {
                                         newOffsetY.coerceIn(minOffsetY, maxOffsetY)
                                     } else {
-                                        0f // Mantener en centro si el rango es inválido
+                                        0f
                                     }
                                 )
                             }
                         }
                     }
-            ){
+            ) {
                 // Esquinas de redimensionamiento
                 ResizeCorner(
                     modifier = Modifier.align(Alignment.TopStart),
@@ -271,9 +289,8 @@ fun CameraWithOverlaySection(
                 )
             }
         }
-    }
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Botón de captura mejorado
+
+        // Botón de captura - MOVER DENTRO DEL BOX
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -296,7 +313,9 @@ fun CameraWithOverlaySection(
                     )
                 }
             } else {
-                Button(
+                ChatBotButton(
+                    leadingiconResourceId = R.drawable.outline_photo_camera_24,
+                    text = "Capturar",
                     onClick = {
                         isCapturing = true
                         onShowOverlayChange(false)
@@ -314,7 +333,6 @@ fun CameraWithOverlaySection(
                                             val bitmap = BitmapFactory.decodeFile(uri.path)
                                             val correctedBitmap = correctImageOrientation(bitmap, uri.path ?: "")
 
-                                            // Validar que previewSize sea válido antes de procesar
                                             val croppedBitmap = if (previewSize.width > 0 && previewSize.height > 0) {
                                                 cropBitmapToGuideRect(
                                                     bitmap = correctedBitmap,
@@ -325,14 +343,12 @@ fun CameraWithOverlaySection(
                                                     density = density
                                                 )
                                             } else {
-                                                // Si no hay previewSize válido, usar la imagen completa
                                                 correctedBitmap
                                             }
 
                                             onImageCaptured(croppedBitmap)
                                         } catch (e: Exception) {
                                             Log.e("CameraCapture", "Error al procesar imagen", e)
-                                            // En caso de error, usar la imagen original sin recortar
                                             output.savedUri?.let { fallbackUri ->
                                                 try {
                                                     val fallbackBitmap = BitmapFactory.decodeFile(fallbackUri.path)
@@ -354,19 +370,11 @@ fun CameraWithOverlaySection(
                                 }
                             }
                         )
-                    },
-                    enabled = !isCapturing,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    modifier = Modifier.size(80.dp, 50.dp)
-                ) {
-                    Text("Capturar")
-                }
+                    }
+                )
             }
         }
-    }
+    } // Cerrar Box aquí
 }
 
 @Composable
@@ -469,20 +477,20 @@ fun ChatScreen(
     initialProblem: String,
     onCameraClick: () -> Unit
 ) {
-    var messages by remember { mutableStateOf(
-        if (initialProblem.isNotBlank())
-            listOf(ChatMessage(initialProblem, true))
-        else
-            emptyList()
-    ) }
+    var messages by remember { mutableStateOf(emptyList<ChatMessage>()) }
     var isWaitingResponse by remember { mutableStateOf(false) }
     var userInput by remember { mutableStateOf("") }
     val geminiService = remember { GeminiService() }
     val scope = rememberCoroutineScope()
 
-    // Procesar el problema inicial automáticamente
+    // Procesar el problema inicial automáticamente cuando cambie
     LaunchedEffect(initialProblem) {
-        if (messages.size == 1 && messages.first().isFromUser) {
+        if (initialProblem.isNotBlank()) {
+            // Agregar mensaje del usuario con el texto detectado
+            val userMessage = ChatMessage(initialProblem, true)
+            messages = listOf(userMessage)
+
+            // Enviar automáticamente a Gemini
             isWaitingResponse = true
             try {
                 val response = geminiService.solveProblem(initialProblem)
@@ -529,60 +537,37 @@ fun ChatScreen(
                 Text("Procesando...")
             }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onCameraClick,
-                enabled = !isWaitingResponse
-            ) {
-                Icon(
-                    Icons.Default.Call,
-                    contentDescription = "Tomar foto",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
 
-            OutlinedTextField(
-                value = userInput,
-                onValueChange = { userInput = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Haz una pregunta o toma una foto...") },
-                enabled = !isWaitingResponse,
-                maxLines = 3
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = {
-                    if (userInput.isNotBlank()) {
-                        val newUserMessage = ChatMessage(userInput, true)
-                        messages = messages + newUserMessage
-                        scope.launch {
-                            isWaitingResponse = true
-                            try {
-                                val response = geminiService.continueChatConversation(
-                                    messages.dropLast(1),
-                                    userInput
-                                )
-                                messages = messages + ChatMessage(response, false)
-                            } catch (e: Exception) {
-                                messages = messages + ChatMessage("Error: ${e.message}", false)
-                            }
-                            isWaitingResponse = false
+        ChatBotEditText(
+            value = userInput,
+            onValueChange =  { userInput = it },
+            label = "",
+            leadingIcon = painterResource (id = R.drawable.outline_photo_camera_24),
+            trailingIcon = painterResource (id = R.drawable.outline_send_24),
+            leadingIconStatus = true,
+            trailingIconStatus = true,
+            leadingIconOnClick = {onCameraClick()},
+            trailingIconOnClick = {
+                if (userInput.isNotBlank()) {
+                    val newUserMessage = ChatMessage(userInput, true)
+                    messages = messages + newUserMessage
+                    scope.launch {
+                        isWaitingResponse = true
+                        try {
+                            val response = geminiService.continueChatConversation(
+                                messages.dropLast(1),
+                                userInput
+                            )
+                            messages = messages + ChatMessage(response, false)
+                        } catch (e: Exception) {
+                            messages = messages + ChatMessage("Error: ${e.message}", false)
                         }
-                        userInput = ""
+                        isWaitingResponse = false
                     }
-                },
-                enabled = !isWaitingResponse && userInput.isNotBlank()
-            ) {
-                Icon(Icons.Default.Send, contentDescription = "Enviar")
-            }
-        }
+                    userInput = ""
+                }
+            },
+            countMaxCharacter = 200,
+        )
     }
 }

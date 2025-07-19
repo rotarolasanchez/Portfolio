@@ -32,7 +32,7 @@ fun NavigationMain() {
                 onNavigateToSection = { section ->
                     // Aquí navegas a las diferentes rutas
                     when (section) {
-                        "Home" -> navController.navigate("scan")
+                        "ChatBot" -> navController.navigate("chatbot")
                         "Profile" -> navController.navigate("profile")
                         "Settings" -> navController.navigate("settings")
                         "Help" -> navController.navigate("help")
@@ -42,7 +42,7 @@ fun NavigationMain() {
         }
 
         // Agregar las rutas para cada sección
-        composable("scan") {
+        composable("chatbot") {
             ChatBotPage()
         }
     }

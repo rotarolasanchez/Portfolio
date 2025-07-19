@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class
 )
+
 @Composable
 fun TextM3(
     id:Int=0,
@@ -56,7 +57,7 @@ fun TextM3(
     text:String,
     placeholder:String,
     label:String,
-    leadingiconResourceId:Painter = painterResource(id = R.drawable.ic_baseline_calendar_month_24),
+    leadingiconResourceId:Painter = painterResource(id = R.drawable.baseline_home_24),
     keyboardType:KeyboardType,
     statusMaxCharacter:Boolean=true,
     countMaxCharacter:Int=254,
@@ -365,7 +366,8 @@ fun EditextM3(
     isPasswordVisible: Boolean = false,   // Estado de visibilidad del texto
     onPasswordVisibilityChanged: (Boolean) -> Unit = {}, // Evento para alternar visibilidad,
     testTag: String = "",
-    modifier : Modifier = Modifier
+    modifier : Modifier = Modifier,
+    leadingIconOnClick:(String) -> Unit = { _ ->  },
 ){
     val keyboardController = LocalSoftwareKeyboardController.current
     val text = remember { mutableStateOf(value) }
@@ -438,11 +440,20 @@ fun EditextM3(
                             color = Color.Gray
                         )},
                     leadingIcon = {
-                        Icon(
+                        /*Icon(
                             painter = leadingiconResourceId,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
-                        )
+                        )*/
+                        IconButton(onClick = {
+                            leadingIconOnClick(text.value)
+                        }) {
+                            Icon(
+                                painter = leadingiconResourceId,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     },
                     trailingIcon = {
                         if (isPasswordField) {
@@ -668,11 +679,20 @@ fun EditextM3(
                             color = Color.Gray
                         )},
                     leadingIcon = {
-                        Icon(
+                        /*Icon(
                             painter = leadingiconResourceId,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
-                        )
+                        )*/
+                        IconButton(onClick = {
+                            leadingIconOnClick(text.value)
+                        }) {
+                            Icon(
+                                painter = leadingiconResourceId,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = keyboardType,

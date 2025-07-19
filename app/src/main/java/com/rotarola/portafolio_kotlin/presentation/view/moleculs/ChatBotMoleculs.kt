@@ -18,9 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.rotarola.portafolio_kotlin.R
 import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
-import com.rotarola.portafolio_kotlin.presentation.view.atoms.ChatBitTextField
 import com.rotarola.portafolio_kotlin.presentation.view.atoms.ChatBotTextField
 
 // 4. Actualiza el ChatMessageBubble para mejor presentación
@@ -34,7 +36,8 @@ fun ChatMessageBubble(message: ChatMessage) {
     ) {
         if (!message.isFromUser) {
             Icon(
-                Icons.Default.Star,
+                //Icons.Default.Star,
+                painter = painterResource(R.drawable.outline_robot_2_24),
                 contentDescription = "AI",
                 modifier = Modifier
                     .size(32.dp)
@@ -61,15 +64,15 @@ fun ChatMessageBubble(message: ChatMessage) {
                 )
                 .padding(12.dp)
         ) {
-            ChatBotTextField(message.text,message.text)
-            /*Text(
+            //ChatBotTextField(message.text,message.text)
+            Text(
                 text = message.text,
                 color = if (message.isFromUser)
                     MaterialTheme.colorScheme.onPrimary
                 else
                     MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.bodyMedium
-            )*/
+            )
         }
 
         if (message.isFromUser) {

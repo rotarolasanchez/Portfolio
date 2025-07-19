@@ -2,8 +2,10 @@ package com.rotarola.portafolio_kotlin.presentation.view.templates
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,11 +16,11 @@ import com.rotarola.portafolio_kotlin.presentation.view.organisms.CameraWithOver
 import com.rotarola.portafolio_kotlin.presentation.view.organisms.ChatScreen
 import com.rotarola.portafolio_kotlin.presentation.view.organisms.ImagePreviewScreen
 import com.rotarola.portafolio_kotlin.presentation.viewmodels.ScanState
-import com.rotarola.portafolio_kotlin.presentation.viewmodels.ScanViewModel
+import com.rotarola.portafolio_kotlin.presentation.viewmodels.ChatBotViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ChatBotTemplate(viewModel: ScanViewModel = hiltViewModel()) {
+fun ChatBotTemplate(viewModel: ChatBotViewModel = hiltViewModel()) {
 
     val scanState by viewModel.scanState.collectAsState()
     var showCameraScreen by remember { mutableStateOf(false) }
@@ -28,6 +30,29 @@ fun ChatBotTemplate(viewModel: ScanViewModel = hiltViewModel()) {
     var detectedText by remember { mutableStateOf("") }
     var showOverlay by remember { mutableStateOf(true) }
 
+    // Procesar el problema inicial automáticamente cuando cambie
+    // Observar cambios en el estado del scan
+    LaunchedEffect(scanState) {
+        when (scanState) {
+            is ScanState.Success -> {
+                val newText = (scanState as ScanState.Success).text
+                Log.d("ChatBotTemplate", "Texto detectado: $newText")
+                detectedText = newText
+                showCameraScreen = false
+                showPreviewScreen = false
+                showChatScreen = true
+                viewModel.reset()
+            }
+            is ScanState.Error -> {
+                //Log.e("ChatBotTemplate", "Error al procesar imagen: ${scanState.message}")
+                showCameraScreen = false
+                showPreviewScreen = false
+                showChatScreen = true
+                viewModel.reset()
+            }
+            else -> { /* No hacer nada para Initial y Processing */ }
+        }
+    }
     Scaffold(
         //modifier = modifier,
         snackbarHost = {
@@ -51,7 +76,7 @@ fun ChatBotTemplate(viewModel: ScanViewModel = hiltViewModel()) {
                     onAccept = {
                         viewModel.processImage(capturedBitmap!!)
                         showPreviewScreen = false
-                        showChatScreen = true
+                        //showChatScreen = true
                     },
                     onRetake = {
                         capturedBitmap = null
@@ -64,17 +89,12 @@ fun ChatBotTemplate(viewModel: ScanViewModel = hiltViewModel()) {
                 ChatScreen(
                     initialProblem = detectedText,
                     onCameraClick = {
+                        detectedText = "" // Limpiar texto anterior
                         showCameraScreen = true
                         showChatScreen = false
                     }
                 )
             }
-        }
-
-        if (scanState is ScanState.Success) {
-            detectedText = (scanState as ScanState.Success).text
-            showChatScreen = true
-            viewModel.reset()
         }
     }
 }
