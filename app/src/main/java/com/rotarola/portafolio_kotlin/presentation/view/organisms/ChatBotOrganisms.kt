@@ -73,6 +73,9 @@ import androidx.compose.foundation.gestures.detectDragGestures as detectDragGest
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import com.rotarola.portafolio_kotlin.presentation.state.CameraState
+import com.rotarola.portafolio_kotlin.presentation.state.CameraUiState
+import com.rotarola.portafolio_kotlin.presentation.state.ChatBotUiState
 import com.rotarola.portafolio_kotlin.presentation.view.atoms.CameraPreviewWithCapture
 import com.rotarola.portafolio_kotlin.presentation.view.atoms.ChatBotButton
 import com.rotarola.portafolio_kotlin.presentation.view.atoms.LoginButton
@@ -471,36 +474,15 @@ fun ImagePreviewScreen(
     }
 }
 
-// 3. Actualiza el ChatScreen para incluir la funcionalidad de Gemini
+// Reemplazar el ChatScreen actual en ChatBotOrganisms.kt
+
 @Composable
 fun ChatScreen(
-    initialProblem: String,
+    uiState: ChatBotUiState,
+    onSendMessage: (String) -> Unit,
     onCameraClick: () -> Unit
 ) {
-    var messages by remember { mutableStateOf(emptyList<ChatMessage>()) }
-    var isWaitingResponse by remember { mutableStateOf(false) }
     var userInput by remember { mutableStateOf("") }
-    val geminiService = remember { GeminiService() }
-    val scope = rememberCoroutineScope()
-
-    // Procesar el problema inicial automáticamente cuando cambie
-    LaunchedEffect(initialProblem) {
-        if (initialProblem.isNotBlank()) {
-            // Agregar mensaje del usuario con el texto detectado
-            val userMessage = ChatMessage(initialProblem, true)
-            messages = listOf(userMessage)
-
-            // Enviar automáticamente a Gemini
-            isWaitingResponse = true
-            try {
-                val response = geminiService.solveProblem(initialProblem)
-                messages = messages + ChatMessage(response, false)
-            } catch (e: Exception) {
-                messages = messages + ChatMessage("Error al procesar el problema: ${e.message}", false)
-            }
-            isWaitingResponse = false
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -515,14 +497,14 @@ fun ChatScreen(
                 .padding(horizontal = 16.dp),
             reverseLayout = true
         ) {
-            items(messages.asReversed()) { message ->
+            items(uiState.messages.asReversed()) { message ->
                 ChatMessageBubble(message)
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
         // Indicador de escritura
-        if (isWaitingResponse) {
+        if (uiState.isProcessing) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -538,36 +520,71 @@ fun ChatScreen(
             }
         }
 
+        // Error message
+        uiState.error?.let { error ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(
+                        MaterialTheme.colorScheme.errorContainer,
+                        RoundedCornerShape(8.dp)
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
         ChatBotEditText(
             value = userInput,
-            onValueChange =  { userInput = it },
-            label = "",
-            leadingIcon = painterResource (id = R.drawable.outline_photo_camera_24),
-            trailingIcon = painterResource (id = R.drawable.outline_send_24),
+            onValueChange = { userInput = it },
+            label = "Escribe tu mensaje...",
+            leadingIcon = painterResource(id = R.drawable.outline_photo_camera_24),
+            trailingIcon = painterResource(id = R.drawable.outline_send_24),
             leadingIconStatus = true,
-            trailingIconStatus = true,
-            leadingIconOnClick = {onCameraClick()},
+            trailingIconStatus = userInput.isNotBlank(),
+            leadingIconOnClick = { onCameraClick() },
             trailingIconOnClick = {
                 if (userInput.isNotBlank()) {
-                    val newUserMessage = ChatMessage(userInput, true)
-                    messages = messages + newUserMessage
-                    scope.launch {
-                        isWaitingResponse = true
-                        try {
-                            val response = geminiService.continueChatConversation(
-                                messages.dropLast(1),
-                                userInput
-                            )
-                            messages = messages + ChatMessage(response, false)
-                        } catch (e: Exception) {
-                            messages = messages + ChatMessage("Error: ${e.message}", false)
-                        }
-                        isWaitingResponse = false
-                    }
+                    onSendMessage(userInput)
                     userInput = ""
                 }
             },
             countMaxCharacter = 200,
         )
+    }
+}
+
+// En ChatBotOrganisms.kt - agregar este composable
+
+@Composable
+fun CameraScreen(
+    uiState: CameraUiState,
+    onImageCaptured: (Bitmap) -> Unit,
+    onRetakePhoto: () -> Unit
+) {
+    when (uiState.currentState) {
+        CameraState.Preview -> {
+            CameraWithOverlaySection(
+                showOverlay = uiState.showOverlay,
+                onShowOverlayChange = { /* No necesario aquí */ },
+                onImageCaptured = onImageCaptured
+            )
+        }
+        CameraState.ImagePreview -> {
+            uiState.capturedImage?.let { bitmap ->
+                ImagePreviewScreen(
+                    bitmap = bitmap,
+                    onAccept = { onImageCaptured(bitmap) },
+                    onRetake = onRetakePhoto
+                )
+            }
+        }
     }
 }

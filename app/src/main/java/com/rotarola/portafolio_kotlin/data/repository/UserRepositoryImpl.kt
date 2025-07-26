@@ -1,7 +1,7 @@
-package com.rotarola.portafolio_kotlin.domain.repositories
+package com.rotarola.portafolio_kotlin.data.repository
 
 import com.rotarola.portafolio_kotlin.data.mappers.toUser
-import com.rotarola.portafolio_kotlin.data.repository.UserDBRepository
+import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
