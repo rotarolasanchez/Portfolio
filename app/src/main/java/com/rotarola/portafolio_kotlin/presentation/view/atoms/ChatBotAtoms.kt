@@ -15,10 +15,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,6 +36,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -65,6 +71,7 @@ fun ChatBotTextField(
     )
 }
 
+
 @Composable
 fun ChatBotEditText(
     value: String,
@@ -75,14 +82,13 @@ fun ChatBotEditText(
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier.fillMaxWidth(),
-    testTag: String = "login_text_field",
-    trailingIcon:Painter = painterResource(id = R.drawable.baseline_visibility_24),
+    testTag: String = "chat_text_field",
+    trailingIcon: Painter = painterResource(id = R.drawable.baseline_visibility_24),
     trailingIconStatus: Boolean = false,
     leadingIconStatus: Boolean = false,
-    leadingIconOnClick: (String) -> Unit = {},
-    trailingIconOnClick: (String) -> Unit = {},
-    countMaxCharacter: Int = 20,
-
+    leadingIconOnClick: () -> Unit = {}, // Cambiar a () -> Unit
+    trailingIconOnClick: () -> Unit = {}, // Cambiar a () -> Unit
+    countMaxCharacter: Int = 200,
 ) {
     EditextM3(
         id = 0,
@@ -106,11 +112,79 @@ fun ChatBotEditText(
         trailingiconColor = MaterialTheme.colorScheme.primary,
         leadingIconStatus = leadingIconStatus,
         trailingiconResourceId = trailingIcon,
-        leadingIconOnClick = leadingIconOnClick,
-        trailingIconOnClick = trailingIconOnClick,
+        leadingIconOnClick = { _ -> leadingIconOnClick() }, // Adaptador
+        trailingIconOnClick = { _ -> trailingIconOnClick() }, // Adaptador
     )
 }
-
+/*
+@Composable
+fun ChatBotEditText(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    leadingIcon: Painter,
+    trailingIcon: Painter = painterResource(id = R.drawable.baseline_visibility_24),
+    trailingIconStatus: Boolean = false,
+    leadingIconStatus: Boolean = false,
+    leadingIconOnClick: () -> Unit = {},
+    trailingIconOnClick: () -> Unit = {},
+    countMaxCharacter: Int = 200,
+    modifier: Modifier = Modifier.fillMaxWidth()
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { newValue ->
+            if (newValue.length <= countMaxCharacter) {
+                onValueChange(newValue)
+            }
+        },
+        label = { Text(label) },
+        leadingIcon = if (leadingIconStatus) {
+            {
+                IconButton(onClick = leadingIconOnClick) {
+                    Icon(
+                        painter = leadingIcon,
+                        contentDescription = "Leading icon",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        } else null,
+        trailingIcon = if (trailingIconStatus) {
+            {
+                IconButton(onClick = trailingIconOnClick) {
+                    Icon(
+                        painter = trailingIcon,
+                        contentDescription = "Trailing icon",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        } else null,
+        supportingText = {
+            Text(
+                text = "${value.length}/$countMaxCharacter",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        singleLine = false,
+        maxLines = 3,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Send
+        ),
+        keyboardActions = KeyboardActions(
+            onSend = {
+                if (value.isNotBlank()) {
+                    trailingIconOnClick()
+                }
+            }
+        ),
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}*/
 
 
 @Composable

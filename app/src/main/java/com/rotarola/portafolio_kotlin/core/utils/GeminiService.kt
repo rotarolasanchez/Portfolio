@@ -16,25 +16,31 @@ class GeminiService {
 
     suspend fun solveProblem(problemText: String): String {
         return try {
-            val prompt = """
+            val response = generativeModel.generateContent(getPrompt(problemText))
+            response.text ?: "No se pudo generar una respuesta"
+        } catch (e: Exception) {
+            "Error al procesar el problema: ${e.message}"
+        }
+    }
+
+    fun getPrompt(message:String):String
+    {
+        /*val prompt = """
             Eres un asistente educativo experto en resolver problemas matemáticos y de ciencias.
-            
+
             Problema detectado: $problemText
-            
+
             Por favor:
             1. Analiza el problema paso a paso
             2. Proporciona la solución detallada
             3. Explica cada paso de manera clara
             4. Si hay conceptos importantes, explícalos brevemente
-            
-            Responde de manera educativa y fácil de entender.
-            """.trimIndent()
 
-            val response = generativeModel.generateContent(prompt)
-            response.text ?: "No se pudo generar una respuesta"
-        } catch (e: Exception) {
-            "Error al procesar el problema: ${e.message}"
-        }
+            Responde de manera educativa y fácil de entender.
+            """.trimIndent()*/
+       return  """
+        $message
+        """.trimIndent()
     }
 
     suspend fun continueChatConversation(

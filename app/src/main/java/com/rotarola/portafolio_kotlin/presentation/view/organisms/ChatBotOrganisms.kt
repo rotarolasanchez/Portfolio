@@ -549,14 +549,14 @@ fun ChatScreen(
             trailingIcon = painterResource(id = R.drawable.outline_send_24),
             leadingIconStatus = true,
             trailingIconStatus = userInput.isNotBlank(),
-            leadingIconOnClick = { onCameraClick() },
-            trailingIconOnClick = {
+            leadingIconOnClick = onCameraClick, // () -> Unit
+            trailingIconOnClick = { // () -> Unit
                 if (userInput.isNotBlank()) {
                     onSendMessage(userInput)
                     userInput = ""
                 }
             },
-            countMaxCharacter = 200,
+            countMaxCharacter = 200
         )
     }
 }
