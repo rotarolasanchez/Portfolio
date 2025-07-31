@@ -1,65 +1,32 @@
+# 📱 Portfolio – CapibaraFamily
 
-## Portfolio
-#### Capibara
-![Capibara]( https://brandemia.org/sites/default/files/inline/images/logo_youtube.jpg )
+![Capibara](https://brandemia.org/sites/default/files/inline/images/logo_youtube.jpg)
 
+An Android application built with **Kotlin** and **Jetpack Compose**, showcasing **Clean Architecture** and **Atomic Design** principles.  
+This project demonstrates integration with **ML Kit OCR** and **Gemini API**, continuous delivery pipelines, and best practices in modern Android development.
 
-#### The following technologies were used in this template:
+---
 
+## ✨ Key Features
 
-## ✨ Features
+✅ **Clean Architecture** with `domain`, `data`, and `presentation` layers  
+✅ **MVVM** pattern with `ViewModel` + `StateFlow`  
+✅ **Atomic Design** (Atoms → Molecules → Organisms → Templates → Pages)  
+✅ **Dependency Injection** with **Hilt**  
+✅ **Persistence** using **Realm** + **MongoDB Atlas**  
+✅ **Modern UI** using **Jetpack Compose** and **Material Design 3**  
+✅ **CI/CD** with **GitHub Actions**: Lint, Unit Tests, Instrumented Tests, SonarCloud, Firebase App Distribution, and Play Store deployment  
+✅ **OCR integration** using **Google ML Kit**  
+✅ **Chatbot integration** using **Gemini API**
 
+---
 
-* Programming languages
-    * Kotlin
-    * Jetpack Compose
+## 🏗️ Architecture Overview
 
-* Arquitecture
-    *   MVVM
-    *   Atomic Design
-    *   Clean Arquitecture
-
-* Patterns
-    * Clean Code
-    * SOLID
-
-* Dependency injection
-    * Hilt
-
-* Persistence
-    * Realm
-    * MongoDB Atlas
-
-* Design
-    * FIGMA
-    * Material Desing 3
-    * Material Theme
-
-## :rocket: Quick start
-
-Start developing locally.
-
-### Step 1: Clone the repo
-
-Fork the repository. then clone the repo locally by doing -
-
-```sh
-git clone https://github.com/rotarolasanchez/Portfolio.git
-```
-
-### Step 2: cd into the directory
-
-```sh
-cd 
-```
-
-# installs dependencies
-
-```sh
-npm install
-```
-
- <p> Builds and serves assets with hot-reload </p>
-
-#### Contact:
-[Linkedin](https://www.linkedin.com/in/ronald-eduardo-otarola-sanchez-15512088)
+```text
+app/
+ ├── di/                 # Hilt modules
+ ├── data/               # Repository implementations, mappers, data sources
+ ├── domain/             # Use cases and repository interfaces
+ ├── presentation/       # ViewModels, UI state, Compose components (Atomic Design)
+ ├── core/               # Shared utilities and services (Realm, Gemini, ML Kit)

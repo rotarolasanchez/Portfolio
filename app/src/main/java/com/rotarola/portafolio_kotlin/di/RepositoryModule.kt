@@ -1,9 +1,13 @@
 package com.rotarola.portafolio_kotlin.di
 
 import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
-import com.rotarola.portafolio_kotlin.domain.repositories.UserRepositoryImpl
+import com.rotarola.portafolio_kotlin.data.repository.UserRepositoryImpl
 import com.rotarola.portafolio_kotlin.data.repository.UserDBRepository
 import com.rotarola.portafolio_kotlin.core.database.RealmDBService
+import com.rotarola.portafolio_kotlin.core.utils.GeminiService
+import com.rotarola.portafolio_kotlin.core.utils.TextRecognitionAnalyzer
+import com.rotarola.portafolio_kotlin.data.repository.ChatRepositoryImpl
+import com.rotarola.portafolio_kotlin.domain.repositories.ChatRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -20,6 +24,11 @@ abstract class RepositoryModule {
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
 
+    @Binds
+    abstract fun bindChatRepository(
+        chatRepositoryImpl: ChatRepositoryImpl
+    ): ChatRepository
+
     companion object {
         @Provides
         @Singleton
@@ -29,6 +38,18 @@ abstract class RepositoryModule {
         @Singleton
         fun provideUserDBRepository(realmDBService: RealmDBService): UserDBRepository {
             return UserDBRepository(realmDBService)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGeminiService(): GeminiService {
+            return GeminiService()
+        }
+
+        @Provides
+        @Singleton
+        fun provideTextRecognitionAnalyzer(): TextRecognitionAnalyzer {
+            return TextRecognitionAnalyzer()
         }
     }
 }

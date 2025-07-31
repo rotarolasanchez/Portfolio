@@ -18,7 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-/*
+
+
 @Composable
 fun NavigationMain() {
     val navController = rememberNavController()
@@ -41,75 +42,20 @@ fun NavigationMain() {
         composable("menu") {
             MenuPage(
                 onNavigateToSection = { section ->
-                    // Aquí puedes manejar la navegación a las diferentes secciones
+                    // Aquí navegas a las diferentes rutas
                     when (section) {
-                        "Home" -> { /* navegar a home */ }
-                        "Profile" -> { /* navegar a perfil */ }
-                        "Settings" -> { /* navegar a configuración */ }
-                        "Help" -> { /* navegar a ayuda */ }
+                        "ChatBot" -> navController.navigate("chatbot")
+                        "Profile" -> navController.navigate("profile")
+                        "Settings" -> navController.navigate("settings")
+                        "Help" -> navController.navigate("help")
                     }
                 }
             )
         }
-    }
-}*/
-@Composable
-fun NavigationMain() {
-    val navController = rememberNavController()
-    var hasNavigationError by remember { mutableStateOf(false) }
 
-    if (hasNavigationError) {
-        // UI de fallback sin try-catch
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Error de navegación")
-                Button(
-                    onClick = {
-                        hasNavigationError = false
-                        // Reintentar navegación
-                    }
-                ) {
-                    Text("Reintentar")
-                }
-            }
-        }
-    } else {
-        NavHost(
-            navController = navController,
-            startDestination = "menu"
-        ) {
-            composable("login") {
-                LoginPage(
-                    onLoginSuccess = {
-                        navController.navigate("menu") {
-                            // Limpia el back stack para que no se pueda volver al login
-                            popUpTo("login") { inclusive = true }
-                        }
-                    }
-                )
-            }
-            composable("menu") {
-                MenuPage(
-                    onNavigateToSection = { section ->
-                        // Manejo de navegación sin try-catch
-                        runCatching {
-                            navController.navigate(section)
-                            when (section) {
-                                "Home" -> { /* navegar a home */ }
-                                "Profile" -> { /* navegar a perfil */ }
-                                "Settings" -> { /* navegar a configuración */ }
-                                "Help" -> { /* navegar a ayuda */ }
-                            }
-                        }.onFailure { exception ->
-                            Log.e("MainNavigation", "Navigation error", exception)
-                            hasNavigationError = true
-                        }
-                    }
-                )
-            }
+        // Agregar las rutas para cada sección
+        composable("chatbot") {
+            ChatBotPage()
         }
     }
 }
