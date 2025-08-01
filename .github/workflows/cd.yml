@@ -54,7 +54,7 @@ jobs:
           packageName: com.rotarola.portafolio_kotlin
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: beta
-          status: draft
+          status: completed
           inAppUpdatePriority: 2
 
       - name: Clean files
