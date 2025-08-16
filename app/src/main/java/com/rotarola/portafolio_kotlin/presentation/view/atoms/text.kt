@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class
 )
+
 @Composable
 fun TextM3(
     id:Int=0,
@@ -56,7 +57,7 @@ fun TextM3(
     text:String,
     placeholder:String,
     label:String,
-    leadingiconResourceId:Painter,
+    leadingiconResourceId:Painter = painterResource(id = R.drawable.baseline_home_24),
     keyboardType:KeyboardType,
     statusMaxCharacter:Boolean=true,
     countMaxCharacter:Int=254,
@@ -337,6 +338,7 @@ fun TextM3(
     }
 }
 
+/*
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditextM3(
@@ -365,7 +367,8 @@ fun EditextM3(
     isPasswordVisible: Boolean = false,   // Estado de visibilidad del texto
     onPasswordVisibilityChanged: (Boolean) -> Unit = {}, // Evento para alternar visibilidad,
     testTag: String = "",
-    modifier : Modifier = Modifier
+    modifier : Modifier = Modifier,
+    leadingIconOnClick:(String) -> Unit = { _ ->  },
 ){
     val keyboardController = LocalSoftwareKeyboardController.current
     val text = remember { mutableStateOf(value) }
@@ -438,11 +441,20 @@ fun EditextM3(
                             color = Color.Gray
                         )},
                     leadingIcon = {
-                        Icon(
+                        /*Icon(
                             painter = leadingiconResourceId,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
-                        )
+                        )*/
+                        IconButton(onClick = {
+                            leadingIconOnClick(text.value)
+                        }) {
+                            Icon(
+                                painter = leadingiconResourceId,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     },
                     trailingIcon = {
                         if (isPasswordField) {
@@ -668,11 +680,20 @@ fun EditextM3(
                             color = Color.Gray
                         )},
                     leadingIcon = {
-                        Icon(
+                        /*Icon(
                             painter = leadingiconResourceId,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
-                        )
+                        )*/
+                        IconButton(onClick = {
+                            leadingIconOnClick(text.value)
+                        }) {
+                            Icon(
+                                painter = leadingiconResourceId,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = keyboardType,
@@ -815,6 +836,180 @@ fun EditextM3(
                                 //.align(Alignment.BottomEnd)
                                 .padding(10.dp, 0.dp)
                         )
+                    }
+                }
+            }
+        }
+    }
+}*/
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun EditextM3(
+    id: Int = 0,
+    status: Boolean,
+    value: String, // Usar directamente el valor del padre
+    placeholder: String,
+    label: String,
+    leadingiconResourceId: Painter,
+    keyboardType: KeyboardType,
+    statusMaxCharacter: Boolean = true,
+    countMaxCharacter: Int = 254,
+    limitNumericStatus: Boolean = false,
+    limitNumericNumber: Double = 0.0,
+    trailingiconResourceId: Painter,
+    leadingiconColor: Color,
+    trailingiconColor: Color,
+    textDownEditext: String = "",
+    trailingIconStatus: Boolean = false,
+    trailingIconOnClick: (String) -> Unit,
+    resultEditText: (String) -> Unit,
+    leadingIconStatus: Boolean = false,
+    statusTextDownEditext: Boolean = true,
+    readOnly: Boolean = false,
+    isPasswordField: Boolean = false,
+    isPasswordVisible: Boolean = false,
+    onPasswordVisibilityChanged: (Boolean) -> Unit = {},
+    testTag: String = "",
+    modifier: Modifier = Modifier,
+    leadingIconOnClick: (String) -> Unit = { _ -> },
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+
+    // ELIMINADO: val text = remember { mutableStateOf(value) }
+    // Ahora usa directamente 'value' del padre
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxWidth()
+    ) {
+        Column {
+            OutlinedTextField(
+                readOnly = readOnly,
+                enabled = status,
+                singleLine = false,
+                value = value, // Usar directamente el valor del padre
+                onValueChange = { newText ->
+                    if (statusMaxCharacter) {
+                        if (newText.length <= countMaxCharacter) {
+                            resultEditText(newText) // Notificar al padre
+                        }
+                    } else {
+                        resultEditText(newText) // Notificar al padre
+                    }
+                },
+                placeholder = if (placeholder.isNotEmpty()) {
+                    { Text(text = placeholder, fontSize = 14.sp) }
+                } else null,
+                label = {
+                    Text(
+                        text = label,
+                        fontSize = 14.sp,
+                        color = if (readOnly) Color.Gray else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                leadingIcon = if (leadingIconStatus) {
+                    {
+                        IconButton(onClick = {
+                            leadingIconOnClick(value)
+                        }) {
+                            Icon(
+                                painter = leadingiconResourceId,
+                                contentDescription = "Leading icon",
+                                tint = leadingiconColor
+                            )
+                        }
+                    }
+                } else null,
+                trailingIcon = if (trailingIconStatus) {
+                    {
+                        if (isPasswordField) {
+                            IconButton(onClick = {
+                                onPasswordVisibilityChanged(!isPasswordVisible)
+                            }) {
+                                Icon(
+                                    painter = painterResource(
+                                        if (isPasswordVisible) R.drawable.baseline_visibility_24
+                                        else R.drawable.baseline_visibility_24
+                                    ),
+                                    contentDescription = if (isPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                                    tint = trailingiconColor
+                                )
+                            }
+                        } else {
+                            IconButton(onClick = {
+                                trailingIconOnClick(value)
+                            }) {
+                                Icon(
+                                    painter = trailingiconResourceId,
+                                    contentDescription = "Trailing icon",
+                                    tint = trailingiconColor
+                                )
+                            }
+                        }
+                    }
+                } else null,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = keyboardType,
+                    imeAction = ImeAction.Go
+                ),
+                keyboardActions = KeyboardActions(
+                    onGo = {
+                        keyboardController?.hide()
+                    }
+                ),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .testTag(testTag),
+                visualTransformation = if (isPasswordField && !isPasswordVisible) {
+                    PasswordVisualTransformation()
+                } else {
+                    VisualTransformation.None
+                },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedTextColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.primary
+                ),
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
+
+            // Textos de soporte
+            if (statusTextDownEditext || statusMaxCharacter) {
+                Row {
+                    if (statusTextDownEditext && textDownEditext.isNotEmpty()) {
+                        Row(horizontalArrangement = Arrangement.Start) {
+                            Text(
+                                text = textDownEditext,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(10.dp, 0.dp),
+                                textAlign = TextAlign.Start
+                            )
+                        }
+                    }
+                    if (statusMaxCharacter) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                text = "${value.length}/$countMaxCharacter",
+                                fontSize = 12.sp,
+                                color = if (value.length > countMaxCharacter) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.padding(10.dp, 0.dp),
+                                textAlign = TextAlign.End
+                            )
+                        }
                     }
                 }
             }

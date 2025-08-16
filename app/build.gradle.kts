@@ -1,3 +1,4 @@
+
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -8,10 +9,9 @@ plugins {
     alias(libs.plugins.hilt)
     id("io.realm.kotlin") version libs.versions.realm.get()
     id("org.sonarqube") version libs.versions.sonarqube.get()
-    id("jacoco")
+    id ("jacoco")
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
-    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 jacoco {
@@ -47,6 +47,15 @@ tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+// Configuración para leer las API keys desde local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { inputStream ->
+        localProperties.load(inputStream)
+    }
+}
+
 android {
     namespace = "com.rotarola.portafolio_kotlin"
     compileSdk = 35
@@ -55,13 +64,19 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 9
-        versionName = "2.5.0"
+        versionCode = 12
+        versionName = "2.6.0"
         multiDexEnabled = true
         testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Configurar BuildConfig fields para las API keys
+        buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
+
+        // Opcional: Si quieres tener diferentes keys para debug/release
+        // buildConfigField("String", "GEMINI_API_KEY_DEBUG", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", "")}\"")
     }
 
     signingConfigs {
@@ -90,6 +105,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Configuración específica para debug si es necesario
+            buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -97,9 +117,8 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
-        }
-        debug {
-            isDebuggable = true
+            // Usar la misma key para release o una diferente
+            buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_RELEASE", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
         }
     }
 
@@ -116,16 +135,6 @@ android {
         buildConfig = true
         compose = true
     }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
-
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 configurations.all {
@@ -133,8 +142,6 @@ configurations.all {
         force("com.google.protobuf:protobuf-java:3.21.12") // O la versión que funcione en tu caso
     }
 }
-
-
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -147,7 +154,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.ui.test.junit4.android)
     implementation(libs.androidx.runner)
-    implementation(libs.firebase.crashlytics)
+    implementation(libs.generativeai)
 
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
@@ -167,7 +174,6 @@ dependencies {
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
 
-
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
 
@@ -183,4 +189,18 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+    // ML Kit
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+
+    // CameraX
+    implementation("androidx.camera:camera-core:1.3.1")
+    implementation("androidx.camera:camera-camera2:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+    implementation("androidx.camera:camera-view:1.3.1")
+
+    // Gemini AI
+    implementation("com.google.ai.client.generativeai:generativeai:0.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
