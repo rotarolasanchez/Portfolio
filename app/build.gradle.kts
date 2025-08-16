@@ -64,7 +64,7 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 10
+        versionCode = 12
         versionName = "2.6.0"
         multiDexEnabled = true
         testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
