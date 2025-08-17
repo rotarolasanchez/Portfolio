@@ -1,6 +1,6 @@
 package com.rotarola.portafolio_kotlin.presentation.viewmodels
 
-import com.rotarola.portafolio_kotlin.core.database.RealmDBService
+import com.rotarola.portafolio_kotlin.core.service.RealmDBService
 import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rotarola.portafolio_kotlin.domain.model.RequestState
 import com.rotarola.portafolio_kotlin.data.entity.UserApp
-import com.rotarola.portafolio_kotlin.core.database.RealmDBService
+import com.rotarola.portafolio_kotlin.core.service.RealmDBService
 import com.rotarola.portafolio_kotlin.presentation.state.LoginUiState
 import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

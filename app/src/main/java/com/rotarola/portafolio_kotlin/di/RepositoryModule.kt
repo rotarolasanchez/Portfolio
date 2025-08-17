@@ -2,8 +2,8 @@ package com.rotarola.portafolio_kotlin.di
 
 import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import com.rotarola.portafolio_kotlin.data.repository.UserRepositoryImpl
-import com.rotarola.portafolio_kotlin.data.repository.UserDBRepository
-import com.rotarola.portafolio_kotlin.core.database.RealmDBService
+import com.rotarola.portafolio_kotlin.data.datasources.UserLocalDataSource
+import com.rotarola.portafolio_kotlin.core.service.RealmDBService
 import com.rotarola.portafolio_kotlin.core.utils.GeminiService
 import com.rotarola.portafolio_kotlin.core.utils.TextRecognitionAnalyzer
 import com.rotarola.portafolio_kotlin.data.repository.ChatRepositoryImpl
@@ -36,8 +36,8 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideUserDBRepository(realmDBService: RealmDBService): UserDBRepository {
-            return UserDBRepository(realmDBService)
+        fun provideUserDBRepository(realmDBService: RealmDBService): UserLocalDataSource {
+            return UserLocalDataSource(realmDBService)
         }
 
         @Provides
