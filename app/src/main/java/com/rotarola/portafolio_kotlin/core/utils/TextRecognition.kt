@@ -12,31 +12,6 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-/*
-class TextRecognitionAnalyzer @Inject constructor() {
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-    @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
-    suspend fun analyzeImage(imageProxy: ImageProxy): String {
-        return withContext(Dispatchers.Default) {
-            val mediaImage = imageProxy.image
-            if (mediaImage != null) {
-                val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-                try {
-                    val result = recognizer.process(image).await()
-                    result.text
-                } catch (e: Exception) {
-                    Log.e("TextRecognition", "Error: ${e.message}")
-                    ""
-                } finally {
-                    imageProxy.close()
-                }
-            } else {
-                ""
-            }
-        }
-    }
-}*/
 class TextRecognitionAnalyzer @Inject constructor() {
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 

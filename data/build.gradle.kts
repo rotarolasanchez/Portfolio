@@ -13,7 +13,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "APP_ID", "\"${project.findProperty("APP_ID") ?: ""}\"")
+        buildConfigField("String", "APP_ID_REALM", "\"${project.findProperty("APP_ID_REALM") ?: ""}\"")
     }
 
     buildTypes {

@@ -13,12 +13,13 @@ import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.reflect.KClass
 
-class RealmDBService //@Inject constructor()
+class RealmDBService @Inject constructor()
 {
 
-    private val app: App = App.Companion.create(BuildConfig.APP_ID)
+    private val app: App = App.Companion.create(BuildConfig.APP_ID_REALM)
     private lateinit var realm: Realm
     private var user = app.currentUser
     private val scope = CoroutineScope(Dispatchers.IO)
