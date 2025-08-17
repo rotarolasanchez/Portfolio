@@ -50,4 +50,7 @@ dependencies {
     //Realm
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
+    //hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
 }

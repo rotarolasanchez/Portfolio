@@ -5,13 +5,14 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
     id("io.realm.kotlin") version libs.versions.realm.get()
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id ("jacoco")
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp")
 }
 
 jacoco {
@@ -145,6 +146,8 @@ configurations.all {
 
 dependencies {
     implementation(project(":data"))
+    implementation(project(":domain"))
+    implementation(project(":core"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -167,10 +170,12 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    kapt(libs.hilt.android.compiler)
+    //kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
     androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.android.compiler)
-    androidTestAnnotationProcessor(libs.hilt.android.compiler)
+    //kaptAndroidTest(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
+    //androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
     //Realm
     implementation(libs.realm.base)

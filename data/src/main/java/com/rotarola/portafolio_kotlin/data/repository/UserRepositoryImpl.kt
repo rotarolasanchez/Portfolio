@@ -6,8 +6,9 @@ import com.rotarola.portafolio_kotlin.domain.model.User
 import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class UserRepositoryImpl //@Inject constructor
+class UserRepositoryImpl @Inject constructor
     (
     private val datasource: UserLocalDataSource
 ) : UserRepository {

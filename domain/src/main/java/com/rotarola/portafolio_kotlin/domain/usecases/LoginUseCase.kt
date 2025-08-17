@@ -1,14 +1,15 @@
 package com.rotarola.portafolio_kotlin.domain.usecases
 
-import com.rotarola.portafolio_kotlin.domain.model.User
 import com.rotarola.portafolio_kotlin.domain.model.RequestState
+import com.rotarola.portafolio_kotlin.domain.model.User
 import com.rotarola.portafolio_kotlin.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
 import javax.inject.Inject
 
-class LoginUseCase @Inject constructor(
+class LoginUseCase @Inject constructor
+    (
     private val userRepository: UserRepository
 ) {
     fun geUsersApp(code: String, password: String): Flow<RequestState<List<User>>> {
