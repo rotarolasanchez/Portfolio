@@ -20,3 +20,8 @@ include(":app")
 include(":data")
 include(":core")
 include(":domain")
+include(":feature")
+include(":feature:login")
+include(":feature:home")
+include(":feature:chatbot")
+

@@ -1,29 +1,21 @@
 package com.rotarola.feature_ui.presentation.atoms
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -35,16 +27,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import com.rotarola.feature_ui.presentation.view.theme.BlueVistony
 import com.rotarola.portafolio_kotlin.R
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class
@@ -124,7 +112,7 @@ fun TextM3(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.End),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -180,7 +168,7 @@ fun TextM3(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.End),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -238,7 +226,7 @@ fun TextM3(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.End),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -296,7 +284,7 @@ fun TextM3(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.End),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -338,510 +326,7 @@ fun TextM3(
     }
 }
 
-/*
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun EditextM3(
-    id:Int=0,
-    status: Boolean,
-    value:String,
-    placeholder:String,
-    label:String,
-    leadingiconResourceId:Painter,
-    keyboardType:KeyboardType,
-    statusMaxCharacter:Boolean=true,
-    countMaxCharacter:Int=254,
-    limitNumericStatus:Boolean=false,
-    limitNumericNumber:Double=0.0,
-    trailingiconResourceId:Painter,
-    leadingiconColor:Color,
-    trailingiconColor:Color,
-    textDownEditext:String="",
-    trailingIconStatus:Boolean=false,
-    trailingIconOnClick:(String) -> Unit,
-    resultEditText: (String) -> Unit,
-    leadingIconStatus: Boolean=false,
-    statusTextDownEditext:Boolean=true,
-    readOnly: Boolean= false,
-    isPasswordField: Boolean = false,     // Nuevo parámetro para campos de contraseña
-    isPasswordVisible: Boolean = false,   // Estado de visibilidad del texto
-    onPasswordVisibilityChanged: (Boolean) -> Unit = {}, // Evento para alternar visibilidad,
-    testTag: String = "",
-    modifier : Modifier = Modifier,
-    leadingIconOnClick:(String) -> Unit = { _ ->  },
-){
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val text = remember { mutableStateOf(value) }
-    val context = LocalContext.current
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth()
-    ) {
-        Column {
-            if(leadingIconStatus&&trailingIconStatus)
-            {
-                OutlinedTextField(
-                    readOnly = readOnly,
-                    enabled = status,
-                    singleLine = false,
-                    value = text.value,
-                    onValueChange =
-                        { newText ->
-                            if (newText.length <= countMaxCharacter) {
-                                when (keyboardType) {
-                                    KeyboardType.Decimal -> {
-                                        if ((newText.isNotEmpty() && newText.first() != '.') || newText.length > 1) {
-                                            val cleanedText = newText.filterIndexed { index, char ->
-                                                char.isDigit() || (char == '.' && index == newText.indexOf(
-                                                    '.'
-                                                ))
-                                            }
-                                            if (limitNumericStatus) {
-                                                if (cleanedText.toDoubleOrNull() != null && cleanedText.toDoubleOrNull()!! <= limitNumericNumber) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                } else {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "El valor debe ser menor o igual a $limitNumericNumber",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            } else {
-                                                if (cleanedText.toDoubleOrNull() != null) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                }
-                                            }
-                                        } else if (newText == ".") {
-                                            text.value = ""
-                                            resultEditText("")
-                                        } else {
-                                            text.value = newText
-                                            resultEditText(newText)
-                                        }
-                                    }
 
-                                    else -> {
-                                        text.value = newText
-                                        resultEditText(newText)
-                                    }
-                                }
-                            }
-                        },
-                    /*placeholder = {
-                        Text(text = placeholder, fontSize = 14.sp)
-                    },*/
-                    label = {
-                        Text(
-                            text = label,
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )},
-                    leadingIcon = {
-                        /*Icon(
-                            painter = leadingiconResourceId,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )*/
-                        IconButton(onClick = {
-                            leadingIconOnClick(text.value)
-                        }) {
-                            Icon(
-                                painter = leadingiconResourceId,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        if (isPasswordField) {
-                            IconButton(onClick = {
-                                onPasswordVisibilityChanged(!isPasswordVisible)
-                            }) {
-                                Icon(
-                                    painter = trailingiconResourceId,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        } else if (trailingIconStatus) {
-                            // Opción para otros usos del trailingIcon
-                            IconButton(onClick = {
-                                trailingIconOnClick(text.value)
-                            }) {
-                                Icon(
-                                    painter = trailingiconResourceId,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = keyboardType,
-                        imeAction = ImeAction.Go
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onGo = {
-                            keyboardController?.hide()
-                        },
-                    ),
-                    modifier = modifier,
-                    //modifier = Modifier.fillMaxWidth().testTag(testTag),
-                    visualTransformation =
-                        if (isPasswordField && !isPasswordVisible) {
-                            PasswordVisualTransformation()
-                        } else {
-                            VisualTransformation.None
-                        },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        //leadingIconColor = leadingiconColor,
-                        //trailingIconColor = trailingiconColor
-                    ),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-            }else if(!leadingIconStatus&&trailingIconStatus){
-                OutlinedTextField(
-                    readOnly = readOnly,
-                    enabled = status,
-                    singleLine = false,
-                    value = text.value,
-                    onValueChange =
-                        { newText ->
-                            if (newText.length <= countMaxCharacter) {
-                                when (keyboardType) {
-                                    KeyboardType.Decimal -> {
-                                        if ((newText.isNotEmpty() && newText.first() != '.') || newText.length > 1) {
-                                            val cleanedText = newText.filterIndexed { index, char ->
-                                                char.isDigit() || (char == '.' && index == newText.indexOf(
-                                                    '.'
-                                                ))
-                                            }
-                                            if (limitNumericStatus) {
-                                                if (cleanedText.toDoubleOrNull() != null && cleanedText.toDoubleOrNull()!! <= limitNumericNumber) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                } else {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "El valor debe ser menor o igual a $limitNumericNumber",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            } else {
-                                                if (cleanedText.toDoubleOrNull() != null) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                }
-                                            }
-                                        } else if (newText == ".") {
-                                            text.value = ""
-                                            resultEditText("")
-                                        } else {
-                                            text.value = newText
-                                            resultEditText(newText)
-                                        }
-                                    }
-
-                                    else -> {
-                                        text.value = newText
-                                        resultEditText(newText)
-                                    }
-                                }
-                            }
-                        },
-                    /*placeholder = {
-                        Text(text = placeholder, fontSize = 14.sp)
-                    },*/
-                    label = {
-                        Text(
-                            text = label,
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )},
-                    trailingIcon = {
-                        if (isPasswordField) {
-                            IconButton(onClick = {
-                                onPasswordVisibilityChanged(!isPasswordVisible)
-                            }) {
-                                Icon(
-                                    painter = trailingiconResourceId,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        } else if (trailingIconStatus) {
-                            // Opción para otros usos del trailingIcon
-                            IconButton(onClick = {
-                                trailingIconOnClick(text.value)
-                            }) {
-                                Icon(
-                                    painter = trailingiconResourceId,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = keyboardType,
-                        imeAction = ImeAction.Go
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onGo = {
-                            keyboardController?.hide()
-                        },
-                    ),
-                    modifier = Modifier.fillMaxWidth().testTag(testTag),
-                    visualTransformation =
-                        if (isPasswordField && !isPasswordVisible) {
-                            PasswordVisualTransformation()
-                        } else {
-                            VisualTransformation.None
-                        },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        //leadingIconColor = leadingiconColor,
-                        //trailingIconColor = trailingiconColor
-                    ),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-            }else if(leadingIconStatus&&!trailingIconStatus){
-                OutlinedTextField(
-                    readOnly = readOnly,
-                    enabled = status,
-                    singleLine = false,
-                    value = text.value,
-                    onValueChange =
-                        { newText ->
-                            if (newText.length <= countMaxCharacter) {
-                                when (keyboardType) {
-                                    KeyboardType.Decimal -> {
-                                        if ((newText.isNotEmpty() && newText.first() != '.') || newText.length > 1) {
-                                            val cleanedText = newText.filterIndexed { index, char ->
-                                                char.isDigit() || (char == '.' && index == newText.indexOf(
-                                                    '.'
-                                                ))
-                                            }
-                                            if (limitNumericStatus) {
-                                                if (cleanedText.toDoubleOrNull() != null && cleanedText.toDoubleOrNull()!! <= limitNumericNumber) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                } else {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "El valor debe ser menor o igual a $limitNumericNumber",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            } else {
-                                                if (cleanedText.toDoubleOrNull() != null) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                }
-                                            }
-                                        } else if (newText == ".") {
-                                            text.value = ""
-                                            resultEditText("")
-                                        } else {
-                                            text.value = newText
-                                            resultEditText(newText)
-                                        }
-                                    }
-
-                                    else -> {
-                                        text.value = newText
-                                        resultEditText(newText)
-                                    }
-                                }
-                            }
-                        },
-                    /*placeholder = {
-                        Text(text = placeholder, fontSize = 14.sp)
-                    },*/
-                    label = {
-                        Text(
-                            text = label,
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )},
-                    leadingIcon = {
-                        /*Icon(
-                            painter = leadingiconResourceId,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )*/
-                        IconButton(onClick = {
-                            leadingIconOnClick(text.value)
-                        }) {
-                            Icon(
-                                painter = leadingiconResourceId,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = keyboardType,
-                        imeAction = ImeAction.Go
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onGo = {
-                            keyboardController?.hide()
-                        },
-                    ),
-                    modifier = Modifier.fillMaxWidth().testTag(testTag),
-                    visualTransformation =
-                        if (isPasswordField && !isPasswordVisible) {
-                            PasswordVisualTransformation()
-                        } else {
-                            VisualTransformation.None
-                        },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        //leadingIconColor = leadingiconColor,
-                        //trailingIconColor = trailingiconColor
-                    ),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-            }else if(!leadingIconStatus&&!trailingIconStatus){
-                OutlinedTextField(
-                    readOnly = readOnly,
-                    enabled = status,
-                    singleLine = false,
-                    value = text.value,
-                    onValueChange =
-                        { newText ->
-                            if (newText.length <= countMaxCharacter) {
-                                when (keyboardType) {
-                                    KeyboardType.Decimal -> {
-                                        if ((newText.isNotEmpty() && newText.first() != '.') || newText.length > 1) {
-                                            val cleanedText = newText.filterIndexed { index, char ->
-                                                char.isDigit() || (char == '.' && index == newText.indexOf(
-                                                    '.'
-                                                ))
-                                            }
-                                            if (limitNumericStatus) {
-                                                if (cleanedText.toDoubleOrNull() != null && cleanedText.toDoubleOrNull()!! <= limitNumericNumber) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                } else {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "El valor debe ser menor o igual a $limitNumericNumber",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            } else {
-                                                if (cleanedText.toDoubleOrNull() != null) {
-                                                    text.value = cleanedText
-                                                    resultEditText(cleanedText)
-                                                }
-                                            }
-                                        } else if (newText == ".") {
-                                            text.value = ""
-                                            resultEditText("")
-                                        } else {
-                                            text.value = newText
-                                            resultEditText(newText)
-                                        }
-                                    }
-
-                                    else -> {
-                                        text.value = newText
-                                        resultEditText(newText)
-                                    }
-                                }
-                            }
-                        },
-                    /*placeholder = {
-                        Text(text = placeholder, fontSize = 14.sp)
-                    },*/
-                    label = {
-                        Text(
-                            text = label,
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )},
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = keyboardType,
-                        imeAction = ImeAction.Go
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onGo = {
-                            keyboardController?.hide()
-                        },
-                    ),
-                    modifier = Modifier.fillMaxWidth().testTag(testTag),
-                    visualTransformation =
-                        if (isPasswordField && !isPasswordVisible) {
-                            PasswordVisualTransformation()
-                        } else {
-                            VisualTransformation.None
-                        },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        //leadingIconColor = leadingiconColor,
-                        //trailingIconColor = trailingiconColor
-                    ),
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Row {
-                if(statusTextDownEditext) {
-                    Row(horizontalArrangement = Arrangement.Start) {
-                        Text(
-                            text = textDownEditext,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
-                            modifier = Modifier
-                                //.align(Alignment.BottomEnd)
-                                .padding(10.dp, 0.dp)
-                        )
-                    }
-                }
-                if (statusMaxCharacter)
-                {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
-                        Text(
-                            text = "${text.value.length}/$countMaxCharacter",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (text.value.length > countMaxCharacter) Color.Red else Color.Gray,
-                            modifier = Modifier
-                                //.align(Alignment.BottomEnd)
-                                .padding(10.dp, 0.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}*/
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditextM3(
@@ -968,7 +453,7 @@ fun EditextM3(
                 } else {
                     VisualTransformation.None
                 },
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = MaterialTheme.colorScheme.primary,
                     unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,

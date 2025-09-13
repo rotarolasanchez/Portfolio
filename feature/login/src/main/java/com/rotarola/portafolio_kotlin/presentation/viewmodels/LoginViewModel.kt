@@ -4,24 +4,19 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rotarola.portafolio_kotlin.domain.model.RequestState
-import com.rotarola.portafolio_kotlin.data.entity.UserApp
-import com.rotarola.portafolio_kotlin.core.service.RealmDBService
-import com.rotarola.portafolio_kotlin.presentation.state.LoginUiState
 import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
+import com.rotarola.portafolio_kotlin.presentation.state.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-//import com.rotarola.data.util.database.RealmDB
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val realmDBService: RealmDBService
+    //private val realmDBService: RealmDBService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -62,9 +57,10 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    /*
     fun insertUser(userApp: UserApp) {
         viewModelScope.launch(Dispatchers.IO) {
             realmDBService.insertUserAPP(userApp)
         }
-    }
+    }*/
 }

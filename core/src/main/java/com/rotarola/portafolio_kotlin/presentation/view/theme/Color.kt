@@ -1,4 +1,4 @@
-package com.rotarola.feature_ui.presentation.view.theme
+package com.rotarola.portafolio_kotlin.presentation.view.theme
 
 import androidx.compose.ui.graphics.Color
 

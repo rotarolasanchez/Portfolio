@@ -2,7 +2,6 @@ package com.rotarola.portafolio_kotlin.core.service
 
 import android.security.keystore.UserNotAuthenticatedException
 import com.rotarola.portafolio_kotlin.data.BuildConfig
-import com.rotarola.portafolio_kotlin.data.entity.UserApp
 import com.rotarola.portafolio_kotlin.domain.model.RequestState
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -15,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.reflect.KClass
+import com.rotarola.portafolio_kotlin.data.entity.UserApp
 
 class RealmDBService @Inject constructor()
 {
