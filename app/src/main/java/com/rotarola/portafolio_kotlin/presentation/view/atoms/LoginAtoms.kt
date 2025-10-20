@@ -26,7 +26,8 @@ fun LoginTextField(
     isPasswordVisible: Boolean = false,
     onPasswordVisibilityChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier.fillMaxWidth(),
-    testTag: String = "login_text_field"
+    testTag: String = "login_text_field",
+    countMaxCharacter: Int = 20
 ) {
     EditextM3(
         id = 0,
@@ -38,7 +39,7 @@ fun LoginTextField(
         keyboardType = KeyboardType.Text,
         textDownEditext = "",
         trailingIconStatus = isPassword,
-        countMaxCharacter = 20,
+        countMaxCharacter = countMaxCharacter,
         resultEditText = onValueChange,
         leadingiconColor = MaterialTheme.colorScheme.primary,
         trailingIconOnClick = {},

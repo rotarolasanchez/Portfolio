@@ -35,7 +35,8 @@ fun LoginForm(
             value = userCode,
             onValueChange = onUserCodeChange,
             label = "Usuario",
-            leadingIcon = Icons.Filled.AccountCircle
+            leadingIcon = Icons.Filled.AccountCircle,
+            countMaxCharacter = 30
         )
 
         LoginTextField(

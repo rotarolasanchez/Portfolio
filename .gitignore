@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Build folders de todos los módulos
+**/build/
+**/.transforms/
