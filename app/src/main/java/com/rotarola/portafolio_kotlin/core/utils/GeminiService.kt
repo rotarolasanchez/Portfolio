@@ -6,7 +6,7 @@ import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
 // 2. Crea un servicio para manejar la API de Gemini
 class GeminiService {
     companion object {
-        private const val API_KEY = "AIzaSyB2CzthJe8GvQWENALumNJe_QkQYOaj7FM" // Reemplaza con tu API key
+        private const val API_KEY = "AIzaSyAWfKs7MRtDsNKaYTHaLDmZYelGtONF9s8" // Reemplaza con tu API key
     }
 
     private val generativeModel = GenerativeModel(
