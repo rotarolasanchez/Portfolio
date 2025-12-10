@@ -8,7 +8,8 @@ data class ChatBotUiState(
     val isProcessing: Boolean = false,
     val error: String? = null,
     val showCamera: Boolean = false,
-    val capturedImage: Bitmap? = null
+    val capturedImage: Bitmap? = null,
+    val isLoading: Boolean = false
 )
 
 enum class CameraState {

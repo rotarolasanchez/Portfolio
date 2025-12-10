@@ -1,20 +1,12 @@
 package com.rotarola.portafolio_kotlin.data.repository
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import com.rotarola.portafolio_kotlin.data.datasources.AuthDataSource
-import com.rotarola.portafolio_kotlin.data.entity.User
+import com.rotarola.portafolio_kotlin.data.entity.UserEntity
 import com.rotarola.portafolio_kotlin.domain.model.UserModel
 import com.rotarola.portafolio_kotlin.domain.repositories.AuthRepository
-import com.rotarola.portafolio_kotlin.domain.usecases.SignInWithEmailUseCase
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.text.get
-import kotlin.text.set
-import kotlin.toString
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
@@ -29,10 +21,9 @@ class AuthRepositoryImpl @Inject constructor(
             if (firebaseUser != null) {
                 val userModel = UserModel(
                     id = firebaseUser.uid,
-                    username = firebaseUser.email ?: "",
-                    password = ""
+                    email = firebaseUser.email ?: "",
                 )
-                Log.e("AuthRepositoryImpl", "Login exitoso - UserModel: id=${userModel.id}, email=${userModel.username}")
+                Log.e("AuthRepositoryImpl", "Login exitoso - UserModel: id=${userModel.id}, email=${userModel.email}")
                 Result.success(userModel)
             } else {
                 Log.e("AuthRepositoryImpl", "Login fallido - Usuario no encontrado")
@@ -44,11 +35,11 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signInWithGoogle(): Result<User> {
+    override suspend fun signInWithGoogle(): Result<UserEntity> {
         TODO("Implementar signInWithGoogle")
     }
 
-    override suspend fun signUp(email: String, password: String, name: String): Result<User> {
+    override suspend fun signUp(email: String, password: String, name: String): Result<UserEntity> {
         TODO("Implementar signUp")
     }
 
@@ -56,7 +47,7 @@ class AuthRepositoryImpl @Inject constructor(
         TODO("Implementar signOut")
     }
 
-    override fun getCurrentUser(): User? {
+    override fun getCurrentUser(): UserEntity? {
         TODO("Implementar getCurrentUser")
     }
 }

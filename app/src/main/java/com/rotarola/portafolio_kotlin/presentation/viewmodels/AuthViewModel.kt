@@ -57,7 +57,7 @@ class AuthViewModel @Inject constructor(
             val result = signWithEmailUseCase(email, password)
             result.fold(
                 onSuccess = { userModel ->
-                    Log.e("AuthViewModel", "Login exitoso: ${userModel.username}")
+                    Log.e("AuthViewModel", "Login exitoso: ${userModel.email}")
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         user = userModel,
