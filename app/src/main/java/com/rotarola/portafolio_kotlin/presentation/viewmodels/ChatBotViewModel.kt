@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.rotarola.portafolio_kotlin.core.utils.TextRecognitionAnalyzer
 import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
 import com.rotarola.portafolio_kotlin.domain.usecases.AnalyzeImageUseCase
@@ -12,9 +13,11 @@ import com.rotarola.portafolio_kotlin.domain.usecases.SolveProblemUseCase
 import com.rotarola.portafolio_kotlin.presentation.state.ChatBotUiState
 import com.rotarola.portafolio_kotlin.presentation.state.ScanState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -81,7 +84,7 @@ class ChatBotViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(message: String) {
+    /*fun sendMessage(message: String) {
         if (message.isBlank()) return
 
         viewModelScope.launch {
@@ -107,7 +110,7 @@ class ChatBotViewModel @Inject constructor(
                 )
             }
         }
-    }
+    }*/
 
     fun showCamera() {
         _uiState.value = _uiState.value.copy(showCamera = true)
@@ -120,4 +123,53 @@ class ChatBotViewModel @Inject constructor(
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
+
+    fun sendMessage(text: String) {
+        if (text.isBlank()) return
+
+        // ✅ Verificar autenticación
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            _uiState.update {
+                it.copy(
+                    messages = it.messages + ChatMessage(
+                        "Error: Debes iniciar sesión para usar el chat",
+                        isFromUser = false
+                    ),
+                    isLoading = false
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                val userMessage = ChatMessage(text, isFromUser = true)
+                _uiState.update { it.copy(messages = it.messages + userMessage) }
+
+                val response = continueChatUseCase(_uiState.value.messages, text)
+
+                _uiState.update {
+                    it.copy(
+                        messages = it.messages + ChatMessage(response, isFromUser = false),
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("ChatBotViewModel", "Error sending message", e)
+                _uiState.update {
+                    it.copy(
+                        messages = it.messages + ChatMessage(
+                            "Error: ${e.message}",
+                            isFromUser = false
+                        ),
+                        isLoading = false
+                    )
+                }
+            }
+        }
+    }
+
 }

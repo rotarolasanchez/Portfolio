@@ -1,0 +1,53 @@
+## Documentación para ejecutar el proyecto
+
+### Requisitos previos
+
+1. **Android Studio** Otter 2025.2.1 Patch 1 o superior
+2. **JDK 17** o superior
+3. **Cuenta de Firebase** configurada con el proyecto `portfolio-app-9a4bc`
+4. **Archivo `google-services.json`** en la carpeta `app/`
+
+### Configuración inicial
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone <url-del-repositorio>
+   cd portafolio_kotlin
+   ```
+
+2. **Configurar variables en `local.properties`:**
+   ```properties
+   GEMINI_API_KEY=tu_api_key_de_gemini
+   MODEL_NAME=gemini-pro
+   ```
+
+3. **Agregar `google-services.json`:**
+   - Descargar desde la consola de Firebase
+   - Colocar en `app/google-services.json`
+
+### Ejecución
+
+1. **Abrir el proyecto** en Android Studio
+2. **Sincronizar Gradle** (File → Sync Project with Gradle Files)
+3. **Seleccionar un dispositivo** (emulador o físico con API 31+)
+4. **Ejecutar** con el botón ▶️ o `Shift + F10`
+
+### Funcionalidades principales
+
+| Función | Descripción |
+|---------|-------------|
+| Login | Autenticación con Firebase Auth |
+| ChatBot | Chat con Gemini AI via Cloud Functions |
+| Cámara | Escaneo de texto con ML Kit |
+
+### URL del servicio Cloud Function
+
+```
+https://us-central1-portfolio-app-9a4bc.cloudfunctions.net/askGemini
+```
+
+### Notas importantes
+
+- El usuario debe estar autenticado para usar el ChatBot
+- La Cloud Function requiere token de Firebase Auth en el header `Authorization`
+- Límite de 3 instancias máximas configuradas en Cloud Run

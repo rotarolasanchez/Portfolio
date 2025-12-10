@@ -1,5 +1,6 @@
 package com.rotarola.portafolio_kotlin.di
 
+import com.rotarola.portafolio_kotlin.core.utils.GeminiCloudService
 import com.rotarola.portafolio_kotlin.core.utils.GeminiService
 import com.rotarola.portafolio_kotlin.core.utils.TextRecognitionAnalyzer
 import com.rotarola.portafolio_kotlin.data.repository.ChatRepositoryImpl
@@ -18,8 +19,8 @@ object ChatModule {
     @Singleton
     fun provideChatRepository(
         textAnalyzer: TextRecognitionAnalyzer,
-        geminiService: GeminiService
-    ): ChatRepository = ChatRepositoryImpl(textAnalyzer, geminiService)
+        geminiCloudService: GeminiCloudService // ✅ Cambiado de GeminiService
+    ): ChatRepository = ChatRepositoryImpl(textAnalyzer, geminiCloudService)
 
     @Provides
     @Singleton
@@ -29,7 +30,7 @@ object ChatModule {
 
     @Provides
     @Singleton
-    fun provideGeminiService(): GeminiService {
-        return GeminiService()
+    fun provideGeminiCloudService(): GeminiCloudService {
+        return GeminiCloudService()
     }
 }

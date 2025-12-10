@@ -77,6 +77,8 @@ android {
 
         // Opcional: Si quieres tener diferentes keys para debug/release
         // buildConfigField("String", "GEMINI_API_KEY_DEBUG", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", "")}\"")
+        // Configurar BuildConfig fields para las API keys
+        buildConfigField("String", "MODEL_NAME", "\"${localProperties.getProperty("MODEL_NAME", "")}\"")
     }
 
     signingConfigs {
@@ -106,12 +108,16 @@ android {
 
     buildTypes {
         debug {
+            isMinifyEnabled = false // ✅ Habilitar ofuscación
+            isShrinkResources = false // ✅ Eliminar recursos no usados
             // Configuración específica para debug si es necesario
             buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
+            isDebuggable = true
         }
 
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true // ✅ Habilitar ofuscación
+            isShrinkResources = true // ✅ Eliminar recursos no usados
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -119,6 +125,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
             // Usar la misma key para release o una diferente
             buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_RELEASE", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
+            isDebuggable = false
         }
     }
 
@@ -216,4 +223,14 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-compiler:2.51.1")
+
+    // OkHttp para las llamadas HTTP
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Kotlinx Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 }
