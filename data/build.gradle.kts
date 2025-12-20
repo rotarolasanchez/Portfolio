@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":core"))
     //implementation(project(":feature:login"))
 
     implementation(libs.androidx.core.ktx)
@@ -55,4 +56,23 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // Gemini AI
+    implementation("com.google.ai.client.generativeai:generativeai:0.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // ML Kit
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+
+
+    // OkHttp para las llamadas HTTP
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
 }
+

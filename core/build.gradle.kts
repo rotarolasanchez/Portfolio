@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.compose) // ✅ Añadir este plugin
 }
 
 android {
@@ -30,6 +31,10 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    buildFeatures {
+        compose = true // ✅ Habilitar Compose
+    }
 }
 
 dependencies {
@@ -44,4 +49,11 @@ dependencies {
     //Realm
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
+
+    // ✅ Añadir dependencias de Compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.material3)
+    //implementation(libs.androidx.ui.tooling.preview)
+    //debugImplementation(libs.androidx.ui.tooling)
 }

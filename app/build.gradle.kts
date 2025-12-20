@@ -78,6 +78,8 @@ android {
 
         // Opcional: Si quieres tener diferentes keys para debug/release
         // buildConfigField("String", "GEMINI_API_KEY_DEBUG", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", "")}\"")
+        // Configurar BuildConfig fields para las API keys
+        buildConfigField("String", "MODEL_NAME", "\"${localProperties.getProperty("MODEL_NAME", "")}\"")
     }
 
     signingConfigs {
@@ -107,12 +109,16 @@ android {
 
     buildTypes {
         debug {
+            isMinifyEnabled = false // ✅ Habilitar ofuscación
+            isShrinkResources = false // ✅ Eliminar recursos no usados
             // Configuración específica para debug si es necesario
             buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
+            isDebuggable = true
         }
 
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true // ✅ Habilitar ofuscación
+            isShrinkResources = true // ✅ Eliminar recursos no usados
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -120,6 +126,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
             // Usar la misma key para release o una diferente
             buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_RELEASE", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
+            isDebuggable = false
         }
     }
 
@@ -149,7 +156,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":core"))
     implementation(project(":feature:login"))
-    implementation(project(":feature:home"))
+    implementation(project(":feature:menu"))
     implementation(project(":feature:chatbot"))
 
     implementation(libs.androidx.core.ktx)
@@ -163,6 +170,7 @@ dependencies {
     implementation(libs.ui.test.junit4.android)
     implementation(libs.androidx.runner)
     implementation(libs.generativeai)
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
@@ -200,17 +208,24 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
 
-    // ML Kit
-    implementation("com.google.mlkit:text-recognition:16.0.0")
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
 
-    // CameraX
-    implementation("androidx.camera:camera-core:1.3.1")
-    implementation("androidx.camera:camera-camera2:1.3.1")
-    implementation("androidx.camera:camera-lifecycle:1.3.1")
-    implementation("androidx.camera:camera-view:1.3.1")
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
-    // Gemini AI
-    implementation("com.google.ai.client.generativeai:generativeai:0.2.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // Google sign-in vía Credential Manager
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    //kapt("com.google.dagger:hilt-compiler:2.51.1")
+
+
+    // Kotlinx Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    // Hilt
+    implementation(libs.hilt.android)
+    //kapt(libs.hilt.android.compiler)
 }

@@ -22,6 +22,6 @@ include(":core")
 include(":domain")
 include(":feature")
 include(":feature:login")
-include(":feature:home")
+include(":feature:menu")
 include(":feature:chatbot")
 

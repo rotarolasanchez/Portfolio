@@ -55,7 +55,7 @@ fun MenuTopBar(
         title = { Text("Menu Page") },
         navigationIcon = {
             MenuIconButton(
-                icon = painterResource(id = R.drawable.baseline_home_24),
+                //icon = painterResource(id = R.drawable.baseline_home_24),
                 contentDescription = "Menu",
                 onClick = onMenuClick
             )

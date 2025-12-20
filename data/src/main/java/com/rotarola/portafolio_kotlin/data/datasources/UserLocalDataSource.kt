@@ -1,5 +1,6 @@
 package com.rotarola.portafolio_kotlin.data.datasources
 
+/*
 import com.rotarola.portafolio_kotlin.core.service.RealmDBService
 import com.rotarola.portafolio_kotlin.data.entity.UserApp
 import io.realm.kotlin.ext.query
@@ -19,4 +20,4 @@ class UserLocalDataSource //@Inject constructor
         }
         return list
     }
-}
+}*/

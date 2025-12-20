@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.compose) // ✅ AGREGAR ESTE PLUGIN
+    id("com.google.devtools.ksp") // ✅ Para Hilt
 }
 
 android {
@@ -30,11 +32,16 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    buildFeatures {
+        compose = true // ✅ HABILITAR COMPOSE
+    }
 }
 
 dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
+    implementation(project(":core"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -49,4 +56,22 @@ dependencies {
     //Realm
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
+
+    // ✅ Compose Dependencies
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.material3)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.ui.graphics)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler) // ✅ CAMBIAR A KSP
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
 }
