@@ -5,13 +5,14 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
     id("io.realm.kotlin") version libs.versions.realm.get()
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id ("jacoco")
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp")
 }
 
 jacoco {
@@ -151,6 +152,13 @@ configurations.all {
 }
 
 dependencies {
+    implementation(project(":data"))
+    implementation(project(":domain"))
+    implementation(project(":core"))
+    implementation(project(":feature:login"))
+    implementation(project(":feature:menu"))
+    implementation(project(":feature:chatbot"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -173,10 +181,12 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    kapt(libs.hilt.android.compiler)
+    //kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
     androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.android.compiler)
-    androidTestAnnotationProcessor(libs.hilt.android.compiler)
+    //kaptAndroidTest(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
+    //androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
     //Realm
     implementation(libs.realm.base)
@@ -198,19 +208,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
 
-    // ML Kit
-    implementation("com.google.mlkit:text-recognition:16.0.0")
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
-
-    // CameraX
-    implementation("androidx.camera:camera-core:1.3.1")
-    implementation("androidx.camera:camera-camera2:1.3.1")
-    implementation("androidx.camera:camera-lifecycle:1.3.1")
-    implementation("androidx.camera:camera-view:1.3.1")
-
-    // Gemini AI
-    implementation("com.google.ai.client.generativeai:generativeai:0.2.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
@@ -222,15 +219,13 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    //kapt("com.google.dagger:hilt-compiler:2.51.1")
 
-    // OkHttp para las llamadas HTTP
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    //kapt(libs.hilt.android.compiler)
 }

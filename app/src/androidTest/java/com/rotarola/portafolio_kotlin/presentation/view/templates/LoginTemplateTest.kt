@@ -11,6 +11,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rotarola.portafolio_kotlin.core.database.RealmDBService
+import com.rotarola.portafolio_kotlin.core.service.RealmDBService
+import com.rotarola.portafolio_kotlin.domain.usecases.LoginUseCase
 import com.rotarola.portafolio_kotlin.presentation.view.organisms.LoginContent
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
