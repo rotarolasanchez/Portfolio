@@ -1,7 +1,7 @@
 package com.rotarola.portafolio_kotlin.presentation.state
 
-import com.rotarola.portafolio_kotlin.R
 
+import com.rotarola.portafolio_kotlin.feature.menu.R
 data class MenuUiState(
     val menuItems: List<String> = listOf("Home", "Profile", "Settings", "Help"),
     val menuIcons: List<Int> = listOf(

@@ -4,7 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.rotarola.portafolio_kotlin.core.utils.Constans
-import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
+import com.rotarola.portafolio_kotlin.domain.model.ChatBotMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -48,7 +48,7 @@ class GeminiCloudService @Inject constructor() {
     }
 
     suspend fun continueChatConversation(
-        conversationHistory: List<ChatMessage>,
+        conversationHistory: List<ChatBotMessage>,
         userMessage: String
     ): String {
         return try {
@@ -76,7 +76,7 @@ class GeminiCloudService @Inject constructor() {
     // ✅ CAMBIO: Agregar parámetro conversationHistory
     private suspend fun callCloudFunction(
         prompt: String,
-        conversationHistory: List<ChatMessage>
+        conversationHistory: List<ChatBotMessage>
     ): String = withContext(Dispatchers.IO) {
         val url = Constans.GEMINI_FUNCTION_URL
 

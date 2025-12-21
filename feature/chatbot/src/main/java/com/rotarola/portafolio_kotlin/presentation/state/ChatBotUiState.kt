@@ -1,10 +1,10 @@
 package com.rotarola.portafolio_kotlin.presentation.state
 
 import android.graphics.Bitmap
-import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
+import com.rotarola.portafolio_kotlin.domain.model.ChatBotMessage
 
 data class ChatBotUiState(
-    val messages: List<ChatMessage> = emptyList(),
+    val messages: List<ChatBotMessage> = emptyList(),
     val isProcessing: Boolean = false,
     val error: String? = null,
     val showCamera: Boolean = false,

@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
+import com.rotarola.portafolio_kotlin.domain.model.ChatBotMessage
 import com.rotarola.portafolio_kotlin.domain.usecases.AnalyzeImageUseCase
 import com.rotarola.portafolio_kotlin.domain.usecases.ContinueChatUseCase
 import com.rotarola.portafolio_kotlin.domain.usecases.SolveProblemUseCase
@@ -64,12 +64,12 @@ class ChatBotViewModel @Inject constructor(
 
     private suspend fun solveProblem(problem: String) {
         try {
-            val userMessage = ChatMessage(problem, true)
+            val userMessage = ChatBotMessage(problem, true)
             val currentMessages = _uiState.value.messages + userMessage
             _uiState.value = _uiState.value.copy(messages = currentMessages)
 
             val response = solveProblemUseCase(problem)
-            val aiMessage = ChatMessage(response, false)
+            val aiMessage = ChatBotMessage(response, false)
 
             _uiState.value = _uiState.value.copy(
                 messages = currentMessages + aiMessage,
@@ -131,7 +131,7 @@ class ChatBotViewModel @Inject constructor(
         if (currentUser == null) {
             _uiState.update {
                 it.copy(
-                    messages = it.messages + ChatMessage(
+                    messages = it.messages + ChatBotMessage(
                         "Error: Debes iniciar sesión para usar el chat",
                         isFromUser = false
                     ),
@@ -145,14 +145,14 @@ class ChatBotViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isLoading = true) }
 
-                val userMessage = ChatMessage(text, isFromUser = true)
+                val userMessage = ChatBotMessage(text, isFromUser = true)
                 _uiState.update { it.copy(messages = it.messages + userMessage) }
 
                 val response = continueChatUseCase(_uiState.value.messages, text)
 
                 _uiState.update {
                     it.copy(
-                        messages = it.messages + ChatMessage(response, isFromUser = false),
+                        messages = it.messages + ChatBotMessage(response, isFromUser = false),
                         isLoading = false
                     )
                 }
@@ -160,7 +160,7 @@ class ChatBotViewModel @Inject constructor(
                 Log.e("ChatBotViewModel", "Error sending message", e)
                 _uiState.update {
                     it.copy(
-                        messages = it.messages + ChatMessage(
+                        messages = it.messages + ChatBotMessage(
                             "Error: ${e.message}",
                             isFromUser = false
                         ),

@@ -19,12 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.rotarola.portafolio_kotlin.domain.model.ChatMessage
+import com.rotarola.portafolio_kotlin.domain.model.ChatBotMessage
 import com.rotarola.portafolio_kotlin.feature.chatbot.R
 
 // 4. Actualiza el ChatMessageBubble para mejor presentación
 @Composable
-fun ChatMessageBubble(message: ChatMessage) {
+fun ChatMessageBubble(message: ChatBotMessage) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
