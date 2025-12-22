@@ -2,7 +2,9 @@ package com.rotarola.portafolio_kotlin
 
 import android.app.Application
 import com.rotarola.portafolio_kotlin.core.utils.AppInfo
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 // app/src/main/java/com/rotarola/portafolio_kotlin/PortafolioApplication.kt
 class PortafolioApplication : Application() {
     override fun onCreate() {

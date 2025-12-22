@@ -66,7 +66,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 12
-        versionName = "2.6.0"
+        versionName = "2.7.0"
         multiDexEnabled = true
         testInstrumentationRunner = "com.rotarola.portafolio_kotlin.android.dagger.CustomTestRunner"
         vectorDrawables {

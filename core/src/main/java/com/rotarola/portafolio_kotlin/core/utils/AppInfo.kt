@@ -1,8 +1,9 @@
 package com.rotarola.portafolio_kotlin.core.utils
 
 object AppInfo {
-    var versionName: String = ""
-        private set
+    // Valor por defecto hasta que la app lo setee en runtime
+    var versionName: String = "0.0.0"
+        internal set
 
     var versionCode: Int = 0
         private set
