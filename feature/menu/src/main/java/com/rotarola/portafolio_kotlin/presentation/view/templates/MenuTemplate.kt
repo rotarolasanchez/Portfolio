@@ -57,7 +57,8 @@ fun MenuTemplate(
         Scaffold(
             topBar = {
                 MenuTopBar(
-                    onMenuClick = { scope.launch { drawerState.open() } }
+                    onMenuClick = { scope.launch { drawerState.open() }}
+                    , tittle =  "Menu"
                 )
             },
             floatingActionButton = {

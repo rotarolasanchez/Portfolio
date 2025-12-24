@@ -25,7 +25,7 @@ fun MenuIconButton(
         modifier = modifier
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.baseline_home_24),
+            painter = painterResource(id = R.drawable.baseline_menu_24),
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.background
         )
