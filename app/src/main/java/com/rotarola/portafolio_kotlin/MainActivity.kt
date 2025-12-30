@@ -32,8 +32,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("MainActivity", "Error in onCreate", e)
-            // Fallback UI
             setContent {
                 FeatureUITheme {
                     Surface(
