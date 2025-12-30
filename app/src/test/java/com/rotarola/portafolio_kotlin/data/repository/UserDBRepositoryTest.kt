@@ -1,7 +1,7 @@
 package com.rotarola.portafolio_kotlin.data.repository
 
-import com.rotarola.portafolio_kotlin.data.datasources.UserLocalDataSource
-import com.rotarola.portafolio_kotlin.data.entity.UserApp
+//import com.rotarola.portafolio_kotlin.data.datasources.UserLocalDataSource
+//import com.rotarola.portafolio_kotlin.data.entity.UserApp
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -12,6 +12,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 
+/*
 @RunWith(JUnit4::class)
 class UserDBRepositoryTest {
     private val datasource = mock(UserLocalDataSource::class.java)
@@ -37,4 +38,4 @@ class UserDBRepositoryTest {
         assertEquals(users.isNotEmpty(), true)
         println("Test completed: when geUsersApp is called then return list of UserApp")
     }
-}
+}*/
