@@ -85,9 +85,9 @@ jobs:
           uses: reactivecircus/android-emulator-runner@v2
           with:
             api-level: 29
+            target: google_apis
+            arch: x86_64
             script: ./gradlew connectedCheck
-            device: pixel_4 # Especifica un dispositivo compatible
-            abi: arm64-v8a # Especifica una arquitectura compatible
         - name: Upload test report
           uses: actions/upload-artifact@v4
           with:
