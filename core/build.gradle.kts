@@ -45,9 +45,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    //Realm
-    implementation(libs.realm.base)
-    implementation(libs.realm.sync)
 
     // ✅ Añadir dependencias de Compose
     implementation(platform(libs.androidx.compose.bom))

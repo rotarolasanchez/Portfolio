@@ -52,9 +52,7 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    //Realm
-    implementation(libs.realm.base)
-    implementation(libs.realm.sync)
+
 
     // ✅ Compose Dependencies
     implementation(platform(libs.androidx.compose.bom))

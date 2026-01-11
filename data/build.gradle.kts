@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("io.realm.kotlin") version libs.versions.realm.get()
 }
 
 android {
@@ -49,9 +48,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    //Realm
-    implementation(libs.realm.base)
-    implementation(libs.realm.sync)
+
     //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)

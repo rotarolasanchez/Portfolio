@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
-    id("io.realm.kotlin") version libs.versions.realm.get()
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id ("jacoco")
     alias(libs.plugins.kotlin.compose)
@@ -65,7 +64,7 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 13
+        versionCode = 14
         versionName = "2.7.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -143,6 +142,13 @@ android {
         buildConfig = true
         compose = true
     }
+
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 configurations.all {
@@ -188,9 +194,6 @@ dependencies {
     kspAndroidTest(libs.hilt.android.compiler)
     //androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
-    //Realm
-    implementation(libs.realm.base)
-    implementation(libs.realm.sync)
 
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
