@@ -13,3 +13,12 @@
 .externalNativeBuild
 .cxx
 local.properties
+app/google-services.json
+
+# Build folders de todos los módulos
+**/build/
+**/.transforms/
+# Firebase Functions
+functions/node_modules/
+functions/lib/
+functions/.env

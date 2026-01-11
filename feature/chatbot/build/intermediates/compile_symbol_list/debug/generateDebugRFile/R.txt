@@ -1,0 +1,3 @@
+int drawable outline_photo_camera_24 0x0
+int drawable outline_robot_2_24 0x0
+int drawable outline_send_24 0x0

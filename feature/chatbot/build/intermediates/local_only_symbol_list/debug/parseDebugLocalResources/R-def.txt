@@ -1,2 +1,5 @@
 R_DEF: Internal format may change without notice
 local
+drawable outline_photo_camera_24
+drawable outline_robot_2_24
+drawable outline_send_24

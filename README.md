@@ -19,6 +19,19 @@ This project demonstrates integration with **ML Kit OCR** and **Gemini API**, co
 ✅ **OCR integration** using **Google ML Kit**  
 ✅ **Chatbot integration** using **Gemini API**
 
+## 🤖 Integración con Gemini AI
+
+La aplicación utiliza Firebase Cloud Functions para comunicarse con la API de Gemini:
+
+### Arquitectura
+- **Android** → Cloud Function (`askGemini`) → Gemini API
+- Autenticación mediante Firebase Auth (ID Token)
+- Secrets manejados con Secret Manager
+
+### Configuración
+1. Despliega la Cloud Function en `us-central1`
+2. Configura el secret `GEMINI_API_KEY` en Secret Manager
+3. Actualiza la URL en `Constans.kt`
 ---
 
 ## 🏗️ Architecture Overview
