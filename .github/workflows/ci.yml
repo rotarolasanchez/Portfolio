@@ -67,7 +67,7 @@ jobs:
 
   instrumentation-test:
       needs: [ unit-test ]
-      runs-on: ubuntu-latest # Cambia de macos-latest a ubuntu-latest
+      runs-on: macos-13 # Cambia a macOS para mejor soporte de emulador
       steps:
         - name: Checkout the code
           uses: actions/checkout@v2
@@ -84,12 +84,16 @@ jobs:
         - name: Run espresso tests
           uses: reactivecircus/android-emulator-runner@v2
           with:
-            api-level: 33
-            target: google_apis
+            api-level: 29 # Usa API 29 para mejor compatibilidad
+            target: default
             arch: x86_64
-            emulator-boot-timeout: 600
-            script: ./gradlew connectedCheck
+            profile: Nexus 6
+            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            disable-animations: true
+            script: ./gradlew connectedCheck --stacktrace
+
         - name: Upload test report
+          if: always()
           uses: actions/upload-artifact@v4
           with:
             name: instrumentation_test_report
