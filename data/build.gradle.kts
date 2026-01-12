@@ -63,10 +63,15 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // ML Kit
-    implementation("com.google.mlkit:text-recognition:16.0.1")
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
-
-
+    //implementation("com.google.mlkit:text-recognition:16.0.1")
+    //implementation("com.google.mlkit:text-recognition-latin:19.0.0") // <-- CORREGIR VERSIÓN A 19.0.0
+    //implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+    // POR ESTAS:
+    // Librería base para el reconocimiento de texto
+    //implementation("com.google.mlkit:text-recognition:16.0.0")
+    // Módulo para el soporte de alfabeto latino (descargado vía Play Services)
+    //implementation("com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     // OkHttp para las llamadas HTTP
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
