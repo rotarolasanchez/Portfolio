@@ -18,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Portafolio_kotlin"
         tools:targetApi="31"
+        android:extractNativeLibs="true"
         >
         <activity
             android:exported="true"
