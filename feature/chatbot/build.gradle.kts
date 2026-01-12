@@ -69,7 +69,10 @@ dependencies {
     implementation("androidx.camera:camera-core:1.3.1")
     implementation("androidx.camera:camera-camera2:1.3.1")
     implementation("androidx.camera:camera-lifecycle:1.3.1")
-    implementation("androidx.camera:camera-view:1.3.1")
+    // MODIFICA ESTA LÍNEA
+    implementation("androidx.camera:camera-view:1.3.1") {
+        exclude(group = "com.google.mlkit")
+    }
 
     // ✅ Añadir Guava para ListenableFuture
     implementation("com.google.guava:guava:32.1.3-android")

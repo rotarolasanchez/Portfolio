@@ -64,7 +64,7 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 21
+        versionCode = 22
         versionName = "2.7.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -156,9 +156,12 @@ android {
 
     packaging {
         jniLibs {
-            useLegacyPackaging = false  // Cambiar a TRUE
+            useLegacyPackaging = true  // Cambiar a TRUE
             // Excluir temporalmente las librerías problemáticas si es necesario
-            pickFirsts += listOf("**/libandroidx.graphics.path.so")
+            // Excluir las librerías problemáticas
+            excludes += setOf(
+                "**/libimage_processing_util_jni.so"
+            )
         }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
