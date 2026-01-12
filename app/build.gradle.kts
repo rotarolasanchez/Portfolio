@@ -64,7 +64,7 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 14
+        versionCode = 15
         versionName = "2.7.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -79,6 +79,12 @@ android {
         // buildConfigField("String", "GEMINI_API_KEY_DEBUG", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", "")}\"")
         // Configurar BuildConfig fields para las API keys
         buildConfigField("String", "MODEL_NAME", "\"${localProperties.getProperty("MODEL_NAME", "")}\"")
+
+        externalNativeBuild {
+            cmake {
+                arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+            }
+        }
     }
 
     signingConfigs {
@@ -147,6 +153,8 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = false
+            // Excluir temporalmente las librerías problemáticas si es necesario
+            pickFirsts += listOf("**/libandroidx.graphics.path.so")
         }
     }
 }
