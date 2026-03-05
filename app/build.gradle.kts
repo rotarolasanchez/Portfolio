@@ -5,13 +5,11 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    //alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.hilt)
-    id("org.sonarqube") version libs.versions.sonarqube.get()
-    id ("jacoco")
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.ksp)
+    id("org.sonarqube") version libs.versions.sonarqube.get()
+    id("jacoco")
 }
 
 jacoco {
@@ -140,12 +138,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -176,12 +174,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation(project(":data"))
-    implementation(project(":domain"))
-    implementation(project(":core"))
-    implementation(project(":feature:login"))
-    implementation(project(":feature:menu"))
-    implementation(project(":feature:chatbot"))
+    implementation(project(":shared"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -199,25 +192,10 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    implementation(libs.lifecycle.viewmodel.compose)
-    implementation(libs.navigation.compose)
-
-    //hilt
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    //kapt(libs.hilt.android.compiler)
-    ksp(libs.hilt.android.compiler)
-    androidTestImplementation(libs.hilt.android.testing)
-    //kaptAndroidTest(libs.hilt.android.compiler)
-    kspAndroidTest(libs.hilt.android.compiler)
-    //androidTestAnnotationProcessor(libs.hilt.android.compiler)
-
-
     implementation(libs.kotlinx.stdlib.jdk8)
     implementation(libs.lottie.compose)
 
     //junit
-    testImplementation(libs.junit)
     testImplementation(libs.mockito)
     testImplementation(libs.mockito.inline)
     testImplementation(libs.coroutines.test)
@@ -228,9 +206,6 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
-
-
-    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
@@ -238,15 +213,11 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
-    // Hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    //kapt("com.google.dagger:hilt-compiler:2.51.1")
-
+    // Koin para DI
+    implementation("io.insert-koin:koin-android:3.5.3")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+    implementation("io.insert-koin:koin-core:3.5.3")
 
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-
-    // Hilt
-    implementation(libs.hilt.android)
-    //kapt(libs.hilt.android.compiler)
 }

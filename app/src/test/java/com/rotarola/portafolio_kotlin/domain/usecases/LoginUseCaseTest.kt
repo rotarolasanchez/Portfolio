@@ -1,6 +1,6 @@
 package com.rotarola.portafolio_kotlin.domain.usecases
 
-import com.rotarola.portafolio_kotlin.domain.model.RequestState
+import domain.model.RequestState
 //import com.rotarola.portafolio_kotlin.domain.model.UserModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.fail
