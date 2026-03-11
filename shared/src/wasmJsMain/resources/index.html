@@ -375,15 +375,32 @@
     <!-- Firebase SDK (compat) para autenticación web -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <!--
+        SEGURIDAD: La configuración de Firebase se carga desde 'firebase-config.js'.
+        Este archivo NO está versionado en Git (.gitignore).
+        Para desarrollo local: crea shared/src/wasmJsMain/resources/firebase-config.js
+        Para producción (Firebase Hosting): usa __firebase_hosting_json__ o inyéctalo en CI/CD.
+        Formato del archivo:
+            window.__FIREBASE_CONFIG__ = {
+                apiKey: "TU_API_KEY_NUEVA",
+                authDomain: "portfolio-app-9a4bc.firebaseapp.com",
+                projectId: "portfolio-app-9a4bc",
+                storageBucket: "portfolio-app-9a4bc.firebasestorage.app"
+            };
+    -->
+    <script src="firebase-config.js" onerror="console.warn('firebase-config.js no encontrado. Crea este archivo con window.__FIREBASE_CONFIG__')"></script>
     <script>
-        // Inicializar Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBcdK7g8T-fgbX_t9bmeqJHh5NdDGBo45Q",
-            authDomain: "portfolio-app-9a4bc.firebaseapp.com",
-            projectId: "portfolio-app-9a4bc",
-            storageBucket: "portfolio-app-9a4bc.firebasestorage.app"
-        };
-        firebase.initializeApp(firebaseConfig);
+        // Inicializar Firebase usando configuración externa (no hardcodeada en el repo)
+        const firebaseConfig = (typeof window.__FIREBASE_CONFIG__ !== 'undefined')
+            ? window.__FIREBASE_CONFIG__
+            : null;
+
+        if (!firebaseConfig) {
+            console.error("❌ Falta firebase-config.js con window.__FIREBASE_CONFIG__");
+            console.error("Crea el archivo firebase-config.js en el directorio de recursos con tu configuración de Firebase.");
+        } else {
+            firebase.initializeApp(firebaseConfig);
+        }
 
         // Helper: Sign in con email y password
         window.firebaseSignIn = function(email, password) {
