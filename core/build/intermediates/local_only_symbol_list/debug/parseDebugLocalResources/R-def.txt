@@ -1,8 +1,0 @@
-R_DEF: Internal format may change without notice
-local
-drawable baseline_add_24
-drawable baseline_home_24
-drawable baseline_menu_24
-drawable baseline_visibility_24
-drawable outline_login_24
-mipmap capibara_family_not_background

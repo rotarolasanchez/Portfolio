@@ -80,7 +80,13 @@ jobs:
           uses: actions/setup-java@v3
           with:
             java-version: '17'
-            distribution: 'temurin' # Usar la distribución de Temurin
+            distribution: 'temurin'
+
+        - name: Install google-services.json (from secret)
+          env:
+            GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          run: |
+            echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
 
         - name: Grant execute permission for gradlew
           run: chmod +x ./gradlew
@@ -102,6 +108,10 @@ jobs:
           with:
             name: instrumentation_test_report
             path: app/build/reports/androidTests/connected/
+
+        - name: Clean sensitive files
+          if: ${{ always() }}
+          run: rm -f app/google-services.json
   sonarcloud:
       needs: [ instrumentation-test ]
       runs-on: ubuntu-latest
@@ -109,13 +119,19 @@ jobs:
         - name: Checkout the code
           uses: actions/checkout@v3
           with:
-            fetch-depth: 0  # Fetch full history to avoid shallow clone issues
+            fetch-depth: 0
 
         - name: Set up JDK 17
           uses: actions/setup-java@v3
           with:
             java-version: '17'
-            distribution: 'temurin' # Usar la distribución de Temurin
+            distribution: 'temurin'
+
+        - name: Install google-services.json (from secret)
+          env:
+            GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          run: |
+            echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
 
         - name: Grant execute permission for gradlew
           run: chmod +x ./gradlew
@@ -152,6 +168,10 @@ jobs:
             fi
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+        - name: Clean sensitive files
+          if: ${{ always() }}
+          run: rm -f app/google-services.json
   Firebase:
       needs: [ sonarcloud ]
       runs-on: ubuntu-latest
@@ -164,6 +184,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Install google-services.json (from secret)
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
@@ -194,4 +220,6 @@ jobs:
 
       - name: Clean up
         if: always()
-        run: rm -f firebase-key.json
+        run: |
+          rm -f firebase-key.json
+          rm -f app/google-services.json
