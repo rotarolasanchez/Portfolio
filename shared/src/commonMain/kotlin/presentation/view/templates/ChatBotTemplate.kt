@@ -1,5 +1,7 @@
 package presentation.view.templates
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,23 +71,25 @@ fun ChatBotTemplate(
                 )
             }
         ) { innerPadding ->
-            when {
-                uiState.showCamera -> {
-                    CameraScreen(
-                        uiState = uiState.toCameraUiState(),
-                        onImageCaptured = { bitmap: PlatformBitmap ->
-                            viewModel.processImage(bitmap)
-                        },
-                        onRetakePhoto = { viewModel.hideCamera() }
-                    )
-                }
+            Box(modifier = Modifier.padding(innerPadding)) {
+                when {
+                    uiState.showCamera -> {
+                        CameraScreen(
+                            uiState = uiState.toCameraUiState(),
+                            onImageCaptured = { bitmap: PlatformBitmap ->
+                                viewModel.processImage(bitmap)
+                            },
+                            onRetakePhoto = { viewModel.hideCamera() }
+                        )
+                    }
 
-                else -> {
-                    ChatScreen(
-                        uiState = uiState,
-                        onSendMessage = { message -> viewModel.sendMessage(message) },
-                        onCameraClick = { viewModel.showCamera() }
-                    )
+                    else -> {
+                        ChatScreen(
+                            uiState = uiState,
+                            onSendMessage = { message -> viewModel.sendMessage(message) },
+                            onCameraClick = { viewModel.showCamera() }
+                        )
+                    }
                 }
             }
         }
