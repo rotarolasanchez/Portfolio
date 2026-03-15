@@ -1,6 +1,0 @@
-int drawable baseline_add_24 0x0
-int drawable baseline_home_24 0x0
-int drawable baseline_menu_24 0x0
-int drawable baseline_visibility_24 0x0
-int drawable outline_login_24 0x0
-int mipmap capibara_family_not_background 0x0

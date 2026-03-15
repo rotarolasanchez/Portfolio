@@ -15,6 +15,11 @@
 local.properties
 app/google-services.json
 
+# Configuración Firebase Web (contiene API keys - NO subir al repo)
+**/firebase-config.js
+# El archivo de ejemplo SÍ se versiona:
+!**/firebase-config.js.example
+
 # Build folders de todos los módulos
 **/build/
 **/.transforms/

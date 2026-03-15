@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="Portafolio Kotlin - ChatBot AI con Compose Multiplatform. Aplicación web responsiva con IA integrada.">
+    <meta name="keywords" content="Kotlin, Compose, Multiplatform, ChatBot, AI, WebAssembly">
+    <meta name="author" content="Tu Nombre">
+    <meta name="theme-color" content="#667eea">
+    <meta name="color-scheme" content="light dark">
+
+    <!-- Mobile specific -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Portafolio Kotlin">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- Social Media -->
+    <meta property="og:title" content="Portafolio Kotlin - ChatBot AI">
+    <meta property="og:description" content="Aplicación web responsiva con ChatBot AI desarrollada en Kotlin Multiplatform">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="icon-512x512.png">
+
+    <title>Portafolio Kotlin - ChatBot AI</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        #ComposeTarget {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+
+        /* Loading screen */
+        #loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .loading-subtext {
+            font-size: 14px;
+            opacity: 0.8;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* PWA Install button */
+        #installButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #6200EE;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 16px rgba(98,0,238,0.3);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        #installButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(98,0,238,0.4);
+        }
+
+        /* Responsive Design */
+
+        /* Mobile Portrait (320px - 480px) */
+        @media (max-width: 480px) {
+            #ComposeTarget {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .loading-text {
+                font-size: 16px;
+            }
+
+            .loading-subtext {
+                font-size: 12px;
+            }
+
+            #installButton {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+
+        /* Mobile Landscape (481px - 768px) */
+        @media (min-width: 481px) and (max-width: 768px) {
+            #ComposeTarget {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        /* Tablet Portrait (769px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #ComposeTarget {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            #ComposeTarget {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        /* Large Desktop (1440px+) */
+        @media (min-width: 1440px) {
+            #ComposeTarget {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        /* High DPI Screens */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .spinner {
+                border-width: 3px;
+            }
+        }
+
+        /* Landscape orientation for mobile */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #ComposeTarget {
+                height: 100vh;
+            }
+
+            #installButton {
+                bottom: 5px;
+                right: 5px;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+
+            #loading {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            .spinner {
+                animation: none;
+                border: 4px solid white;
+            }
+
+            #installButton {
+                transition: none;
+            }
+
+            #installButton:hover {
+                transform: none;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            #installButton {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+        }
+
+        /* Additional mobile enhancements */
+        @supports (-webkit-touch-callout: none) {
+            /* iOS Safari specific styles */
+            body {
+                -webkit-user-select: none;
+                -webkit-touch-callout: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            #ComposeTarget {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Better touch targets */
+        button, input, select, textarea {
+            min-height: 44px;
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Better focus indicators for accessibility */
+        :focus-visible {
+            outline: 2px solid #6200EE;
+            outline-offset: 2px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Loading animation improvements */
+        @media (prefers-reduced-motion: no-preference) {
+            .spinner {
+                animation: spin 1s linear infinite;
+            }
+        }
+
+        /* Safe area for devices with notches - no padding to avoid coordinate offset */
+        @supports (padding: max(0px)) {
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Cargando Portafolio Kotlin</div>
+        <div class="loading-subtext">Compose Multiplatform + WebAssembly</div>
+    </div>
+
+    <!-- Main Canvas -->
+    <canvas id="ComposeTarget"></canvas>
+
+    <!-- PWA Install Button -->
+    <button id="installButton">📱 Instalar App</button>
+
+    <script>
+        // Loading management
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 2000);
+        });
+
+        // PWA Install functionality
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        installButton.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        // Hide install button if already installed
+        window.addEventListener('appinstalled', () => {
+            installButton.style.display = 'none';
+            console.log('PWA was installed');
+        });
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+
+    <!-- Firebase SDK (compat) para autenticación web -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <!--
+        SEGURIDAD: La configuración de Firebase se carga desde 'firebase-config.js'.
+        Este archivo NO está versionado en Git (.gitignore).
+        Para desarrollo local: crea shared/src/wasmJsMain/resources/firebase-config.js
+        Para producción (Firebase Hosting): usa __firebase_hosting_json__ o inyéctalo en CI/CD.
+        Formato del archivo:
+            window.__FIREBASE_CONFIG__ = {
+                apiKey: "TU_API_KEY_NUEVA",
+                authDomain: "portfolio-app-9a4bc.firebaseapp.com",
+                projectId: "portfolio-app-9a4bc",
+                storageBucket: "portfolio-app-9a4bc.firebasestorage.app"
+            };
+    -->
+    <script src="firebase-config.js" onerror="console.warn('firebase-config.js no encontrado. Crea este archivo con window.__FIREBASE_CONFIG__')"></script>
+    <script>
+        // Inicializar Firebase usando configuración externa (no hardcodeada en el repo)
+        const firebaseConfig = (typeof window.__FIREBASE_CONFIG__ !== 'undefined')
+            ? window.__FIREBASE_CONFIG__
+            : null;
+
+        if (!firebaseConfig) {
+            console.error("❌ Falta firebase-config.js con window.__FIREBASE_CONFIG__");
+            console.error("Crea el archivo firebase-config.js en el directorio de recursos con tu configuración de Firebase.");
+        } else {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Helper: Sign in con email y password
+        window.firebaseSignIn = function(email, password) {
+            return firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(function(userCredential) {
+                    var user = userCredential.user;
+                    return JSON.stringify({
+                        uid: user.uid,
+                        email: user.email || "",
+                        displayName: user.displayName || ""
+                    });
+                });
+        };
+
+        // Helper: Obtener ID Token del usuario actual
+        window.firebaseGetIdToken = function() {
+            var user = firebase.auth().currentUser;
+            if (!user) {
+                return Promise.reject("Usuario no autenticado");
+            }
+            return user.getIdToken(false);
+        };
+
+        // Helper: Sign out
+        window.firebaseSignOut = function() {
+            return firebase.auth().signOut();
+        };
+
+        // Helper: Obtener usuario actual
+        window.firebaseGetCurrentUser = function() {
+            var user = firebase.auth().currentUser;
+            if (!user) return null;
+            return JSON.stringify({
+                uid: user.uid,
+                email: user.email || "",
+                displayName: user.displayName || ""
+            });
+        };
+
+        // Helper: Fetch POST con Authorization Bearer (para Android via Cloud Function)
+        window.fetchWithAuth = function(url, token, bodyJson) {
+            return fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: bodyJson
+            }).then(function(response) {
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        throw new Error("HTTP " + response.status + ": " + text);
+                    });
+                }
+                return response.text();
+            });
+        };
+
+        // Helper: Enviar imagen base64 + mensaje a Cloud Function (evita construir JSON enorme en Kotlin/Wasm)
+        window.fetchImageWithAuth = function(url, token, message, imageBase64, imageMimeType) {
+            console.log("📤 fetchImageWithAuth llamado:");
+            console.log("  URL:", url);
+            console.log("  message:", message.substring(0, 80) + "...");
+            console.log("  imageBase64 length:", imageBase64 ? imageBase64.length : "NULL/UNDEFINED");
+            console.log("  imageMimeType:", imageMimeType);
+
+            var body = JSON.stringify({
+                message: message,
+                imageBase64: imageBase64,
+                imageMimeType: imageMimeType
+            });
+            console.log("  Body JSON size:", body.length, "bytes (~" + (body.length / 1024).toFixed(1) + " KB)");
+
+            return fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: body
+            }).then(function(response) {
+                console.log("📥 Respuesta recibida:", response.status, response.statusText);
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        console.error("❌ Error response:", text);
+                        throw new Error("HTTP " + response.status + ": " + text);
+                    });
+                }
+                return response.text();
+            });
+        };
+
+        // Helper: Fetch POST con X-Web-Secret (para Web, sin Firebase Auth)
+        window.fetchWithSecret = function(url, secret, bodyJson) {
+            return fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Web-Secret": secret
+                },
+                body: bodyJson
+            }).then(function(response) {
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        throw new Error("HTTP " + response.status + ": " + text);
+                    });
+                }
+                return response.text();
+            });
+        };
+
+        // Helper: Abrir selector de archivos de imagen y devolver base64
+        window.pickImageFile = function() {
+            return new Promise(function(resolve, reject) {
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.style.display = 'none';
+                document.body.appendChild(input);
+
+                input.onchange = function(e) {
+                    var file = e.target.files[0];
+                    if (!file) {
+                        document.body.removeChild(input);
+                        reject("No se seleccionó archivo");
+                        return;
+                    }
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.body.removeChild(input);
+                        resolve(event.target.result); // data:image/...;base64,...
+                    };
+                    reader.onerror = function() {
+                        document.body.removeChild(input);
+                        reject("Error al leer archivo");
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                // Si el usuario cancela
+                input.oncancel = function() {
+                    document.body.removeChild(input);
+                    reject("Cancelado por el usuario");
+                };
+
+                input.click();
+            });
+        };
+    </script>
+
+    <!-- Compose Kotlin/WASM -->
+    <script src="shared.js"></script>
+</body>
+</html>

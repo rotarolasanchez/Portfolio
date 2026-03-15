@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class com.rotarola.portafolio_kotlin.ApplicationMain { *; }
--keep class com.rotarola.portafolio_kotlin.MainActivity { *; }
+-keep class MainActivity { *; }

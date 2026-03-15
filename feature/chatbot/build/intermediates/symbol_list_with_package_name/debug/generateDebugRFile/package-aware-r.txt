@@ -1,4 +1,0 @@
-com.rotarola.portafolio_kotlin.feature.chatbot
-drawable outline_photo_camera_24
-drawable outline_robot_2_24
-drawable outline_send_24
