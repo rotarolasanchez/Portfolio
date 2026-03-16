@@ -3,7 +3,6 @@ name: 🤖 Android CI - Build Check
 on:
   push:
     branches:
-      - feature/english-voice-practice
       - main
   pull_request:
     branches:
@@ -13,6 +12,8 @@ jobs:
   build:
     name: 🔨 Compile Debug APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout code

@@ -1,5 +1,7 @@
 package com.rotarola.portafolio_kotlin.presentation.state
 
+import java.util.UUID
+
 data class EnglishPracticeUiState(
     val messages: List<VoiceMessage> = emptyList(),
     val isListening: Boolean = false,
@@ -11,7 +13,7 @@ data class EnglishPracticeUiState(
 )
 
 data class VoiceMessage(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: String = UUID.randomUUID().toString(),
     val text: String,
     val isFromUser: Boolean,
     val correction: String? = null,

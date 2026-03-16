@@ -72,7 +72,7 @@ fun VoiceButtonAtom(
             Icon(
                 painter = painterResource(
                     id = if (isListening)
-                        android.R.drawable.ic_btn_speak_now
+                        android.R.drawable.ic_media_pause
                     else
                         android.R.drawable.ic_btn_speak_now
                 ),

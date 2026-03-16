@@ -88,7 +88,7 @@ fun VoiceChatOrganism(
 @Composable
 private fun PracticeModeSelector(currentMode: PracticeMode, onModeSelected: (PracticeMode) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        PracticeMode.values().forEach { mode ->
+        PracticeMode.entries.forEach { mode ->
             FilterChip(
                 selected = currentMode == mode,
                 onClick = { onModeSelected(mode) },

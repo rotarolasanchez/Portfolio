@@ -7,6 +7,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rotarola.portafolio_kotlin.core.service.GeminiCloudService
@@ -45,6 +46,15 @@ class EnglishPracticeViewModel @Inject constructor(
                 textToSpeech?.language = Locale.US
                 textToSpeech?.setSpeechRate(0.9f)
                 textToSpeech?.setPitch(1.0f)
+                textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {}
+                    override fun onDone(utteranceId: String?) {
+                        _uiState.update { it.copy(isSpeaking = false) }
+                    }
+                    override fun onError(utteranceId: String?) {
+                        _uiState.update { it.copy(isSpeaking = false) }
+                    }
+                })
             }
         }
     }
@@ -134,14 +144,35 @@ class EnglishPracticeViewModel @Inject constructor(
 
     private fun buildPrompt(userText: String): String {
         return when (_uiState.value.practiceMode) {
-            PracticeMode.FREE_CONVERSATION ->
-                """You are a friendly English tutor helping a Spanish-speaking Android developer practice conversational English.\n                The user said: \"$userText\"\n                Instructions:\n                - Respond naturally in English (2-3 sentences max)\n                - If there are grammar mistakes, gently correct them at the end\n                - Keep the conversation going with a follow-up question\n                - Be encouraging and positive\n                Format: [Your response] | Correction (if any): [correction]"""
+            PracticeMode.FREE_CONVERSATION -> """
+                You are a friendly English tutor helping a Spanish-speaking Android developer practice conversational English.
+                The user said: "$userText"
+                Instructions:
+                - Respond naturally in English (2-3 sentences max)
+                - If there are grammar mistakes, gently correct them at the end
+                - Keep the conversation going with a follow-up question
+                - Be encouraging and positive
+                Format: [Your response] | Correction (if any): [correction]
+            """.trimIndent()
 
-            PracticeMode.TECHNICAL_INTERVIEW ->
-                """You are a technical interviewer at a top tech company interviewing a Senior Android Developer.\n                The candidate said: \"$userText\"\n                Instructions:\n                - Respond as a professional interviewer in English\n                - Ask follow-up technical questions about Android, Kotlin, Jetpack Compose, Clean Architecture\n                - Give brief feedback on their answer\n                - Keep responses concise (2-3 sentences)"""
+            PracticeMode.TECHNICAL_INTERVIEW -> """
+                You are a technical interviewer at a top tech company interviewing a Senior Android Developer.
+                The candidate said: "$userText"
+                Instructions:
+                - Respond as a professional interviewer in English
+                - Ask follow-up technical questions about Android, Kotlin, Jetpack Compose, Clean Architecture
+                - Give brief feedback on their answer
+                - Keep responses concise (2-3 sentences)
+            """.trimIndent()
 
-            PracticeMode.VOCABULARY_PRACTICE ->
-                """You are an English vocabulary coach for a Senior Android Developer.\n                The user said: \"$userText\"\n                Instructions:\n                - Respond in English and highlight 1-2 technical vocabulary words they used well or could improve\n                - Suggest better professional alternatives if applicable\n                - Keep it conversational and encouraging"""
+            PracticeMode.VOCABULARY_PRACTICE -> """
+                You are an English vocabulary coach for a Senior Android Developer.
+                The user said: "$userText"
+                Instructions:
+                - Respond in English and highlight 1-2 technical vocabulary words they used well or could improve
+                - Suggest better professional alternatives if applicable
+                - Keep it conversational and encouraging
+            """.trimIndent()
         }
     }
 
@@ -149,15 +180,6 @@ class EnglishPracticeViewModel @Inject constructor(
         val cleanText = text.split("|").firstOrNull()?.trim() ?: text
         _uiState.update { it.copy(isSpeaking = true) }
         textToSpeech?.speak(cleanText, TextToSpeech.QUEUE_FLUSH, null, "utterance_id")
-        textToSpeech?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {}
-            override fun onDone(utteranceId: String?) {
-                _uiState.update { it.copy(isSpeaking = false) }
-            }
-            override fun onError(utteranceId: String?) {
-                _uiState.update { it.copy(isSpeaking = false) }
-            }
-        })
     }
 
     fun changePracticeMode(mode: PracticeMode) {
