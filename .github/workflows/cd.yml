@@ -83,15 +83,17 @@ jobs:
           name: app-release
           path: app/build/outputs/bundle/release/app-release.aab
 
-      - name: Publish to Play Store (internal track)
-        uses: r0adkll/upload-google-play@v1.0.19
+      - name: Publish to Play Store (production)
+        uses: r0adkll/upload-google-play@v1.1.3
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.rotarola.portafolio_kotlin
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: internal        # ✅ Sube a internal primero para validar, luego promover manualmente a production
+          track: production
           status: completed
+          userFraction: 1.0
           inAppUpdatePriority: 2
+          changesNotSentForReview: true
 
       - name: Clean sensitive files
         if: ${{ always() }}
