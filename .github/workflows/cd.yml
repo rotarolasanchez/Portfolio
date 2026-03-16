@@ -91,7 +91,6 @@ jobs:
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: production
           status: completed
-          userFraction: 1.0
           inAppUpdatePriority: 2
           changesNotSentForReview: true
 
