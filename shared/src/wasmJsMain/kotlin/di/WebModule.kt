@@ -1,6 +1,8 @@
 package di
 
 import core.service.*
+import core.storage.CredentialsStorage
+import core.storage.WebCredentialsStorage
 import data.repository.WebAuthRepositoryImpl
 import domain.repositories.ChatBotRepository
 import domain.usecases.*
@@ -33,7 +35,10 @@ val webModule = module {
     // ViewModels
     single { ChatBotViewModel(get(), get(), get()) }
     single { MenuViewModel() }
-    single { AuthViewModel(get()) }
+    single { AuthViewModel(get(), get()) }
+
+    // Storage
+    single<CredentialsStorage> { WebCredentialsStorage() }
 }
 
 /**

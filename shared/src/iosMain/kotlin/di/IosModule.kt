@@ -4,6 +4,8 @@ import core.service.GeminiCloudService
 import core.service.GeminiCloudServiceImpl
 import core.service.TextRecognitionService
 import core.service.TextRecognitionServiceImpl
+import core.storage.CredentialsStorage
+import core.storage.IosCredentialsStorage
 import data.repository.IosChatBotRepositoryImpl
 import data.repository.IosAuthRepositoryImpl
 import domain.repositories.AuthRepository
@@ -29,5 +31,7 @@ val iosModule = module {
     // Repositories
     single<AuthRepository> { IosAuthRepositoryImpl() }
     single<ChatBotRepository> { IosChatBotRepositoryImpl(get(), get()) }
-}
 
+    // Storage
+    single<CredentialsStorage> { IosCredentialsStorage() }
+}

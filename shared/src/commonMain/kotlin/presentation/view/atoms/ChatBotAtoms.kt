@@ -87,7 +87,7 @@ fun ChatBotButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.extraLarge,   // MD3 FilledButton = extraLarge (28dp → fully rounded)
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
