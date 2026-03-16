@@ -1,9 +1,12 @@
 package di
 
+import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import core.service.GeminiCloudService
 import core.service.TextRecognitionService
+import core.storage.AndroidCredentialsStorage
+import core.storage.CredentialsStorage
 import data.datasources.AuthDataSource
 import data.repository.AuthRepositoryImpl
 import data.repository.ChatBotRepositoryImpl
@@ -26,4 +29,7 @@ val androidModule = module {
     // Repositories
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<ChatBotRepository> { ChatBotRepositoryImpl(get(), get()) }
+
+    // Storage
+    single<CredentialsStorage> { AndroidCredentialsStorage(get<Context>()) }
 }

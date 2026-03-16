@@ -15,5 +15,6 @@ data class AuthUiState(
     val loginRequest: RequestState<List<UserModel>> = RequestState.Idle,
     val isSnackBarSuccessful: Boolean = false,
     val snackbarMessage: String = "",
-    val user: UserModel = UserModel()
+    val user: UserModel = UserModel(),
+    val rememberCredentials: Boolean = false
 )

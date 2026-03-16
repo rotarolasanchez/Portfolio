@@ -70,7 +70,9 @@ fun LoginTemplate(
                 onLoginClick = { code, password ->
                     authViewModel.signInWithEmail(code, password)
                 },
-                onGuestClick = onLoginSuccess
+                onGuestClick = onLoginSuccess,
+                rememberCredentials = uiState.rememberCredentials,
+                onRememberCredentialsChange = { authViewModel.updateRememberCredentials(it) }
             )
         }
     }

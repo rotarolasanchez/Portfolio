@@ -1,7 +1,6 @@
 package di
 
-import domain.repositories.AuthRepository
-import domain.repositories.ChatBotRepository
+import core.storage.CredentialsStorage
 import domain.usecases.*
 import org.koin.dsl.module
 import presentation.viewmodels.AuthViewModel
@@ -25,7 +24,8 @@ val commonModule = module {
     }
     factory {
         AuthViewModel(
-            signWithEmailUseCase = get<SignInWithEmailUseCase>()
+            signWithEmailUseCase = get<SignInWithEmailUseCase>(),
+            credentialsStorage = get<CredentialsStorage>()
         )
     }
     factory { MenuViewModel() }
