@@ -92,6 +92,7 @@ jobs:
           track: production
           status: completed
           inAppUpdatePriority: 2
+          changesNotSentForReview: true
 
       - name: Clean sensitive files
         if: ${{ always() }}
