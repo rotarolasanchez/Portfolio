@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -45,13 +45,15 @@ fun MenuDrawerContent(
             )
         }
 
-        Divider(color = MaterialTheme.colorScheme.outline)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
         items.forEachIndexed { index, item ->
+            // Guarda defensiva: evitar IndexOutOfBoundsException si listas no coinciden
+            val icon = icons.getOrNull(index) ?: return@forEachIndexed
             NavigationDrawerItem(
                 icon = {
                     Icon(
-                        painter = painterResource(icons[index]),
+                        painter = painterResource(icon),
                         contentDescription = item,
                         tint = MaterialTheme.colorScheme.primary
                     )
