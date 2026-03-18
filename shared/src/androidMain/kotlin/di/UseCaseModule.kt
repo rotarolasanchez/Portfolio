@@ -1,8 +1,4 @@
-import domain.repositories.ChatBotRepository
-import domain.usecases.ContinueChatUseCase
+package di
 
-// Este archivo fue reemplazado por CommonModule.kt usando Koin
-// para compatibilidad con Kotlin Multiplatform
-fun provideContinueChatUseCase(
-        chatRepository: ChatBotRepository
-    ): ContinueChatUseCase = ContinueChatUseCase(chatRepository)
+// Los casos de uso están registrados en CommonModule.kt
+// Este archivo se mantiene para compatibilidad de paquetes

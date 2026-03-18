@@ -12,12 +12,47 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Mantener información de número de línea para depuración de stack traces
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
--keep class com.rotarola.portafolio_kotlin.ApplicationMain { *; }
--keep class MainActivity { *; }
+# Application y Activity principales
+-keep class com.rotarola.portafolio_kotlin.PortafolioApplication { *; }
+-keep class com.rotarola.portafolio_kotlin.MainActivity { *; }
+
+# Koin - inyección de dependencias
+-keep class org.koin.** { *; }
+-keepnames class org.koin.** { *; }
+-keep class di.** { *; }
+
+# ViewModels compartidos (shared module)
+-keep class presentation.viewmodels.** { *; }
+
+# Domain / Data / Core (shared module)
+-keep class domain.** { *; }
+-keep class data.** { *; }
+-keep class core.** { *; }
+
+# Firebase
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+
+# Kotlinx Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembers class kotlinx.coroutines.** {
+    volatile <fields>;
+}
+
+# Kotlinx Serialization
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt
+-keepclassmembers class kotlinx.serialization.json.** {
+    *** Companion;
+}
+-keepclasseswithmembers class kotlinx.serialization.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Modelos de datos
+-keep class domain.model.** { *; }
