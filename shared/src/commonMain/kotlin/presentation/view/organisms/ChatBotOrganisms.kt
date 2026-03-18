@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,23 +62,7 @@ fun ChatScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.messages.asReversed()) { message ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                            contentAlignment = if (message.isFromUser) Alignment.CenterEnd else Alignment.CenterStart
-                        ) {
-                            Surface(
-                                modifier = Modifier.widthIn(max = 280.dp), // Limitar ancho de mensajes
-                                color = if (message.isFromUser)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(16.dp)
-                            ) {
-                                ChatMessageBubble(message)
-                            }
-                        }
+                        ChatMessageBubble(message)
                     }
                 }
             }

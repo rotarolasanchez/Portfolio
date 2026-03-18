@@ -1,5 +1,6 @@
 package data.repository
 
+import com.google.firebase.auth.FirebaseAuth
 import data.datasources.AuthDataSource
 import domain.model.UserModel
 import domain.repositories.AuthRepository
@@ -31,18 +32,27 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun signInWithGoogle(): Result<UserModel> {
-        TODO("Implementar signInWithGoogle")
+        return Result.failure(UnsupportedOperationException("Sign in con Google aún no implementado"))
     }
 
     override suspend fun signUp(email: String, password: String, name: String): Result<UserModel> {
-        TODO("Implementar signUp")
+        return Result.failure(UnsupportedOperationException("Registro de usuario aún no implementado"))
     }
 
     override suspend fun signOut(): Result<Unit> {
-        TODO("Implementar signOut")
+        return try {
+            FirebaseAuth.getInstance().signOut()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override fun getCurrentUser(): UserModel? {
-        TODO("Implementar getCurrentUser")
+        val firebaseUser = FirebaseAuth.getInstance().currentUser ?: return null
+        return UserModel(
+            id = firebaseUser.uid,
+            email = firebaseUser.email ?: ""
+        )
     }
 }

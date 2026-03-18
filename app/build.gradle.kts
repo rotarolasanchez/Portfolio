@@ -21,12 +21,12 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(file("${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
         html.required.set(true)
     }
 
     classDirectories.setFrom(
-        fileTree("${buildDir}/tmp/kotlin-classes/debug") {
+        fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
             include("**/*.class")
             exclude(
                 "**/di/**",
@@ -38,7 +38,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     sourceDirectories.setFrom(
         files("src/main/java", "src/main/kotlin")
     )
-    executionData.setFrom(files("${buildDir}/jacoco/testDebugUnitTest.exec"))
+    executionData.setFrom(layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"))
 }
 
 tasks.withType<Test> {
@@ -62,8 +62,8 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 25
-        versionName = "3.0.0"
+        versionCode = 26
+        versionName = "3.2.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -184,8 +184,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
-    implementation(libs.ui.test.junit4.android)
-    implementation(libs.androidx.runner)
+    androidTestImplementation(libs.ui.test.junit4.android)
+    androidTestImplementation(libs.androidx.runner)
     implementation(libs.generativeai)
     implementation(libs.androidx.room.ktx)
 

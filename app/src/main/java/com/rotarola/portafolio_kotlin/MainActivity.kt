@@ -4,10 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import core.utils.AppInfo
-import di.androidModule
-import di.commonModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
 import presentation.view.atoms.theme.FeatureUITheme
 import presentation.view.pages.NavigationMain
 
@@ -21,17 +17,11 @@ class MainActivity : ComponentActivity() {
             versionCode = BuildConfig.VERSION_CODE
         )
 
-        // Inicializar Koin
-        startKoin {
-            androidContext(this@MainActivity)
-            modules(commonModule, androidModule)
-        }
-
+        // Koin ya fue inicializado en PortafolioApplication.onCreate()
         setContent {
-            FeatureUITheme(){
-                NavigationMain() // ✅ UI compartida desde shared
+            FeatureUITheme {
+                NavigationMain()
             }
         }
     }
 }
-

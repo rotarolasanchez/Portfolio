@@ -1,1 +1,8 @@
 /build
+
+# Archivos sensibles - NO commitear
+keystore.properties
+google-services.json
+key/
+release/*.aab
+release/*.apk
