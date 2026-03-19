@@ -62,8 +62,8 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 35
-        versionCode = 26
-        versionName = "3.2.0"
+        versionCode = 27
+        versionName = "3.3.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
