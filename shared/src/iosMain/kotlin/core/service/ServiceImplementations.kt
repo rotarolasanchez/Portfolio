@@ -185,10 +185,7 @@ private suspend fun suspendNSURLSession(
     request: NSMutableURLRequest
 ): Triple<NSData?, platform.Foundation.NSURLResponse?, platform.Foundation.NSError?> =
     suspendCancellableCoroutine { continuation ->
-        NSURLSession.sharedSession.dataTaskWithRequest(
-            request = request,
-            completionHandler = { data, response, error ->
+        NSURLSession.sharedSession.dataTaskWithRequest(request) { data, response, error ->
                 continuation.resume(Triple(data, response, error))
-            }
-        ).resume()
+            }.resume()
     }

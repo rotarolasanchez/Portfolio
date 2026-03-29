@@ -8,16 +8,16 @@ import presentation.viewmodels.MenuViewModel
 
 @Composable
 actual fun provideChatBotViewModel(): ChatBotViewModel {
-    return GlobalContext.get().get()
+    return GlobalContext.get().get<ChatBotViewModel>()
 }
 
 @Composable
 actual fun provideAuthViewModel(): AuthViewModel {
-    return GlobalContext.get().get()
+    return GlobalContext.get().get<AuthViewModel>()
 }
 
 @Composable
 actual fun provideMenuViewModel(): MenuViewModel {
-    return GlobalContext.get().get()
+    return GlobalContext.get().get<MenuViewModel>()
 }
 
