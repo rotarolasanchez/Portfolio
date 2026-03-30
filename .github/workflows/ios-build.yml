@@ -51,6 +51,9 @@ jobs:
             echo "⚠️  GOOGLE_SERVICES_JSON_BASE64 no configurado, continuando sin él (solo módulo shared)"
           fi
 
+      - name: Dar permisos de ejecución a gradlew
+        run: chmod +x gradlew
+
       - name: Compilar framework iOS (Simulator M1)
         run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 --no-daemon
 
