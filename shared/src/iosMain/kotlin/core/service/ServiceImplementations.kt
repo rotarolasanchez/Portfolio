@@ -93,11 +93,14 @@ class GeminiCloudServiceImpl : GeminiCloudService {
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     private suspend fun postRequest(url: String, body: String): String {
         val nsUrl = NSURL.URLWithString(url) ?: throw Exception("URL inválida")
-        val request = NSMutableURLRequest.requestWithURL(nsUrl).apply {
+        val request = NSMutableURLRequest.requestWithURL(
+            URL = nsUrl,
+            cachePolicy = platform.Foundation.NSURLRequestUseProtocolCachePolicy,
+            timeoutInterval = 30.0
+        ).apply {
             HTTPMethod = "POST"
             setValue("application/json", forHTTPHeaderField = "Content-Type")
             HTTPBody = body.encodeToByteArray().toNSData()
-            timeoutInterval = 30.0
         }
         return suspendCancellableCoroutine<String> { cont ->
             NSURLSession.sharedSession.dataTaskWithRequest(request) { data, response, error ->
