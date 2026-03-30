@@ -17,3 +17,13 @@ expect fun provideChatBotViewModel(): ChatBotViewModel
 
 @Composable
 expect fun provideMenuViewModel(): MenuViewModel
+
+/**
+ * Función expect para la navegación principal.
+ * iOS usa un estado interno (state machine).
+ * Android usa NavHost de navigation-compose.
+ * Desktop/Web usan una state machine similar a iOS.
+ */
+@Composable
+expect fun NavigationMain()
+

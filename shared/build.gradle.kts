@@ -63,12 +63,13 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
-            // ✅ Navegación multiplataforma nativa de Compose
-            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
+            // navigation-compose removido de commonMain — tenía bug en iOS con CMP 1.7.1
+            // Cada plataforma define su propia navegación vía expect/actual NavigationMain()
 
             // ✅ Koin para DI en KMP - versión estable
             implementation(libs.koin.core)
@@ -79,6 +80,8 @@ kotlin {
         androidMain.dependencies {
             // ✅ Solo para Android si necesitas APIs específicas
             implementation(libs.androidx.core.ktx)
+            // navigation-compose solo para Android — alpha tiene bug en iOS
+            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
             implementation(libs.androidx.appcompat)
             implementation(libs.material)
             implementation(libs.koin.android)
@@ -112,6 +115,8 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.koin.core)
+            // koin-compose provee koinInject() para Compose Multiplatform en iOS
+            implementation("io.insert-koin:koin-compose:4.0.0")
         }
 
         val desktopMain by getting {

@@ -34,6 +34,7 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.baseline_visibility_24
+import presentation.view.atoms.safeIconPainter
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class
@@ -93,7 +94,7 @@ fun TextM3(
                                 leadingIconOnClick("")
                             }) {
                                 Icon(
-                                    painter = painterResource(leadingiconResourceId),
+                                    painter = safeIconPainter(leadingiconResourceId),
                                     contentDescription = null,
                                     tint = if(status){leadingiconColor}else{Color.LightGray}
                                 )
@@ -245,7 +246,7 @@ fun TextM3(
                                 leadingIconOnClick("")
                             }) {
                                 Icon(
-                                    painter = painterResource(leadingiconResourceId),
+                                    painter = safeIconPainter(leadingiconResourceId),
                                     contentDescription = null,
                                     //tint = trailingiconColor
                                     tint = if(status){leadingiconColor}else{Color.LightGray}
@@ -400,7 +401,7 @@ fun EditextM3(
                             leadingIconOnClick(value)
                         }) {
                             Icon(
-                                painter = painterResource(leadingiconResourceId), // ✅ Usar painterResource de compose-resources
+                                painter = safeIconPainter(leadingiconResourceId),
                                 contentDescription = "Leading icon",
                                 tint = leadingiconColor
                             )
@@ -414,7 +415,7 @@ fun EditextM3(
                                 onPasswordVisibilityChanged(!isPasswordVisible)
                             }) {
                                 Icon(
-                                    painter = painterResource(visibilityIconResourceId),
+                                    painter = safeIconPainter(visibilityIconResourceId),
                                     contentDescription = if (isPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña",
                                     tint = trailingiconColor
                                 )
@@ -425,7 +426,7 @@ fun EditextM3(
                             }) {
                                 Icon(
                                     //painter = trailingiconResourceId,
-                                    painter = painterResource(trailingiconResourceId),
+                                    painter = safeIconPainter(trailingiconResourceId),
                                     contentDescription = "Trailing icon",
                                     tint = trailingiconColor
                                 )
@@ -498,5 +499,10 @@ fun EditextM3(
         }
     }
 }
+
+
+
+
+
 
 

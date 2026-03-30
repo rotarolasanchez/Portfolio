@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.rotarola.feature_ui.presentation.atoms.EditextM3
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import presentation.view.atoms.safeIconPainter
 
 
 @Composable
@@ -104,7 +105,7 @@ fun ChatBotButton(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                painter = painterResource(leadingiconResourceId),
+                painter = safeIconPainter(leadingiconResourceId),
                 contentDescription = text,
                 tint = if (enabled) MaterialTheme.colorScheme.onPrimary
                       else MaterialTheme.colorScheme.onSurfaceVariant,
