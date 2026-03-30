@@ -1,61 +1,57 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { onRequest } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
+const https = require("https");
 
 admin.initializeApp();
 
 exports.askGemini = onRequest({ maxInstances: 10, memory: "512MiB", timeoutSeconds: 120 }, async (req, res) => {
-  console.log("🔵 askGemini v3 - Con soporte multimodal de imagen");
+  console.log("🔵 askGemini v4 - Soporta Android (Bearer token) e iOS (email+password)");
 
-  // Configurar CORS
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(204).send('');
-  }
+  if (req.method === 'OPTIONS') return res.status(204).send('');
 
   try {
-    // Verificar el token de autenticación
+    // ── Autenticación dual: Bearer token (Android/Web) o email+password (iOS) ──
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: "No se proporcionó token de autenticación" });
-    }
+    const { email, password, message, conversationHistory = [], imageBase64, imageMimeType } = req.body;
 
-    const token = authHeader.split("Bearer ")[1];
-    await admin.auth().verifyIdToken(token);
-    console.log("✅ Token verificado correctamente");
-
-    // Obtener la API key desde las variables de entorno
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error("❌ GEMINI_API_KEY no está configurada");
-      return res.status(500).json({ error: "API Key no configurada" });
-    }
-
-    // Obtener el mensaje y opcionalmente la imagen del cuerpo de la solicitud
-    const { message, conversationHistory = [], imageBase64, imageMimeType } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: "No se proporcionó un mensaje" });
-    }
-
-    console.log(`📩 Mensaje recibido: "${message.substring(0, 80)}..."`);
-    if (imageBase64) {
-      console.log(`🖼️ Imagen recibida: longitud base64=${imageBase64.length}, ~${(imageBase64.length * 0.75 / 1024).toFixed(1)} KB, mimeType=${imageMimeType}`);
-      console.log(`🖼️ Primeros 50 chars del base64: ${imageBase64.substring(0, 50)}...`);
+    if (authHeader) {
+      // Android / Web: verificar Firebase ID Token
+      const token = authHeader.split("Bearer ")[1];
+      await admin.auth().verifyIdToken(token);
+      console.log("✅ Auth via Bearer token (Android/Web)");
+    } else if (email && password) {
+      // iOS: autenticar con Firebase Auth REST API en el servidor
+      const webApiKey = process.env.FIREBASE_WEB_API_KEY;
+      if (!webApiKey) {
+        console.error("❌ FIREBASE_WEB_API_KEY no configurada");
+        return res.status(500).json({ error: "Configuración del servidor incompleta" });
+      }
+      const authResult = await firebaseSignInRest(email, password, webApiKey);
+      if (!authResult.idToken) {
+        return res.status(401).json({ error: "Email o contraseña incorrectos" });
+      }
+      console.log(`✅ Auth via email+password (iOS): ${email}`);
     } else {
-      console.log("📝 Sin imagen adjunta (imageBase64 es null/undefined)");
+      return res.status(401).json({ error: "Se requiere autenticación (Bearer token o email+password)" });
     }
 
-    // Construir el prompt con el historial
+    // ── Gemini API key ──
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: "API Key no configurada" });
+    if (!message) return res.status(400).json({ error: "No se proporcionó un mensaje" });
+
+    console.log(`📩 Mensaje: "${message.substring(0, 80)}"`);
+
+    // ── Construir prompt ──
     let prompt = "";
     if (imageBase64 && imageMimeType) {
-      // Para análisis de imagen, usar el mensaje directamente como prompt
-      // (el cliente ya envía el prompt adecuado: OCR o análisis visual)
       prompt = message;
     } else {
-      // Para texto, construir prompt con historial
       if (conversationHistory.length > 0) {
         prompt = "Historial de conversación:\n";
         conversationHistory.forEach(msg => {
@@ -68,24 +64,43 @@ exports.askGemini = onRequest({ maxInstances: 10, memory: "512MiB", timeoutSecon
     }
 
     console.log("🚀 Llamando a Gemini API...");
+    const response = imageBase64 && imageMimeType
+      ? await callGeminiWithImage(apiKey, prompt, imageBase64, imageMimeType)
+      : await callGeminiAPI(apiKey, prompt);
 
-    let response;
-    if (imageBase64 && imageMimeType) {
-      // Llamada multimodal con imagen
-      console.log("📷 Procesando imagen adjunta...");
-      response = await callGeminiWithImage(apiKey, prompt, imageBase64, imageMimeType);
-    } else {
-      // Llamada solo texto
-      response = await callGeminiAPI(apiKey, prompt);
-    }
-
-    return res.status(200).json({ response: response, success: true });
+    return res.status(200).json({ response, success: true });
 
   } catch (error) {
     console.error("❌ Error en askGemini:", error);
     return res.status(500).json({ error: error.message, success: false });
   }
 });
+
+// Autentica con Firebase Auth REST API — usado por iOS server-side
+function firebaseSignInRest(email, password, webApiKey) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ email, password, returnSecureToken: true });
+    const options = {
+      hostname: "identitytoolkit.googleapis.com",
+      path: `/v1/accounts:signInWithPassword?key=${webApiKey}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) }
+    };
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", chunk => data += chunk);
+      res.on("end", () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error("Respuesta inválida de Firebase Auth")); }
+      });
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+
 
 async function callGeminiAPI(apiKey, prompt) {
   const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];

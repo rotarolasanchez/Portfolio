@@ -24,6 +24,12 @@ object IosViewModelHolder {
     var authViewModel: AuthViewModel? = null
     var menuViewModel: MenuViewModel? = null
 
+    /** Firebase ID Token — obtenido vía REST API al hacer login */
+    var firebaseIdToken: String? = null
+    /** Credenciales en memoria para re-autenticar si el token expira */
+    var savedEmail: String? = null
+    var savedPassword: String? = null
+
     /** Bitmaps precargados al inicio — disponibles desde el primer frame de Compose */
     val preloadedBitmaps = mutableMapOf<String, ImageBitmap>()
 
