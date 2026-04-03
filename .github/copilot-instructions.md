@@ -19,8 +19,8 @@ Aplicación **Kotlin Multiplatform (KMP)** con **Compose Multiplatform** que com
 ### Por plataforma
 | Plataforma | DI | HTTP | Auth | OCR |
 |---|---|---|---|---|
-| Android | `koin-android` + `koin-androidx-compose` | OkHttp | Firebase Auth | ML Kit |
-| iOS | `koin-core` | NSURLSession (Kotlin/Native) | Stub | Stub (Vision pendiente) |
+| Android | `koin-android` + `koin-androidx-compose` | OkHttp | Firebase Auth SDK | ML Kit |
+| iOS | `koin-core` | Ktor Darwin | Firebase Auth REST API (Bearer token) | Stub (Vision pendiente) |
 | Web (WasmJs) | `koin-core` | Fetch API JS | Firebase JS SDK | No aplica |
 | Desktop | `koin-core` | — | — | — |
 
@@ -64,8 +64,10 @@ portafolio_kotlin/
 │       │   ├── di/              # androidModule Koin (AuthModule, ChatBotModule)
 │       │   └── presentation/    # actual fun provideXxxViewModel() con koinViewModel()
 │       ├── iosMain/kotlin/
-│       │   ├── core/service/    # ServiceImplementations (NSURLSession)
-│       │   └── presentation/    # actual fun provideXxxViewModel() con GlobalContext.get().get<T>()
+│       │   ├── core/service/    # ServiceImplementations (Ktor Darwin + stub Vision)
+│       │   ├── data/repository/ # IosAuthRepositoryImpl (Firebase Auth REST API), IosChatBotRepositoryImpl
+│       │   ├── di/              # IosModule Koin + IosViewModelHolder (ViewModels + credenciales)
+│       │   └── presentation/    # actual fun provideXxxViewModel() con IosViewModelHolder
 │       └── wasmJsMain/kotlin/
 │           ├── core/service/    # ServiceImplementations (Fetch API)
 │           ├── di/              # webModule Koin
@@ -130,11 +132,18 @@ NavHost(navController, startDestination = "login") {
 
 1. **Koin en lugar de Hilt** para toda la inyección de dependencias
 2. **No duplicar** funciones `expect`/`actual` — cada una debe estar exactamente una vez en commonMain y una vez en cada plataforma
-3. **NSURLSession en iOS** — usar trailing lambda, no parámetro nombrado `completionHandler`
-4. **Tipos genéricos explícitos en iOS** — `GlobalContext.get().get<T>()` no `get()`
+3. **Ktor Darwin en iOS** — usar `HttpClient(Darwin)`, NO `NSURLSession` directamente (los stubs K/N 2.1.20 no exponen el completionHandler)
+4. **Tipos genéricos explícitos en iOS** — `IosViewModelHolder.authViewModel!!`, no `GlobalContext.get().get<T>()`
 5. **Try-catch no permitido** alrededor de llamadas a Composable functions
 6. **WasmJs** no soporta el tipo `dynamic` de JS directamente
 7. **Versión de la app** se gestiona en `app/build.gradle.kts` con `versionCode` y `versionName`
+8. **FIREBASE_WEB_API_KEY** — NO hardcodear. Se resuelve automáticamente en build time:
+   - Prioridad: `local.properties` → env var → `app/google-services.json` (campo `current_key`) → `""` (fallback)
+   - En `IosAuthRepositoryImpl` usar `apiKey.isBlank()` (no solo `contains("HERE")`) para detectar key inválida
+9. **iOS auth** — misma arquitectura que Android (Bearer token), solo difiere el *cómo* se obtiene:
+   - Android: `FirebaseAuth SDK → getIdToken()`
+   - iOS: `Firebase Auth REST API via Ktor → "current_key" de google-services.json`
+10. **Cloud Function v4** — debe estar desplegada para soportar el fallback `email+password` de iOS cuando no hay Bearer token
 
 ## CI/CD
 
@@ -157,5 +166,7 @@ NavHost(navController, startDestination = "login") {
 - La arquitectura sigue **Clean Architecture** con capas: `data → domain → presentation`
 - Los ViewModels heredan de `ViewModel` (androidx) — compatible con KMP vía `lifecycle-viewmodel`
 - El patrón UI es **Atomic Design**: atoms → molecules → organisms → templates → pages
-- Firebase solo se usa en Android y Web (no hay SDK oficial de Firebase para iOS en KMP)
+- Firebase SDK oficial solo en Android y Web (no hay SDK KMP para iOS)
+- iOS autentica via **Firebase Auth REST API** (Ktor HTTP) → obtiene Bearer token igual que Android
+- `FIREBASE_WEB_API_KEY` se extrae automáticamente de `app/google-services.json` en build time
 

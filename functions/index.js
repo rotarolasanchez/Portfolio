@@ -1,12 +1,22 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { onRequest } = require("firebase-functions/v2/https");
+const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const https = require("https");
 
 admin.initializeApp();
 
-exports.askGemini = onRequest({ maxInstances: 10, memory: "512MiB", timeoutSeconds: 120 }, async (req, res) => {
-  console.log("🔵 askGemini v4 - Soporta Android (Bearer token) e iOS (email+password)");
+// Secretos de Cloud Functions
+const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const webApiKey = defineSecret("WEB_API_KEY");
+
+exports.askGemini = onRequest({
+  maxInstances: 10,
+  memory: "512MiB",
+  timeoutSeconds: 120,
+  secrets: [geminiApiKey, webApiKey]
+}, async (req, res) => {
+  console.log("🔵 askGemini v5 - Bearer con fallback email+password en mismo request");
 
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -15,33 +25,42 @@ exports.askGemini = onRequest({ maxInstances: 10, memory: "512MiB", timeoutSecon
   if (req.method === 'OPTIONS') return res.status(204).send('');
 
   try {
-    // ── Autenticación dual: Bearer token (Android/Web) o email+password (iOS) ──
+    // ── Autenticación v5: Bearer primero, email+password del body como fallback ──
     const authHeader = req.headers.authorization;
     const { email, password, message, conversationHistory = [], imageBase64, imageMimeType } = req.body;
 
     if (authHeader) {
-      // Android / Web: verificar Firebase ID Token
-      const token = authHeader.split("Bearer ")[1];
-      await admin.auth().verifyIdToken(token);
-      console.log("✅ Auth via Bearer token (Android/Web)");
+      // Tiene Bearer token — intentar verificar (Android / Web / iOS con token válido)
+      try {
+        const token = authHeader.split("Bearer ")[1];
+        await admin.auth().verifyIdToken(token);
+        console.log("✅ Auth via Bearer token");
+      } catch (bearerError) {
+        // Bearer falló — intentar con email+password del body (iOS sin SDK Firebase)
+        console.warn(`⚠️ Bearer inválido (${bearerError.code}), intentando email+password...`);
+        if (email && password) {
+          const key = (webApiKey.value() || "").trim();
+          if (!key) return res.status(500).json({ error: "Configuración del servidor incompleta" });
+          const authResult = await firebaseSignInRest(email, password, key);
+          if (!authResult.idToken) return res.status(401).json({ error: "Email o contraseña incorrectos" });
+          console.log(`✅ Auth via email+password fallback: ${email}`);
+        } else {
+          return res.status(401).json({ error: "No se proporcionó token de autenticación" });
+        }
+      }
     } else if (email && password) {
-      // iOS: autenticar con Firebase Auth REST API en el servidor
-      const webApiKey = process.env.FIREBASE_WEB_API_KEY;
-      if (!webApiKey) {
-        console.error("❌ FIREBASE_WEB_API_KEY no configurada");
-        return res.status(500).json({ error: "Configuración del servidor incompleta" });
-      }
-      const authResult = await firebaseSignInRest(email, password, webApiKey);
-      if (!authResult.idToken) {
-        return res.status(401).json({ error: "Email o contraseña incorrectos" });
-      }
+      // Sin Bearer — usar email+password directamente (iOS sin token)
+      const key = (webApiKey.value() || "").trim();
+      if (!key) return res.status(500).json({ error: "Configuración del servidor incompleta" });
+      const authResult = await firebaseSignInRest(email, password, key);
+      if (!authResult.idToken) return res.status(401).json({ error: "Email o contraseña incorrectos" });
       console.log(`✅ Auth via email+password (iOS): ${email}`);
     } else {
-      return res.status(401).json({ error: "Se requiere autenticación (Bearer token o email+password)" });
+      return res.status(401).json({ error: "No se proporcionó token de autenticación" });
     }
 
     // ── Gemini API key ──
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = geminiApiKey.value();
     if (!apiKey) return res.status(500).json({ error: "API Key no configurada" });
     if (!message) return res.status(400).json({ error: "No se proporcionó un mensaje" });
 

@@ -1,11 +1,12 @@
 package core.utils
 
 object AppInfo {
-    // Valor por defecto hasta que la app lo setee en runtime
-    var versionName: String = "0.0.0"
+    // Valores inyectados en build time desde app/build.gradle.kts
+    // Las plataformas pueden sobreescribir en runtime (Android usa BuildConfig, iOS usa NSBundle)
+    var versionName: String = SharedBuildConfig.APP_VERSION_NAME
         internal set
 
-    var versionCode: Int = 0
+    var versionCode: Int = SharedBuildConfig.APP_VERSION_CODE
         private set
 
     fun initialize(versionName: String, versionCode: Int) {

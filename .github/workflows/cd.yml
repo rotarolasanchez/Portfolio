@@ -38,11 +38,13 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           MODEL_NAME: ${{ secrets.MODEL_NAME }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
         run: |
           cat > local.properties << EOF
           sdk.dir=$ANDROID_HOME
           GEMINI_API_KEY=${GEMINI_API_KEY}
           MODEL_NAME=${MODEL_NAME}
+          FIREBASE_WEB_API_KEY=${FIREBASE_WEB_API_KEY}
           EOF
 
       - name: Create Firebase Web config (from secret)

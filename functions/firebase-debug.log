@@ -1,0 +1,86 @@
+[debug] [2026-04-03T18:56:43.210Z] ----------------------------------------------------------------------
+[debug] [2026-04-03T18:56:43.212Z] Command:       /usr/local/bin/node /Users/user295220/.npm/_npx/7750544ccf494d8b/node_modules/.bin/firebase deploy --only functions
+[debug] [2026-04-03T18:56:43.212Z] CLI Version:   15.13.0
+[debug] [2026-04-03T18:56:43.212Z] Platform:      darwin
+[debug] [2026-04-03T18:56:43.212Z] Node Version:  v20.12.0
+[debug] [2026-04-03T18:56:43.212Z] Time:          Fri Apr 03 2026 14:56:43 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-04-03T18:56:43.212Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-03T18:56:44.077Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-03T18:56:44.077Z] > authorizing via signed-in user (rotarolasanchez@gmail.com)
+[debug] [2026-04-03T18:56:44.077Z] [iam] checking project portfolio-app-9a4bc for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-04-03T18:56:44.078Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.078Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.078Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc:testIamPermissions [none]
+[debug] [2026-04-03T18:56:44.078Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc:testIamPermissions  x-goog-user-project=portfolio-app-9a4bc
+[debug] [2026-04-03T18:56:44.078Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-04-03T18:56:44.348Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc:testIamPermissions 200
+[debug] [2026-04-03T18:56:44.348Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-04-03T18:56:44.348Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.348Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.348Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/portfolio-app-9a4bc/serviceAccounts/portfolio-app-9a4bc@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-04-03T18:56:44.348Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/portfolio-app-9a4bc/serviceAccounts/portfolio-app-9a4bc@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-04-03T18:56:44.524Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/portfolio-app-9a4bc/serviceAccounts/portfolio-app-9a4bc@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-04-03T18:56:44.524Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/portfolio-app-9a4bc/serviceAccounts/portfolio-app-9a4bc@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'portfolio-app-9a4bc'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-04-03T18:56:44.526Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.526Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.526Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc [none]
+[debug] [2026-04-03T18:56:44.614Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc 200
+[debug] [2026-04-03T18:56:44.615Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/portfolio-app-9a4bc {"projectNumber":"64789628703","projectId":"portfolio-app-9a4bc","lifecycleState":"ACTIVE","name":"portfolio-app","labels":{"firebase":"enabled","firebase-core":"disabled","generative-language":"enabled"},"createTime":"2025-05-02T01:04:49.079563Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-04-03T18:56:44.617Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.617Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.617Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/adminSdkConfig [none]
+[debug] [2026-04-03T18:56:44.799Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/adminSdkConfig 200
+[debug] [2026-04-03T18:56:44.799Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/adminSdkConfig {"projectId":"portfolio-app-9a4bc","storageBucket":"portfolio-app-9a4bc.firebasestorage.app"}
+[debug] [2026-04-03T18:56:44.800Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.800Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.800Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs [none]
+[debug] [2026-04-03T18:56:44.908Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs 200
+[debug] [2026-04-03T18:56:44.908Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs {"configs":[{"name":"projects/portfolio-app-9a4bc/configs/gemini"}]}
+[debug] [2026-04-03T18:56:44.909Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.909Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:44.909Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs/gemini/variables [none]
+[debug] [2026-04-03T18:56:45.165Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs/gemini/variables 200
+[debug] [2026-04-03T18:56:45.165Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs/gemini/variables {"variables":[{"name":"projects/portfolio-app-9a4bc/configs/gemini/variables/api_key","updateTime":"2025-12-09T23:40:26.790951030Z"}]}
+[debug] [2026-04-03T18:56:45.165Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:45.165Z] Checked if tokens are valid: true, expires at: 1775246187046
+[debug] [2026-04-03T18:56:45.165Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs/gemini/variables/api_key [none]
+[debug] [2026-04-03T18:56:45.256Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs/gemini/variables/api_key 200
+[debug] [2026-04-03T18:56:45.256Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/portfolio-app-9a4bc/configs/gemini/variables/api_key {"name":"projects/portfolio-app-9a4bc/configs/gemini/variables/api_key","updateTime":"2025-12-09T23:40:26.790951030Z","text":"TU_API_KEY"}
+[debug] [2026-04-03T18:56:45.257Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-04-03T18:56:45.693Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Portfolio",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^6.6.0"
+  }
+}
+[debug] [2026-04-03T18:56:45.693Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-04-03T18:56:45.693Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-04-03T18:56:45.698Z] Found firebase-functions binary at '/Users/user295220/dev/Portfolio/functions/node_modules/.bin/firebase-functions'
+[debug] [2026-04-03T18:56:45.700Z] Error: spawn /Users/user295220/dev/Portfolio/functions/node_modules/.bin/firebase-functions EACCES
+    at ChildProcess._handle.onexit (node:internal/child_process:286:19)
+    at onErrorNT (node:internal/child_process:484:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+[error] 
+[error] Error: An unexpected error has occurred.

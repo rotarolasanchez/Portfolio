@@ -51,6 +51,17 @@ jobs:
             echo "⚠️  GOOGLE_SERVICES_JSON_BASE64 no configurado, continuando sin él (solo módulo shared)"
           fi
 
+      - name: Inyectar FIREBASE_WEB_API_KEY en local.properties
+        env:
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+        run: |
+          if [ -n "$FIREBASE_WEB_API_KEY" ]; then
+            echo "FIREBASE_WEB_API_KEY=$FIREBASE_WEB_API_KEY" >> local.properties
+            echo "✅ FIREBASE_WEB_API_KEY inyectado en local.properties"
+          else
+            echo "⚠️  FIREBASE_WEB_API_KEY no configurado — iOS usará modo fallback"
+          fi
+
       - name: Dar permisos de ejecución a gradlew
         run: chmod +x gradlew
 
