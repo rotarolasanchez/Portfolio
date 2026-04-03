@@ -1,7 +1,7 @@
 package domain.usecases
 
+import core.model.PlatformBitmap
 import domain.repositories.ChatBotRepository
-import presentation.view.organisms.PlatformBitmap
 
 class AnalyzeImageUseCase(
     private val repository: ChatBotRepository

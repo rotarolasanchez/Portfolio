@@ -12,19 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import core.interop.pickImageFile
+import core.model.PlatformBitmap
 import kotlinx.coroutines.launch
 import presentation.state.CameraUiState
 
-// Implementación de PlatformBitmap para Web
-actual class PlatformBitmap {
-    var imageData: String? = null
-
-    constructor(data: String) {
-        this.imageData = data
-    }
-
-    constructor()
-}
 
 @Composable
 actual fun CameraScreen(

@@ -2,6 +2,8 @@ package core.storage
 
 /**
  * Implementación Web/WasmJs de CredentialsStorage usando localStorage del navegador.
+ * FIX: localStorageGetItem retorna JsAny? (no String?) para evitar NPE en
+ * writeCompilationResult del compilador Kotlin/WasmJs 2.1.20 (bug con nullable JS returns).
  */
 class WebCredentialsStorage : CredentialsStorage {
 
@@ -12,8 +14,8 @@ class WebCredentialsStorage : CredentialsStorage {
 
     override fun loadCredentials(): SavedCredentials? {
         if (!isRememberEnabled()) return null
-        val email = localStorageGetItem(KEY_EMAIL) ?: return null
-        val password = localStorageGetItem(KEY_PASSWORD) ?: return null
+        val email = localStorageGetItem(KEY_EMAIL)?.toString() ?: return null
+        val password = localStorageGetItem(KEY_PASSWORD)?.toString() ?: return null
         return if (email.isNotEmpty() && password.isNotEmpty()) {
             SavedCredentials(email, password)
         } else null
@@ -25,7 +27,7 @@ class WebCredentialsStorage : CredentialsStorage {
     }
 
     override fun isRememberEnabled(): Boolean =
-        localStorageGetItem(KEY_REMEMBER) == "true"
+        localStorageGetItem(KEY_REMEMBER)?.toString() == "true"
 
     override fun setRememberEnabled(enabled: Boolean) {
         localStorageSetItem(KEY_REMEMBER, if (enabled) "true" else "false")
@@ -43,10 +45,9 @@ class WebCredentialsStorage : CredentialsStorage {
 @JsFun("(key, value) => { try { window.localStorage.setItem(key, value); } catch(e) {} }")
 private external fun localStorageSetItem(key: String, value: String)
 
+// FIX: JsAny? en lugar de String? - los tipos nullable en @JsFun deben ser JsAny? en WasmJs
 @JsFun("(key) => { try { return window.localStorage.getItem(key); } catch(e) { return null; } }")
-private external fun localStorageGetItem(key: String): String?
+private external fun localStorageGetItem(key: String): JsAny?
 
 @JsFun("(key) => { try { window.localStorage.removeItem(key); } catch(e) {} }")
 private external fun localStorageRemoveItem(key: String)
-
-

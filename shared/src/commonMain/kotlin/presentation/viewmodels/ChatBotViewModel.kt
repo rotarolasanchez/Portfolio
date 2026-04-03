@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import presentation.state.ChatBotUiState
 import presentation.state.ScanState
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 
 class ChatBotViewModel(
     private val analyzeImageUseCase: AnalyzeImageUseCase,

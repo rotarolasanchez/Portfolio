@@ -24,7 +24,7 @@ import presentation.view.molecules.MenuTopBar
 import presentation.view.organisms.CameraScreen
 import presentation.view.organisms.ChatScreen
 import presentation.view.organisms.MenuDrawerContent
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 import presentation.viewmodels.ChatBotViewModel
 import presentation.viewmodels.MenuViewModel
 import kotlin.collections.emptyMap

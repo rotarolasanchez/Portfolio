@@ -1,5 +1,6 @@
 package presentation.view.organisms
 
+import core.model.PlatformBitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -141,8 +142,6 @@ fun ChatScreen(
     }
 }
 
-// Tipo común para imagen capturada - cada plataforma lo implementa
-expect class PlatformBitmap
 
 // Funciones expect para cámara - implementadas en cada plataforma
 @Composable

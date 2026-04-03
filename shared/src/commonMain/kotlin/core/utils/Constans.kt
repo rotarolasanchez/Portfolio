@@ -1,8 +1,10 @@
 package core.utils
 
 object Constans {
-    // Endpoint compartido: Android usa Bearer token, iOS usa email+password en body
-    const val GEMINI_FUNCTION_URL = "https://us-central1-portfolio-app-9a4bc.cloudfunctions.net/askGemini"
+    // URL de la Cloud Function askGemini (Firebase)
+    const val GEMINI_FUNCTION_URL = "https://askgemini-766ctyoljq-uc.a.run.app"
+
+    // URL directa de Gemini REST API para web (sin Cloud Function)
     const val GEMINI_DIRECT_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 }
 

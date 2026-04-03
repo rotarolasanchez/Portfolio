@@ -16,6 +16,18 @@ kotlin {
             compileTaskProvider.configure {
                 compilerOptions {
                     jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
+                }
+            }
+        }
+    }
+
+    // Suprimir warnings de expect/actual classes en todas las compilaciones comunes
+    targets.all {
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
                 }
             }
         }
@@ -75,6 +87,9 @@ kotlin {
             implementation(libs.koin.core)
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
+            // ✅ ViewModel KMP (ViewModel + viewModelScope en todas las plataformas, incluyendo WasmJs)
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.4")
         }
 
         androidMain.dependencies {

@@ -512,6 +512,33 @@
             });
         };
 
+        // ====================================================================
+        // Promise Bridge para Kotlin/WasmJs
+        // Usa un store de ID en lugar de pasar lambdas Kotlin a JS.
+        // Esto evita el NPE en writeCompilationResult del compilador WasmJs 2.1.x
+        // que ocurre cuando se usan tipos de función Kotlin en external fun params.
+        // ====================================================================
+        window._ktPromiseStore = {};
+        window._ktPromiseNextId = 1;
+
+        window._ktRegisterPromise = function(promise) {
+            var id = window._ktPromiseNextId++;
+            var entry = { done: false, value: null, error: null };
+            window._ktPromiseStore[id] = entry;
+            Promise.resolve(promise).then(
+                function(v) { entry.done = true; entry.value = (v !== null && v !== undefined) ? String(v) : ''; },
+                function(e) { entry.done = true; entry.error = String(e); }
+            );
+            return id;
+        };
+
+        window._ktPollPromise = function(id) {
+            var entry = window._ktPromiseStore[id];
+            if (!entry || !entry.done) return null;
+            delete window._ktPromiseStore[id];
+            return entry.error !== null ? ('E:' + entry.error) : ('S:' + (entry.value || ''));
+        };
+
         // Helper: Abrir selector de archivos de imagen y devolver base64
         window.pickImageFile = function() {
             return new Promise(function(resolve, reject) {

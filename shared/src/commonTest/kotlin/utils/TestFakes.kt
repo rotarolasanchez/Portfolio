@@ -4,7 +4,7 @@ import domain.model.ChatBotMessage
 import domain.model.UserModel
 import domain.repositories.AuthRepository
 import domain.repositories.ChatBotRepository
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 
 // ─────────────────────────────────────────────
 //  Fakes reutilizables para todos los tests

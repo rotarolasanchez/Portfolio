@@ -14,7 +14,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 import java.util.concurrent.TimeUnit
 
 class GeminiCloudServiceImpl : GeminiCloudService {
@@ -23,8 +23,6 @@ class GeminiCloudServiceImpl : GeminiCloudService {
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(15, TimeUnit.SECONDS)
         .build()
-
-    private val auth = FirebaseAuth.getInstance()
 
     override suspend fun analyzeImage(bitmap: PlatformBitmap): String {
         return try {
@@ -39,15 +37,15 @@ class GeminiCloudServiceImpl : GeminiCloudService {
         }
     }
 
-    override suspend fun solveProblem(problemText: String): String {
+    override suspend fun solveProblem(problem: String): String {
         return try {
             val prompt = """
             Resuelve el siguiente problema matemático o educativo de manera clara y paso a paso:
             
-            $problemText
+            $problem
             """.trimIndent()
 
-            callCloudFunction(prompt, emptyList()) // ✅ Sin historial
+            callCloudFunction(prompt, emptyList())
         } catch (e: Exception) {
             Log.e("GeminiCloudService", "Error solving problem", e)
             "Error al resolver el problema: ${e.message}"
@@ -55,11 +53,11 @@ class GeminiCloudServiceImpl : GeminiCloudService {
     }
 
     override suspend fun continueChat(
-        conversationHistory: List<ChatBotMessage>,
-        userMessage: String
+        messages: List<ChatBotMessage>,
+        newMessage: String
     ): String {
         return try {
-            val historyText = conversationHistory.joinToString("\n") { message ->
+            val historyText = messages.joinToString("\n") { message ->
                 if (message.isFromUser) "Usuario: ${message.text}"
                 else "Asistente: ${message.text}"
             }
@@ -68,12 +66,12 @@ class GeminiCloudServiceImpl : GeminiCloudService {
             Historial de conversación:
             $historyText
 
-            Nueva pregunta del usuario: $userMessage
+            Nueva pregunta del usuario: $newMessage
 
             Responde de manera educativa y útil, manteniendo el contexto de la conversación anterior.
             """.trimIndent()
 
-            callCloudFunction(prompt, conversationHistory) // ✅ Pasar historial
+            callCloudFunction(prompt, messages)
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error continuing chat", e)
             "Error al procesar la consulta: ${e.message}"

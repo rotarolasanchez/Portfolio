@@ -2,6 +2,7 @@ package presentation.view.atoms
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import di.IosViewModelHolder
 import org.jetbrains.compose.resources.DrawableResource
