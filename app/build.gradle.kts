@@ -31,14 +31,22 @@ tasks.register<JacocoReport>("jacocoTestReport") {
             exclude(
                 "**/di/**",
                 "**/hilt_aggregated_deps/**",
-                "**/*_Factory*"
+                "**/*_Factory*",
+                "**/BuildConfig*",
+                "**/R.class",
+                "**/R$*.class"
             )
         }
     )
     sourceDirectories.setFrom(
         files("src/main/java", "src/main/kotlin")
     )
-    executionData.setFrom(layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"))
+    // AGP 8.x genera el .exec en outputs/unit_test_code_coverage
+    executionData.setFrom(
+        fileTree(layout.buildDirectory.dir("outputs/unit_test_code_coverage/debugUnitTest")) {
+            include("**/*.exec")
+        }
+    )
 }
 
 tasks.withType<Test> {
@@ -103,24 +111,13 @@ android {
         }
     }
 
-    sonar {
-        properties {
-            property("sonar.projectKey", "Portfolio_kotlin")
-            property("sonar.organization", "")
-            property("sonar.host.url", "https://sonarqube.capibarafamily.online/")
-            property("sonar.token", "SONAR_TOKEN")
-            property("sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml").get().asFile.absolutePath)
-            property("sonar.junit.reportPaths", layout.buildDirectory.dir("test-results/test").get().asFile.absolutePath)
-        }
-    }
-
     buildTypes {
         debug {
-            isMinifyEnabled = false // ✅ Habilitar ofuscación
-            isShrinkResources = false // ✅ Eliminar recursos no usados
-            // Configuración específica para debug si es necesario
+            isMinifyEnabled = false
+            isShrinkResources = false
             buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY_DEBUG", localProperties.getProperty("GEMINI_API_KEY", ""))}\"")
             isDebuggable = true
+            enableUnitTestCoverage = true  // ✅ Genera .exec para JaCoCo
         }
 
         release {
@@ -221,3 +218,40 @@ dependencies {
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
+
+// ── SonarQube — nivel raíz (fuera de android{}) ──────────────────────────────
+sonar {
+    properties {
+        property("sonar.projectKey", "Portfolio_kotlin")
+        property("sonar.organization", "")
+        property("sonar.host.url", System.getProperty("sonar.host.url", "https://sonarqube.capibarafamily.online"))
+        property("sonar.token", System.getProperty("sonar.token", localProperties.getProperty("SONAR_TOKEN", "")))
+
+        // ── Fuentes: app + shared/commonMain ─────────────────────────────
+        property("sonar.sources", "src/main/java,../shared/src/commonMain/kotlin,../shared/src/androidMain/kotlin")
+        property("sonar.tests",   "src/test/java,../shared/src/commonTest/kotlin")
+
+        // ── Cobertura JaCoCo ─────────────────────────────────────────────
+        property("sonar.coverage.jacoco.xmlReportPaths",
+            layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml").get().asFile.absolutePath
+        )
+
+        // ── Resultados de tests: app + shared/desktopTest ────────────────
+        val sharedTestResults = rootProject.file("shared/build/test-results/desktopTest").absolutePath
+        property("sonar.junit.reportPaths", listOf(
+            layout.buildDirectory.dir("test-results/testDebugUnitTest").get().asFile.absolutePath,
+            sharedTestResults
+        ).joinToString(","))
+
+        // ── Lint Android ──────────────────────────────────────────────────
+        property("sonar.androidLint.reportPaths",
+            layout.buildDirectory.file("reports/lint-results-debug.xml").get().asFile.absolutePath
+        )
+
+        // ── Exclusiones ───────────────────────────────────────────────────
+        property("sonar.exclusions", "**/di/**,**/generated/**,**/*_Factory*,**/*BuildConfig*")
+        property("sonar.coverage.exclusions", "**/di/**,**/generated/**,**/*_Factory*,**/*BuildConfig*")
+        property("sonar.projectVersion", "3.3.0")
+    }
+}
+
