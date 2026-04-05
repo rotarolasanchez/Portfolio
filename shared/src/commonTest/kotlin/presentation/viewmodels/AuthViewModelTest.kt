@@ -7,6 +7,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import utils.FakeAuthRepository
+import utils.FakeCredentialsStorage
 import utils.TestCoroutineRule
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -30,14 +31,17 @@ import kotlin.test.assertTrue
 class AuthViewModelTest {
 
     private lateinit var fakeRepository: FakeAuthRepository
+    private lateinit var fakeCredentialsStorage: FakeCredentialsStorage
     private lateinit var viewModel: AuthViewModel
 
     @BeforeTest
     fun setUp() {
         TestCoroutineRule.setup()
         fakeRepository = FakeAuthRepository()
+        fakeCredentialsStorage = FakeCredentialsStorage()
         viewModel = AuthViewModel(
-            signWithEmailUseCase = SignInWithEmailUseCase(fakeRepository)
+            signWithEmailUseCase = SignInWithEmailUseCase(fakeRepository),
+            credentialsStorage = fakeCredentialsStorage
         )
     }
 
@@ -69,7 +73,7 @@ class AuthViewModelTest {
         // Arrange
         val expectedUser = UserModel(id = "1", email = "test@test.com", userName = "Test User")
         fakeRepository = FakeAuthRepository(signInResult = Result.success(expectedUser))
-        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository), FakeCredentialsStorage())
 
         // Act
         viewModel.signInWithEmail("test@test.com", "password123")
@@ -89,7 +93,7 @@ class AuthViewModelTest {
         // Arrange
         val expectedUser = UserModel(id = "1", email = "test@test.com", userName = "Test User")
         fakeRepository = FakeAuthRepository(signInResult = Result.success(expectedUser))
-        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository), FakeCredentialsStorage())
 
         // Act - lanzar y esperar que complete
         viewModel.signInWithEmail("test@test.com", "password123")
@@ -110,7 +114,7 @@ class AuthViewModelTest {
         fakeRepository = FakeAuthRepository(
             signInResult = Result.failure(Exception("Credenciales incorrectas"))
         )
-        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository), FakeCredentialsStorage())
 
         // Act
         viewModel.signInWithEmail("wrong@test.com", "badpass")
@@ -176,5 +180,7 @@ class AuthViewModelTest {
         assertIs<RequestState.Idle>(state.loginRequest)
     }
 }
+
+
 
 
