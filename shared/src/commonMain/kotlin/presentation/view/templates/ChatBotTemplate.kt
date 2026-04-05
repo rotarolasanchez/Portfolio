@@ -34,8 +34,8 @@ import kotlin.collections.emptyMap
 fun ChatBotTemplate(
     viewModel: ChatBotViewModel,
     menuViewModel: MenuViewModel,
-    onNavigateToSection: (String) -> Unit = {}
-
+    onNavigateToSection: (String) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -67,7 +67,8 @@ fun ChatBotTemplate(
             topBar = {
                 MenuTopBar(
                     onMenuClick = { scope.launch { drawerState.open() } },
-                    tittle = "Chat Bot"
+                    tittle = "Chat Bot",
+                    onLogout = onLogout
                 )
             }
         ) { innerPadding ->

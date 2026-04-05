@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import core.storage.CredentialsStorage
 import domain.model.RequestState
+import domain.usecases.LogoutUseCase
 import domain.usecases.SignInWithEmailUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import presentation.state.AuthUiState
 // ViewModel compatible con KMP - inyectado via Koin
 class AuthViewModel(
     private val signWithEmailUseCase: SignInWithEmailUseCase,
-    private val credentialsStorage: CredentialsStorage
+    private val credentialsStorage: CredentialsStorage,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -90,6 +92,14 @@ class AuthViewModel(
                     )
                 }
             )
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+            credentialsStorage.clearCredentials()
+            _uiState.value = AuthUiState()
         }
     }
 

@@ -138,6 +138,7 @@ private fun AppNavigation(
             )
         }
         composable("menu") {
+            val authVm = provideAuthViewModel()
             MenuPage(
                 onNavigateToSection = { section ->
                     runCatching {
@@ -146,12 +147,22 @@ private fun AppNavigation(
                             else -> onDevelopmentFeature()
                         }
                     }.onFailure { println("NavigationMain: Nav error - ${it.message}"); onNavigationError() }
+                },
+                onLogout = {
+                    authVm.logout()
+                    runCatching {
+                        navController.navigate("login") {
+                            popUpTo("login") { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }.onFailure { println("NavigationMain: Logout nav error - ${it.message}"); onNavigationError() }
                 }
             )
         }
         composable("chatbot") {
             val viewModel = provideChatBotViewModel()
             val menuViewModel = provideMenuViewModel()
+            val authVm = provideAuthViewModel()
             ChatBotPage(
                 viewModel = viewModel,
                 menuViewModel = menuViewModel,
@@ -163,6 +174,15 @@ private fun AppNavigation(
                             else -> onDevelopmentFeature()
                         }
                     }.onFailure { println("NavigationMain: Chatbot nav error - ${it.message}"); onNavigationError() }
+                },
+                onLogout = {
+                    authVm.logout()
+                    runCatching {
+                        navController.navigate("login") {
+                            popUpTo("login") { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }.onFailure { println("NavigationMain: Logout nav error - ${it.message}"); onNavigationError() }
                 }
             )
         }

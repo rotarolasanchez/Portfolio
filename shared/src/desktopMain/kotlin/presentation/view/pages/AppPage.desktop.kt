@@ -31,6 +31,7 @@ actual fun NavigationMain() {
     var currentScreen by remember { mutableStateOf("login") }
     val chatBotVm = remember { GlobalContext.get().get<ChatBotViewModel>() }
     val menuVm    = remember { GlobalContext.get().get<MenuViewModel>() }
+    val authVm    = remember { GlobalContext.get().get<AuthViewModel>() }
 
     when (currentScreen) {
         "login" -> LoginPage(onLoginSuccess = { currentScreen = "menu" })
@@ -38,6 +39,10 @@ actual fun NavigationMain() {
         "menu" -> MenuPage(
             onNavigateToSection = { section ->
                 currentScreen = if (section == "ChatBot") "chatbot" else "development"
+            },
+            onLogout = {
+                authVm.logout()
+                currentScreen = "login"
             }
         )
 
@@ -46,6 +51,10 @@ actual fun NavigationMain() {
             menuViewModel       = menuVm,
             onNavigateToSection = { section ->
                 currentScreen = if (section == "ChatBot") "chatbot" else "menu"
+            },
+            onLogout = {
+                authVm.logout()
+                currentScreen = "login"
             }
         )
 
