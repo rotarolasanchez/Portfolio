@@ -6,13 +6,17 @@ import presentation.viewmodels.MenuViewModel
 
 
 @Composable
-fun MenuPage(onNavigateToSection: (String) -> Unit) {
+fun MenuPage(
+    onNavigateToSection: (String) -> Unit,
+    onLogout: () -> Unit
+) {
     val menuViewModel = provideMenuViewModel()
     MenuTemplate(
         viewModel = menuViewModel,
         onNavigateToSection = { section ->
             println("MenuPage: Navegando a: $section")
             onNavigateToSection(section)
-        }
+        },
+        onLogout = onLogout
     )
 }

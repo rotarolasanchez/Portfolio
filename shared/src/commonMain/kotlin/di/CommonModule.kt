@@ -13,6 +13,7 @@ val commonModule = module {
     single { SolveProblemUseCase(get()) }
     single { ContinueChatUseCase(get()) }
     single { SignInWithEmailUseCase(get()) }
+    single { LogoutUseCase(get()) }
 
     // Presentation Layer - ViewModels
     factory {
@@ -25,7 +26,8 @@ val commonModule = module {
     factory {
         AuthViewModel(
             signWithEmailUseCase = get<SignInWithEmailUseCase>(),
-            credentialsStorage = get<CredentialsStorage>()
+            credentialsStorage = get<CredentialsStorage>(),
+            logoutUseCase = get<LogoutUseCase>()
         )
     }
     factory { MenuViewModel() }
