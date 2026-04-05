@@ -143,8 +143,8 @@ jobs:
 #        if: ${{ always() }}
 #        run: rm -f app/google-services.json
 
-  sonarcloud:
-      if: contains(github.event.head_commit.message, 'Send QA')
+  sonar:
+      if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/release/')
       #needs: [ instrumentation-test ]
       runs-on: ubuntu-latest
       steps:
@@ -172,31 +172,58 @@ jobs:
         - name: Build debug + coverage only (avoid release signing in CI)
           run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport :app:assembleDebug --parallel --build-cache
 
-        - name: Check SonarQube availability (retry)
-          id: sonar_health
+        - name: Check SonarQube availability (self-hosted)
           env:
-            SONAR_HOST_URL: https://sonarqube.capibarafamily.online
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           run: |
-            reachable=false
-            for i in 1 2 3 4 5; do
-              echo "SonarQube health check attempt $i/5..."
-              if curl -fsS --connect-timeout 10 --max-time 20 "$SONAR_HOST_URL/api/system/status" > /dev/null; then
-                echo "✓ SonarQube is reachable"
-                reachable=true
-                break
-              fi
-              echo "✗ Attempt $i failed, retrying in 8s..."
-              sleep 8
-            done
-            if [ "$reachable" = "false" ]; then
-              echo "❌ SonarQube server is unreachable after 5 attempts. Check https://sonarqube.capibarafamily.online"
+            if [ -z "$SONAR_HOST_URL" ]; then
+              echo "❌ Falta el secret SONAR_HOST_URL"
               exit 1
             fi
+            for i in 1 2 3 4 5; do
+              echo "SonarQube health check $i/5 -> $SONAR_HOST_URL"
+              if curl -fsS --connect-timeout 10 --max-time 20 "$SONAR_HOST_URL/api/system/status" > /dev/null; then
+                echo "✓ SonarQube reachable"
+                exit 0
+              fi
+              sleep 8
+            done
+            echo "❌ SonarQube unreachable from GitHub runner"
+            exit 1
 
-        - name: SonarCloud Scan
-          run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.gradle.skipCompile=true
+        - name: Resolve branch for SonarQube Quality Gate
+          id: sonar_branch
+          run: |
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              echo "branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
+            else
+              echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+            fi
+
+        - name: SonarQube Scan (self-hosted)
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: |
+            ./gradlew app:sonar \
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+              -Dsonar.projectKey=Portfolio_kotlin \
+              -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+              -Dsonar.gradle.skipCompile=true \
+              --no-daemon
+
+        - name: Check SonarQube Quality Gate
+          run: |
+            sleep 10
+            status=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+              "${{ secrets.SONAR_HOST_URL }}/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=${{ steps.sonar_branch.outputs.branch }}" \
+              | jq -r '.projectStatus.status')
+            echo "Quality gate status: $status"
+            if [ "$status" != "OK" ]; then
+              echo "❌ Quality gate failed: $status"
+              exit 1
+            fi
+            echo "✓ Quality gate passed"
 
         - name: Upload coverage report
           uses: actions/upload-artifact@v4
@@ -211,24 +238,13 @@ jobs:
             path: app/build/outputs/apk/debug/app-debug.apk
             retention-days: 1
 
-        - name: Check SonarQube Quality Gate
-          run: |
-            status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarqube.capibarafamily.online/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=main" | jq -r '.projectStatus.status')
-            echo "Quality gate status: $status"
-            if [ "$status" != "OK" ]; then
-              echo "❌ Quality gate failed: $status"
-              exit 1
-            fi
-            echo "✓ Quality gate passed"
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
         - name: Clean sensitive files
           if: ${{ always() }}
           run: rm -f app/google-services.json
 
   Firebase:
-      needs: [ sonarcloud ]
+      needs: [ sonar ]
       runs-on: ubuntu-latest
       steps:
       - name: Checkout the code
