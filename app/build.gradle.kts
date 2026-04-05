@@ -106,10 +106,15 @@ android {
     sonar {
         properties {
             property("sonar.projectKey", "Portfolio_kotlin")
-            property("sonar.host.url", "http://localhost:9000")
-            property("sonar.token", localProperties.getProperty("SONAR_TOKEN", ""))
+            // sonar.host.url y sonar.token se inyectan via -D en CI (GitHub Actions)
+            // o desde local.properties para desarrollo local
+            val localToken = localProperties.getProperty("SONAR_TOKEN", "")
+            val localHost  = localProperties.getProperty("SONAR_HOST_URL", "http://localhost:9000")
+            if (localToken.isNotEmpty())  property("sonar.token",    localToken)
+            if (localHost.isNotEmpty())   property("sonar.host.url", localHost)
+            // Rutas de cobertura — siempre fijas relativas al buildDir
             property("sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml").get().asFile.absolutePath)
-            property("sonar.junit.reportPaths", layout.buildDirectory.dir("test-results/test").get().asFile.absolutePath)
+            property("sonar.junit.reportPaths", layout.buildDirectory.dir("test-results/testDebugUnitTest").get().asFile.absolutePath)
         }
     }
 
