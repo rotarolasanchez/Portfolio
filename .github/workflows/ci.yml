@@ -171,7 +171,28 @@ jobs:
         - name: Build debug + coverage only (avoid release signing in CI)
           run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport :app:assembleDebug --parallel --build-cache
 
+        - name: Check SonarQube availability (retry)
+          id: sonar_health
+          env:
+            SONAR_HOST_URL: https://sonarqube.capibarafamily.online
+          run: |
+            reachable=false
+            for i in 1 2 3 4 5; do
+              echo "SonarQube health check attempt $i/5..."
+              if curl -fsS --connect-timeout 10 --max-time 20 "$SONAR_HOST_URL/api/system/status" > /dev/null; then
+                reachable=true
+                break
+              fi
+              sleep 8
+            done
+            echo "reachable=$reachable" >> "$GITHUB_OUTPUT"
+
+        - name: SonarQube unavailable notice
+          if: steps.sonar_health.outputs.reachable != 'true'
+          run: echo "SonarQube server is unreachable from this runner. Skipping sonar scan and quality gate for this run."
+
         - name: SonarCloud Scan
+          if: steps.sonar_health.outputs.reachable == 'true'
           run: ./gradlew app:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.gradle.skipCompile=true
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -190,6 +211,7 @@ jobs:
             retention-days: 1
 
         - name: Check SonarQube Quality Gate
+          if: steps.sonar_health.outputs.reachable == 'true'
           run: |
             status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarqube.capibarafamily.online/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=main" | jq -r '.projectStatus.status')
             if [ "$status" != "OK" ]; then
