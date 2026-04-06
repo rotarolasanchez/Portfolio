@@ -31,17 +31,17 @@ import kotlin.test.assertTrue
 class AuthViewModelTest {
 
     private lateinit var fakeRepository: FakeAuthRepository
-    private lateinit var fakeStorage: FakeCredentialsStorage
+    private lateinit var fakeCredentialsStorage: FakeCredentialsStorage
     private lateinit var viewModel: AuthViewModel
 
     @BeforeTest
     fun setUp() {
         TestCoroutineRule.setup()
         fakeRepository = FakeAuthRepository()
-        fakeStorage = FakeCredentialsStorage()
+        fakeCredentialsStorage = FakeCredentialsStorage()
         viewModel = AuthViewModel(
             signWithEmailUseCase = SignInWithEmailUseCase(fakeRepository),
-            credentialsStorage = fakeStorage
+            credentialsStorage = fakeCredentialsStorage
         )
     }
 
@@ -180,3 +180,7 @@ class AuthViewModelTest {
         assertIs<RequestState.Idle>(state.loginRequest)
     }
 }
+
+
+
+

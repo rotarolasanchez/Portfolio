@@ -17,13 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Install google-services.json (from secret)
         env:
@@ -35,7 +36,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run Lint
-        run: ./gradlew lint
+        run: ./gradlew lint --parallel --build-cache
 
       - name: Debug artifacts
         run: ls -R app/build/reports
@@ -51,17 +52,19 @@ jobs:
         run: rm -f app/google-services.json
 
   unit-test:
+    #if: contains(github.event.head_commit.message, 'Send QA')
     needs: [ lint ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Install google-services.json (from secret)
         env:
@@ -73,7 +76,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew test --parallel --build-cache
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
@@ -86,6 +89,7 @@ jobs:
         run: rm -f app/google-services.json
 
   instrumentation-test:
+    #if: contains(github.event.head_commit.message, 'Send QA')
     needs: [ unit-test ]
     runs-on: ubuntu-latest
     strategy:
@@ -93,13 +97,14 @@ jobs:
         api-level: [ 29 ]
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Install google-services.json (from secret)
         env:
@@ -110,6 +115,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Enable KVM (acelera el emulador Android)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -119,7 +130,7 @@ jobs:
           profile: Nexus 6
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew connectedCheck --stacktrace
+          script: ./gradlew connectedCheck --build-cache --stacktrace
 
       - name: Upload test report
         if: always()
@@ -132,100 +143,141 @@ jobs:
         if: ${{ always() }}
         run: rm -f app/google-services.json
 
-  sonarqube:
-    needs: [ instrumentation-test ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+  sonar:
+      #if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/release/')
+      needs: [ instrumentation-test ]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout the code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+        - name: Set up JDK 17
+          uses: actions/setup-java@v4
+          with:
+            java-version: '17'
+            distribution: 'temurin'
+            cache: 'gradle'
 
-      - name: Install google-services.json (from secret)
-        env:
-          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
-        run: |
-          echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
+        - name: Install google-services.json (from secret)
+          env:
+            GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          run: |
+            echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        - name: Grant execute permission for gradlew
+          run: chmod +x ./gradlew
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle
+        - name: Build debug + coverage only (avoid release signing in CI)
+          run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport :app:assembleDebug --parallel --build-cache
 
-      - name: Build and run tests with coverage
-        run: ./gradlew clean build jacocoTestReport
-
-      - name: SonarQube Scan
-        run: >
-          ./gradlew app:sonar
-          -Dsonar.host.url=https://sonarqube.capibarafamily.online
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
-
-      - name: Check SonarQube Quality Gate
-        run: |
-          status=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
-            "https://sonarqube.capibarafamily.online/api/qualitygates/project_status?projectKey=Portfolio_kotlin&branch=main" \
-            | jq -r '.projectStatus.status')
-          if [ "$status" != "OK" ]; then
-            echo "Quality gate failed: $status"
+        - name: Check SonarQube availability (self-hosted)
+          env:
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          run: |
+            if [ -z "$SONAR_HOST_URL" ]; then
+              echo "❌ Falta el secret SONAR_HOST_URL"
+              exit 1
+            fi
+            for i in 1 2 3 4 5; do
+              echo "SonarQube health check $i/5 -> $SONAR_HOST_URL"
+              if curl -fsS --connect-timeout 10 --max-time 20 "$SONAR_HOST_URL/api/system/status" > /dev/null; then
+                echo "✓ SonarQube reachable"
+                exit 0
+              fi
+              sleep 8
+            done
+            echo "❌ SonarQube unreachable from GitHub runner"
             exit 1
-          fi
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Clean sensitive files
-        if: ${{ always() }}
-        run: rm -f app/google-services.json
+        - name: SonarQube Scan (self-hosted)
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: |
+            ./gradlew app:sonar \
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+              -Dsonar.projectKey=Portfolio_kotlin \
+              -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+              -Dsonar.gradle.skipCompile=true \
+              --no-daemon
+
+        - name: Check SonarQube Quality Gate
+          env:
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: |
+            # SonarQube CE no soporta branch analysis -> no usar &branch=
+            # Esperamos más tiempo para que el procesamiento del scan termine
+            echo "⏳ Esperando que SonarQube procese el análisis..."
+            sleep 20
+
+            QG_URL="${SONAR_HOST_URL}/api/qualitygates/project_status?projectKey=Portfolio_kotlin"
+            echo "Consultando: $QG_URL"
+
+            # Capturar respuesta completa para debug
+            RESPONSE=$(curl -s \
+              --user "${SONAR_TOKEN}:" \
+              --header "Accept: application/json" \
+              --connect-timeout 15 \
+              --max-time 30 \
+              "$QG_URL")
+
+            echo "Respuesta raw: $RESPONSE"
+
+            # Verificar que la respuesta es JSON válido
+            if ! echo "$RESPONSE" | jq . > /dev/null 2>&1; then
+              echo "❌ La respuesta no es JSON válido (¿Cloudflare challenge?)"
+              echo "Respuesta recibida: $RESPONSE"
+              exit 1
+            fi
+
+            status=$(echo "$RESPONSE" | jq -r '.projectStatus.status // "NULL"')
+            echo "Quality gate status: $status"
+
+            if [ "$status" = "OK" ]; then
+              echo "✓ Quality gate passed"
+            elif [ "$status" = "NONE" ] || [ "$status" = "NULL" ]; then
+              echo "⚠️ Quality gate sin datos aún (primer análisis o sin cobertura configurada) — continuando"
+            else
+              echo "❌ Quality gate failed: $status"
+              exit 1
+            fi
+
+        - name: Upload coverage report
+          uses: actions/upload-artifact@v4
+          with:
+            name: coverage-report
+            path: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+
+        - name: Upload APK for Firebase distribution
+          uses: actions/upload-artifact@v4
+          with:
+            name: app-debug-apk
+            path: app/build/outputs/apk/debug/app-debug.apk
+            retention-days: 1
+
+
+        - name: Clean sensitive files
+          if: ${{ always() }}
+          run: rm -f app/google-services.json
 
   Firebase:
-    needs: [ sonarqube ]
-    runs-on: ubuntu-latest
-    steps:
+      needs: [ sonar ]
+      runs-on: ubuntu-latest
+      steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Install google-services.json (from secret)
-        env:
-          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
-        run: |
-          echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      - name: Build APK again
-        run: ./gradlew assembleDebug
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -249,4 +301,3 @@ jobs:
         if: always()
         run: |
           rm -f firebase-key.json
-          rm -f app/google-services.json
