@@ -63,14 +63,9 @@ class GeminiCloudServiceImpl : GeminiCloudService {
 
     override suspend fun continueChat(messages: List<ChatBotMessage>, newMessage: String): String {
         return try {
-            val historyText = if (messages.isNotEmpty()) {
-                messages.joinToString("\n") { msg ->
-                    if (msg.isFromUser) "Usuario: ${msg.text}" else "Asistente: ${msg.text}"
-                } + "\n\n"
-            } else ""
-
-            val prompt = "${historyText}Nueva pregunta: $newMessage\n\nResponde de manera educativa."
-            callCloudFunction(prompt, messages)
+            // Pasar solo el nuevo mensaje; el Cloud Function construye el prompt
+            // completo a partir del conversationHistory array (evita duplicar historia)
+            callCloudFunction(newMessage, messages)
         } catch (e: Exception) {
             "Error al procesar la consulta: ${e.message}"
         }

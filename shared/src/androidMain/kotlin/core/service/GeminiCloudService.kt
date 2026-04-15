@@ -57,21 +57,9 @@ class GeminiCloudServiceImpl : GeminiCloudService {
         newMessage: String
     ): String {
         return try {
-            val historyText = messages.joinToString("\n") { message ->
-                if (message.isFromUser) "Usuario: ${message.text}"
-                else "Asistente: ${message.text}"
-            }
-
-            val prompt = """
-            Historial de conversación:
-            $historyText
-
-            Nueva pregunta del usuario: $newMessage
-
-            Responde de manera educativa y útil, manteniendo el contexto de la conversación anterior.
-            """.trimIndent()
-
-            callCloudFunction(prompt, messages)
+            // Pasar solo el nuevo mensaje; el Cloud Function construye el prompt
+            // completo a partir del conversationHistory array (evita duplicar historia)
+            callCloudFunction(newMessage, messages)
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error continuing chat", e)
             "Error al procesar la consulta: ${e.message}"

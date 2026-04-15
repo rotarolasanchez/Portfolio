@@ -1,12 +1,10 @@
+import core.model.PlatformBitmap
 package utils
 
-import domain.model.ChatBotMessage
 import domain.model.UserModel
 import domain.repositories.AuthRepository
 import domain.repositories.ChatBotRepository
-import core.model.PlatformBitmap
-import core.storage.CredentialsStorage
-import core.storage.SavedCredentials
+import presentation.view.organisms.PlatformBitmap
 
 // ─────────────────────────────────────────────
 //  Fakes reutilizables para todos los tests
@@ -56,9 +54,6 @@ class FakeAuthRepository(
 
     fun setCurrentUser(user: UserModel?) {
         currentUser = user
-    }
-}
-
 /**
  * Fake de ChatBotRepository configurable para distintos escenarios de tests.
  */
@@ -96,30 +91,6 @@ class FakeChatBotRepository(
         lastNewMessage = newMessage
         if (shouldThrow) throw Exception(errorMessage)
         return continueChatResult
-    }
-}
-
-/**
- * Fake de CredentialsStorage para tests — no persiste nada.
- */
-class FakeCredentialsStorage : CredentialsStorage {
-    private var saved: SavedCredentials? = null
-    private var rememberEnabled: Boolean = false
-
-    override fun saveCredentials(email: String, password: String) {
-        saved = SavedCredentials(email, password)
-    }
-
-    override fun loadCredentials(): SavedCredentials? = saved
-
-    override fun clearCredentials() {
-        saved = null
-    }
-
-    override fun isRememberEnabled(): Boolean = rememberEnabled
-
-    override fun setRememberEnabled(enabled: Boolean) {
-        rememberEnabled = enabled
     }
 }
 

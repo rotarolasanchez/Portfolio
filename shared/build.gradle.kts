@@ -236,6 +236,15 @@ kotlin {
                 // Dependencias específicas para Web si son necesarias
             }
         }
+
+        // ✅ Dependencias para Android Instrumented Tests
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation(libs.androidx.junit)
+                implementation(libs.androidx.runner)
+                implementation(libs.androidx.espresso.core)
+            }
+        }
     }
 }
 

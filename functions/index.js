@@ -122,7 +122,12 @@ function firebaseSignInRest(email, password, webApiKey) {
 
 
 async function callGeminiAPI(apiKey, prompt) {
-  const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+  const models = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash"
+  ];
 
   for (const modelName of models) {
     try {
@@ -143,7 +148,12 @@ async function callGeminiAPI(apiKey, prompt) {
 }
 
 async function callGeminiWithImage(apiKey, prompt, imageBase64, mimeType) {
-  const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+  const models = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash"
+  ];
 
   for (const modelName of models) {
     try {
