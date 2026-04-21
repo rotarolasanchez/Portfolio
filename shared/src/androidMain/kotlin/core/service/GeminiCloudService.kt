@@ -25,6 +25,12 @@ class GeminiCloudServiceImpl : GeminiCloudService {
         .build()
 
 
+    private val bigQueryClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(120, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
+
     private val ollamaClient = OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.MINUTES)
         .readTimeout(5, TimeUnit.MINUTES)
@@ -142,9 +148,12 @@ class GeminiCloudServiceImpl : GeminiCloudService {
             .addHeader("Authorization", "Bearer $idToken")
             .build()
 
-        val response = client.newCall(request).execute()
+        val response = bigQueryClient.newCall(request).execute()
         val responseBody = response.body?.string() ?: "{}"
-        if (!response.isSuccessful) throw Exception("HTTP ${response.code}")
+        if (!response.isSuccessful) {
+            Log.e(ContentValues.TAG, "queryFacturas HTTP Error: ${response.code} - $responseBody")
+            throw Exception("HTTP ${response.code}")
+        }
 
         JSONObject(responseBody).getString("answer")
     }

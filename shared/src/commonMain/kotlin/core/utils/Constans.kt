@@ -15,10 +15,10 @@ object Constans {
     // Ver: SharedBuildConfig (generado en build/generated/)
     // Nunca hardcodear aquí — usar local.properties igual que Android
     val FIREBASE_WEB_API_KEY: String get() = SharedBuildConfig.FIREBASE_WEB_API_KEY
-    // ✅ NUEVO: endpoint para consultas BigQuery
-    const val QUERY_FACTURAS_URL = "http://192.168.1.4:8000"
-    // ← Ollama/FastAPI local (WiFi) — cambiar por Cloud Function al salir de la red local
-    // Para producción: "https://queryollama-766ctyoljq-uc.a.run.app"
+    // ✅ Cloud Function Firebase — consultas BigQuery con Gemini (Agente Comercial)
+    const val QUERY_FACTURAS_URL = "https://queryfacturas-766ctyoljq-uc.a.run.app"
+
+    // ✅ Ollama/FastAPI local (WiFi) — modo Ollama local
     const val OLLAMA_FACTURAS_URL  = "http://192.168.1.4:8000/query/"
 }
 

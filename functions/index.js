@@ -129,61 +129,62 @@ function firebaseSignInRest(email, password, webApiKey) {
 async function callGeminiAPI(apiKey, prompt) {
   const models = [
     "gemini-2.5-flash",
+    "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-flash"
   ];
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  for (const modelName of models) {
-    try {
-      console.log(`🤖 Intentando con modelo: ${modelName}`);
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      console.log(`✅ Respuesta recibida con modelo: ${modelName}`);
-      return text;
-    } catch (error) {
-      console.warn(`⚠️ Falló modelo ${modelName}: ${error.message}`);
-      if (modelName === models[models.length - 1]) {
-        throw new Error(`Error al comunicarse con Gemini: ${error.message}`);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    for (const modelName of models) {
+      try {
+        console.log(`🤖 Intentando con modelo: ${modelName} (intento ${attempt + 1})`);
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        console.log(`✅ Respuesta recibida con modelo: ${modelName}`);
+        return result.response.text();
+      } catch (error) {
+        const is404 = error.message?.includes('404') || error.message?.includes('not found');
+        console.warn(`⚠️ Falló modelo ${modelName}: ${error.message}`);
+        if (is404) continue;
+        if (modelName === models[models.length - 1] && attempt < 2) {
+          await sleep(3000);
+        }
       }
     }
   }
+  throw new Error('Todos los modelos de Gemini están saturados. Intenta en unos segundos.');
 }
 
 async function callGeminiWithImage(apiKey, prompt, imageBase64, mimeType) {
   const models = [
     "gemini-2.5-flash",
+    "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-flash"
   ];
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  for (const modelName of models) {
-    try {
-      console.log(`🤖 Intentando multimodal con modelo: ${modelName}`);
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: modelName });
-
-      const imagePart = {
-        inlineData: {
-          data: imageBase64,
-          mimeType: mimeType
+  for (let attempt = 0; attempt < 3; attempt++) {
+    for (const modelName of models) {
+      try {
+        console.log(`🤖 Intentando multimodal con modelo: ${modelName} (intento ${attempt + 1})`);
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const imagePart = { inlineData: { data: imageBase64, mimeType } };
+        const result = await model.generateContent([prompt, imagePart]);
+        console.log(`✅ Respuesta multimodal recibida con modelo: ${modelName}`);
+        return result.response.text();
+      } catch (error) {
+        const is404 = error.message?.includes('404') || error.message?.includes('not found');
+        console.warn(`⚠️ Falló modelo multimodal ${modelName}: ${error.message}`);
+        if (is404) continue;
+        if (modelName === models[models.length - 1] && attempt < 2) {
+          await sleep(3000);
         }
-      };
-
-      const result = await model.generateContent([prompt, imagePart]);
-      const text = result.response.text();
-      console.log(`✅ Respuesta multimodal recibida con modelo: ${modelName}`);
-      return text;
-    } catch (error) {
-      console.warn(`⚠️ Falló modelo multimodal ${modelName}: ${error.message}`);
-      if (modelName === models[models.length - 1]) {
-        throw new Error(`Error al comunicarse con Gemini: ${error.message}`);
       }
     }
   }
+  throw new Error('Todos los modelos de Gemini están saturados. Intenta en unos segundos.');
 }
 
 
@@ -294,11 +295,41 @@ exports.queryFacturas = onRequest({
     - created_at (TIMESTAMP): fecha de carga al sistema
   `;
 
-  try {
-    // ── Paso 1: Gemini genera SQL ──
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const MODELS = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+  ];
 
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  async function generateWithFallback(prompt) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      for (const modelName of MODELS) {
+        try {
+          console.log(`🤖 queryFacturas intento ${attempt + 1} modelo: ${modelName}`);
+          const genAI = new GoogleGenerativeAI(apiKey);
+          const m = genAI.getGenerativeModel({ model: modelName });
+          const result = await m.generateContent(prompt);
+          console.log(`✅ queryFacturas OK con modelo: ${modelName}`);
+          return result.response.text();
+        } catch (err) {
+          const is503 = err.message?.includes('503') || err.message?.includes('high demand') || err.message?.includes('Service Unavailable');
+          const is404 = err.message?.includes('404') || err.message?.includes('not found');
+          console.warn(`⚠️ Falló ${modelName} (intento ${attempt + 1}): ${err.message}`);
+          if (is404) continue; // modelo no existe, probar siguiente
+          if (is503 && modelName === MODELS[MODELS.length - 1] && attempt < 2) {
+            console.log(`⏳ Todos saturados, esperando 3s antes de reintentar...`);
+            await sleep(3000);
+          }
+        }
+      }
+    }
+    throw new Error('Todos los modelos de Gemini están temporalmente saturados. Intenta en unos segundos.');
+  }
+
+  try {
+    // ── Paso 1: Gemini genera SQL (con fallback de modelos) ──
     const sqlPrompt = `
 Eres un experto en SQL para BigQuery.
 Dado el siguiente schema de tabla:
@@ -314,8 +345,8 @@ Reglas:
 - Devuelve SOLO el SQL, nada más
     `.trim();
 
-    const sqlResult = await model.generateContent(sqlPrompt);
-    const sql = sqlResult.response.text().trim()
+    const sqlResult = await generateWithFallback(sqlPrompt);
+    const sql = sqlResult.trim()
       .replace(/```sql/gi, '').replace(/```/g, '').trim();
 
     console.log('📝 SQL generado:', sql);
@@ -336,8 +367,9 @@ interpretando los datos. Si hay montos, menciona la moneda.
 Si son muchos registros, resume los más relevantes.
     `.trim();
 
-    const interpretResult = await model.generateContent(interpretPrompt);
-    const answer = interpretResult.response.text();
+    // ── Paso 3: Gemini interpreta el resultado (con fallback) ──
+    const interpretResult = await generateWithFallback(interpretPrompt);
+    const answer = interpretResult;
 
     return res.json({
       success: true,
