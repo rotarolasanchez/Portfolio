@@ -8,7 +8,8 @@ admin.initializeApp();
 
 // Secretos de Cloud Functions
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
-const webApiKey = defineSecret("WEB_API_KEY");
+const webApiKey    = defineSecret("WEB_API_KEY");
+const ollamaUrl    = defineSecret("OLLAMA_TUNNEL_URL"); // URL base del túnel Cloudflare
 
 // En functions/index.js — agregar esta función
 const { BigQuery } = require('@google-cloud/bigquery');
@@ -352,3 +353,82 @@ Si son muchos registros, resume los más relevantes.
     return res.status(500).json({ error: err.message });
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// queryOllama — Proxy seguro hacia el servidor FastAPI/Ollama local
+// El móvil llama aquí con Bearer token → Cloud Function llama al túnel Cloudflare
+// Para cambiar la URL del túnel: firebase functions:secrets:set OLLAMA_TUNNEL_URL
+// ─────────────────────────────────────────────────────────────────────────────
+exports.queryOllama = onRequest({
+  cors: true,
+  memory: "512MiB",
+  timeoutSeconds: 300,
+  secrets: [ollamaUrl],
+}, async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(204).send('');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // ── Auth ──
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token' });
+    await admin.auth().verifyIdToken(token);
+  } catch {
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+
+  const { question } = req.body;
+  if (!question) return res.status(400).json({ error: 'No se proporcionó pregunta' });
+
+  const tunnelBase = (ollamaUrl.value() || '').trim().replace(/\/$/, '');
+  if (!tunnelBase) {
+    return res.status(500).json({ error: 'Servidor Ollama no configurado. Ejecuta: firebase functions:secrets:set OLLAMA_TUNNEL_URL' });
+  }
+
+  const targetUrl = `${tunnelBase}/query/`;
+  console.log(`🦙 queryOllama proxy → ${targetUrl}`);
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 270_000); // 4.5 min
+
+    const ollamaRes = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        'User-Agent': 'FirebaseCloudFunction/1.0',
+      },
+      body: JSON.stringify({ pregunta: question }),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
+    const data = await ollamaRes.json();
+
+    if (!ollamaRes.ok) {
+      console.error(`❌ Error del agente HTTP ${ollamaRes.status}:`, data);
+      return res.status(ollamaRes.status).json({ error: data?.detail ?? 'Error en el agente Ollama' });
+    }
+
+    console.log('✅ Respuesta del agente recibida');
+    return res.json({
+      success: true,
+      respuesta:    data.respuesta    ?? '',
+      sql_generado: data.sql_generado ?? '',
+    });
+
+  } catch (err) {
+    console.error('❌ Error llamando al agente:', err.message);
+    const isTimeout = err.name === 'AbortError';
+    return res.status(isTimeout ? 504 : 500).json({
+      error: isTimeout
+        ? 'El agente tardó demasiado. Intenta con una pregunta más específica.'
+        : err.message,
+    });
+  }
+});
+

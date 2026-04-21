@@ -16,8 +16,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import core.model.PlatformBitmap
 import java.util.concurrent.TimeUnit
-import kotlin.code
-import kotlin.toString
 
 class GeminiCloudServiceImpl : GeminiCloudService {
     private val client = OkHttpClient.Builder()
@@ -28,9 +26,9 @@ class GeminiCloudServiceImpl : GeminiCloudService {
 
 
     private val ollamaClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(120, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.MINUTES)
+        .readTimeout(5, TimeUnit.MINUTES)
+        .writeTimeout(5, TimeUnit.MINUTES)
         .connectionPool(okhttp3.ConnectionPool(0, 1, TimeUnit.MILLISECONDS)) // sin pool: nueva conexión siempre
         .retryOnConnectionFailure(true)
         .build()
@@ -192,15 +190,19 @@ class GeminiCloudServiceImpl : GeminiCloudService {
     }
 
     private suspend fun callOllamaFunction(question: String): String = withContext(Dispatchers.IO) {
+        val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
+            ?: throw Exception("Usuario no autenticado")
+
+        // El servidor FastAPI local espera el campo "pregunta"
         val json = JSONObject().apply { put("pregunta", question) }
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
         val request = Request.Builder()
             .url(Constans.OLLAMA_FACTURAS_URL)
             .post(requestBody)
+            .addHeader("Authorization", "Bearer $idToken")
+            .addHeader("Content-Type", "application/json")
             .addHeader("ngrok-skip-browser-warning", "true")
-            .addHeader("cf-access-client-id", "bypass")   // Cloudflare quick tunnel
-            .addHeader("User-Agent", "PortafolioKMP/1.0")  // evita pantalla de advertencia CF
-            .addHeader("Connection", "close")
+            .addHeader("User-Agent", "PortafolioKMP/1.0")
             .build()
 
         val response = ollamaClient.newCall(request).execute()
