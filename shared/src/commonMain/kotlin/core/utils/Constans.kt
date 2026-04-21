@@ -15,6 +15,12 @@ object Constans {
     // Ver: SharedBuildConfig (generado en build/generated/)
     // Nunca hardcodear aquí — usar local.properties igual que Android
     val FIREBASE_WEB_API_KEY: String get() = SharedBuildConfig.FIREBASE_WEB_API_KEY
+    // ✅ NUEVO: endpoint para consultas BigQuery
+    const val QUERY_FACTURAS_URL = "https://queryfacturas-766ctyoljq-uc.a.run.app"
+    // ← NUEVO: API Ollama/FastAPI via ngrok
+    //const val OLLAMA_FACTURAS_URL  = "https://avon-recruiting-disc-identification.trycloudflare.com/query/"
+    //const val OLLAMA_FACTURAS_URL  = "https://avon-recruiting-disc-identification.trycloudflare.com/query/"
+    const val OLLAMA_FACTURAS_URL  = "http://192.168.1.4:8000/query/"
 }
 
 

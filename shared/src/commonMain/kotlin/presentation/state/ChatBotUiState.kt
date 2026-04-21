@@ -3,13 +3,20 @@ package presentation.state
 
 import domain.model.ChatBotMessage
 
+// ✅ NUEVO: modos del chatbot
+enum class ChatMode {
+    LIBRE,   // Gemini directo
+    AGENTE,  // BigQuery (Cloud Function)
+    OLLAMA   // Agente local via ngrok + Ollama
+}
 data class ChatBotUiState(
     val messages: List<ChatBotMessage> = emptyList(),
     val isProcessing: Boolean = false,
     val error: String? = null,
     val showCamera: Boolean = false,
     val capturedImageBytes: ByteArray? = null, // ✅ Cambiar a ByteArray
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val chatMode: ChatMode = ChatMode.LIBRE   // ✅ NUEVO
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -19,12 +26,13 @@ data class ChatBotUiState(
                 error == other.error &&
                 showCamera == other.showCamera &&
                 capturedImageBytes.contentEquals(other.capturedImageBytes) &&
-                isLoading == other.isLoading
+                isLoading == other.isLoading &&
+                chatMode == other.chatMode   // ✅
     }
 
-    override fun hashCode(): Int {
-        return capturedImageBytes?.contentHashCode() ?: 0
-    }
+    override fun hashCode(): Int =
+        capturedImageBytes?.contentHashCode() ?: 0
+
 }
 
 enum class CameraState {

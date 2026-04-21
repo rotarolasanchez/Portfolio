@@ -157,4 +157,38 @@ class GeminiCloudServiceImpl : GeminiCloudService {
         }
         return sb.toString()
     }
+
+    override suspend fun queryFacturas(question: String): String {
+        return try {
+            val idToken = firebaseGetIdToken()
+            val bodyJson = """{"question":"${escapeJson(question)}"}"""
+            val responseText = fetchWithAuth(Constans.QUERY_FACTURAS_URL, idToken, bodyJson)
+            parseAnswerField(responseText)  // busca "answer" en lugar de "response"
+        } catch (e: Exception) {
+            "Error al consultar facturas: ${e.message}"
+        }
+    }
+
+    override suspend fun queryOllama(question: String): String {
+        return try {
+            val bodyJson = """{"pregunta":"${escapeJson(question)}"}"""
+            val responseText = fetchPublic(Constans.OLLAMA_FACTURAS_URL, bodyJson)
+            // Extraer campo "respuesta"
+            val respuesta   = extractJsonField(responseText, "respuesta")
+            val sqlGenerado = extractJsonField(responseText, "sql_generado")
+            buildString {
+                if (respuesta.isNotBlank())   appendLine(respuesta)
+                if (sqlGenerado.isNotBlank()) appendLine("\n📊 SQL: `$sqlGenerado`")
+            }.trim().ifEmpty { responseText }
+        } catch (e: Exception) {
+            "Error al consultar Ollama: ${e.message}"
+        }
+    }
+
+    // Fetch sin auth (Ollama ngrok es público)
+    private suspend fun fetchPublic(url: String, bodyJson: String): String {
+        // Reusar el mismo mecanismo fetch pero sin Authorization header
+        // Ajustar según tu implementación actual de fetchWithAuth
+        return fetchWithAuth(url, null, bodyJson)
+    }
 }

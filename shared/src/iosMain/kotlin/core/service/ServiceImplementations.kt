@@ -187,4 +187,52 @@ class GeminiCloudServiceImpl : GeminiCloudService {
         }
         return sb.toString().ifEmpty { json }
     }
+
+    override suspend fun queryOllama(question: String): String {
+        return try {
+            val bodyJson = """{"pregunta":"${question.replace("\"", "\\\"")}"}"""
+            val response = client.post(Constans.OLLAMA_FACTURAS_URL) {
+                contentType(ContentType.Application.Json)
+                headers { append("ngrok-skip-browser-warning", "true") }
+                setBody(bodyJson)
+            }
+            val responseText = response.bodyAsText()
+            if (response.status.isSuccess()) {
+                parseOllamaResponse(responseText)
+            } else {
+                "Error del servidor Ollama (${response.status.value})"
+            }
+        } catch (e: Exception) {
+            "Error al consultar Ollama: ${e.message}"
+        }
+    }
+
+    private fun parseOllamaResponse(json: String): String {
+        // Extrae "respuesta" y opcionalmente "sql_generado"
+        fun extractField(key: String): String {
+            val marker = "\"$key\":"
+            val idx = json.indexOf(marker).takeIf { it >= 0 } ?: return ""
+            val q1 = json.indexOf('"', idx + marker.length).takeIf { it >= 0 } ?: return ""
+            val sb = StringBuilder()
+            var i = q1 + 1
+            while (i < json.length) {
+                when {
+                    json[i] == '\\' && i + 1 < json.length -> {
+                        sb.append(when (json[i + 1]) { '"' -> '"'; 'n' -> '\n'; '\\' -> '\\'; else -> json[i + 1] })
+                        i += 2
+                    }
+                    json[i] == '"' -> break
+                    else -> { sb.append(json[i]); i++ }
+                }
+            }
+            return sb.toString()
+        }
+
+        val respuesta   = extractField("respuesta")
+        val sqlGenerado = extractField("sql_generado")
+        return buildString {
+            if (respuesta.isNotBlank())   appendLine(respuesta)
+            if (sqlGenerado.isNotBlank()) appendLine("\n📊 SQL: `$sqlGenerado`")
+        }.trim().ifEmpty { json }
+    }
 }

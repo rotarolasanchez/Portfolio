@@ -45,4 +45,12 @@ class ChatBotRepositoryImpl(
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         return outputStream.toByteArray()
     }
+
+    override suspend fun queryFacturas(question: String): String {
+        return geminiCloudService.queryFacturas(question)
+    }
+
+    override suspend fun queryOllama(question: String): String {
+        return geminiCloudService.queryOllama(question)
+    }
 }

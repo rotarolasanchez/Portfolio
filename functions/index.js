@@ -10,6 +10,10 @@ admin.initializeApp();
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const webApiKey = defineSecret("WEB_API_KEY");
 
+// En functions/index.js — agregar esta función
+const { BigQuery } = require('@google-cloud/bigquery');
+const bigquery = new BigQuery();
+
 exports.askGemini = onRequest({
   maxInstances: 10,
   memory: "512MiB",
@@ -180,3 +184,171 @@ async function callGeminiWithImage(apiKey, prompt, imageBase64, mimeType) {
     }
   }
 }
+
+
+
+exports.uploadExcelToBigQuery = onRequest({
+  cors: true,
+  memory: "512MiB",
+  timeoutSeconds: 120,
+}, async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token' });
+    await admin.auth().verifyIdToken(token);
+  } catch {
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+
+  const { facturas } = req.body;
+  if (!Array.isArray(facturas) || facturas.length === 0) {
+    return res.status(400).json({ error: 'No hay datos para insertar' });
+  }
+
+  // Debug: ver qué claves llegan realmente del frontend
+  console.log('🔍 Primera fila recibida:', JSON.stringify(facturas[0]));
+  console.log('🔍 Claves disponibles:', Object.keys(facturas[0]));
+
+  const parseNum = (val) => {
+    if (val === undefined || val === null) return 0;
+    // Eliminar comas de miles: "240,016,848" → 240016848
+    const cleaned = String(val).replace(/,/g, '').trim();
+    const n = Number(cleaned);
+    return isNaN(n) ? 0 : n;
+  };
+
+  const parseStr = (val) => {
+    if (val === undefined || val === null) return '';
+    return String(val).trim();
+  };
+
+  const rows = facturas.map(f => ({
+    // Usar los nombres exactos que aparecen en las cabeceras del Excel
+    doc_num:      parseNum(f['DocNum']      ?? f['doc_num']      ?? f['N° Factura']),
+    doc_date:     parseStr(f['DocDate']     ?? f['doc_date']     ?? f['Fecha']),
+    card_code:    parseStr(f['CardCode']    ?? f['card_code']    ?? f['Cod. Cliente']),
+    card_name:    parseStr(f['CardName']    ?? f['card_name']    ?? f['Cliente']),
+    doc_total:    parseNum(f['DocTotal']    ?? f['doc_total']    ?? f['Total']),
+    doc_currency: parseStr(f['DocCur']      ?? f['DocCurrency']  ?? f['doc_currency'] ?? 'PEN'),
+    doc_status:   parseStr(f['DocStatus']   ?? f['doc_status']   ?? f['Estado']       ?? 'O'),
+    created_at:   new Date().toISOString(),
+  }));
+
+  console.log('✅ Primera fila mapeada:', JSON.stringify(rows[0]));
+
+  try {
+    await bigquery
+      .dataset('facturas_dataset')
+      .table('facturas')
+      .insert(rows);
+
+    return res.json({ success: true, inserted: rows.length });
+  } catch (err) {
+    console.error('BigQuery insert error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+
+exports.queryFacturas = onRequest({
+  cors: true,
+  memory: "512MiB",
+  timeoutSeconds: 120,
+  secrets: [geminiApiKey, webApiKey]
+}, async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(204).send('');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // ── Auth ──
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token' });
+    await admin.auth().verifyIdToken(token);
+  } catch {
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+
+  const { question } = req.body;
+  if (!question) return res.status(400).json({ error: 'No se proporcionó pregunta' });
+
+  const apiKey = geminiApiKey.value();
+  if (!apiKey) return res.status(500).json({ error: 'API Key no configurada' });
+
+  const TABLE = '`portfolio-app-9a4bc.facturas_dataset.facturas`';
+  const SCHEMA = `
+    Tabla BigQuery: ${TABLE}
+    Columnas:
+    - doc_num (INTEGER): número de factura
+    - doc_date (TIMESTAMP): fecha de la factura
+    - card_code (STRING): código del cliente
+    - card_name (STRING): nombre del cliente
+    - doc_total (FLOAT): monto total de la factura
+    - doc_currency (STRING): moneda (S/ = soles, USD = dólares)
+    - doc_status (STRING): estado (C = cerrada/pagada, O = abierta/pendiente)
+    - created_at (TIMESTAMP): fecha de carga al sistema
+  `;
+
+  try {
+    // ── Paso 1: Gemini genera SQL ──
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    const sqlPrompt = `
+Eres un experto en SQL para BigQuery.
+Dado el siguiente schema de tabla:
+${SCHEMA}
+
+Genera SOLO la consulta SQL de BigQuery (sin explicaciones, sin markdown, sin \`\`\`) para responder esta pregunta:
+"${question}"
+
+Reglas:
+- Usa solo BigQuery SQL estándar
+- Para fechas usa FORMAT_TIMESTAMP o EXTRACT
+- Limita resultados a máximo 50 filas con LIMIT
+- Devuelve SOLO el SQL, nada más
+    `.trim();
+
+    const sqlResult = await model.generateContent(sqlPrompt);
+    const sql = sqlResult.response.text().trim()
+      .replace(/```sql/gi, '').replace(/```/g, '').trim();
+
+    console.log('📝 SQL generado:', sql);
+
+    // ── Paso 2: Ejecutar SQL en BigQuery ──
+    const [rows] = await bigquery.query({ query: sql });
+    console.log(`✅ BigQuery devolvió ${rows.length} filas`);
+
+    // ── Paso 3: Gemini interpreta el resultado ──
+    const interpretPrompt = `
+El usuario preguntó: "${question}"
+
+El resultado de la consulta a la base de datos fue:
+${JSON.stringify(rows.slice(0, 20), null, 2)}
+
+Responde al usuario en español de forma clara y concisa,
+interpretando los datos. Si hay montos, menciona la moneda.
+Si son muchos registros, resume los más relevantes.
+    `.trim();
+
+    const interpretResult = await model.generateContent(interpretPrompt);
+    const answer = interpretResult.response.text();
+
+    return res.json({
+      success: true,
+      question,
+      sql,
+      rowCount: rows.length,
+      rows: rows.slice(0, 50),
+      answer,
+    });
+
+  } catch (err) {
+    console.error('❌ Error en queryFacturas:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});

@@ -31,6 +31,7 @@ import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.outline_photo_camera_24
 import portafolio_kotlin.shared.generated.resources.outline_send_24
 import presentation.state.ChatBotUiState
+import presentation.state.ChatMode
 import presentation.view.atoms.ChatBotEditText
 import presentation.view.molecules.ChatMessageBubble
 
@@ -69,7 +70,7 @@ fun ChatScreen(
             }
 
             // Indicador de escritura responsivo
-            if (uiState.isProcessing) {
+            /*if (uiState.isProcessing) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -92,8 +93,38 @@ fun ChatScreen(
                         )
                     }
                 }
+            }*/
+            // Después: también isLoading (usado por sendMessage)
+            if (uiState.isProcessing || uiState.isLoading) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            // Mensaje dinámico según el modo activo
+                            text = when {
+                                uiState.isProcessing -> "Procesando imagen..."
+                                uiState.chatMode == ChatMode.OLLAMA -> "🦙 Consultando Ollama (puede tardar 30-60s)..."
+                                uiState.chatMode == ChatMode.AGENTE -> "🏢 Consultando BigQuery..."
+                                else -> "Procesando..."
+                            },
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
-
             // Mensaje de error responsivo
             uiState.error?.let { error ->
                 Surface(
