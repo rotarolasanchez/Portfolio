@@ -189,6 +189,187 @@ async function callGeminiWithImage(apiKey, prompt, imageBase64, mimeType) {
 
 
 
+exports.uploadCuboVentas = onRequest({
+  cors: true,
+  memory: "512MiB",
+  timeoutSeconds: 300,
+}, async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(204).send('');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token' });
+    await admin.auth().verifyIdToken(token);
+  } catch {
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+
+  const { ventas } = req.body;
+  if (!Array.isArray(ventas) || ventas.length === 0) {
+    return res.status(400).json({ error: 'No hay datos para insertar' });
+  }
+
+  console.log('🔍 Primera fila recibida:', JSON.stringify(ventas[0]));
+
+  const parseNum = (val) => {
+    if (val === undefined || val === null || val === '') return 0;
+    const cleaned = String(val).replace(/,/g, '').trim();
+    const n = Number(cleaned);
+    return isNaN(n) ? 0 : n;
+  };
+  const parseStr = (val) => (val !== undefined && val !== null ? String(val).trim() : '');
+  const parseInt2 = (val) => Math.round(parseNum(val));
+
+  const rows = ventas.map(f => ({
+    fecha_emision:        parseStr(f['FechaEmision']),
+    documento:            parseStr(f['Documento']),
+    tipo_venta:           parseStr(f['TipoVenta']),
+    termino_pago_resumen: parseStr(f['TerminoPago_Resumen']),
+    documento_id:         parseStr(f['Documento_ID']),
+    moneda:               parseStr(f['Moneda']),
+    tipo_cambio:          parseNum(f['Tipo_Cambio']),
+    precio:               parseNum(f['Precio']),
+    almacen:              parseStr(f['Almacen']),
+    anio:                 parseInt2(f['Anio']),
+    mes_texto:            parseStr(f['Mes_Texto']),
+    dia_num:              parseInt2(f['Dia_Num']),
+    numero_legal:         parseStr(f['NumeroLegal']),
+    fecha_vencimiento:    parseStr(f['FechaVencimiento']),
+    dias_vencimiento:     parseInt2(f['DiasVencimiento']),
+    fise:                 parseStr(f['FISE']),
+    precio_antes_dscto:   parseNum(f['PrecioAntesDscto']),
+    sucursal:             parseStr(f['Sucursal']),
+    producto_id:          parseStr(f['Producto_ID']),
+    unidad_medida:        parseStr(f['UnidadMedida']),
+    producto:             parseStr(f['Producto']),
+    categoria:            parseStr(f['Categoria']),
+    familia:              parseStr(f['Familia']),
+    sub_familia:          parseStr(f['SubFamilia']),
+    linea:                parseStr(f['Linea']),
+    marca:                parseStr(f['Marca']),
+    grupo_producto:       parseStr(f['GrupoProducto']),
+    cliente_id:           parseStr(f['Cliente_ID']),
+    cliente:              parseStr(f['Cliente']),
+    zona_id:              parseStr(f['Zona_ID']),
+    zona:                 parseStr(f['Zona']),
+    cliente_categoria:    parseStr(f['Cliente_Categoria']),
+    distrito:             parseStr(f['Distrito']),
+    provincia:            parseStr(f['Provincia']),
+    departamento:         parseStr(f['Departamento']),
+    pais:                 parseStr(f['Pais']),
+    vendedor:             parseStr(f['Vendedor']),
+    analista:             parseStr(f['Analista']),
+    supervisor:           parseStr(f['Supervisor']),
+    gerencia:             parseStr(f['Gerencia']),
+    unidad_negocio:       parseStr(f['UnidadNegocio']),
+    grupo_unidad_negocio: parseStr(f['GrupoUnidadNegocio']),
+    tipo_gerencia:        parseStr(f['TipoGerencia']),
+    procedencia:          parseStr(f['Procedencia']),
+    total_con_impuesto:   parseNum(f['Total_con_Impuesto']),
+    galones:              parseNum(f['Galones']),
+    total_costo:          parseNum(f['Total_Costo']),
+    total_sin_impuesto:   parseNum(f['Total_sin_Impuesto']),
+    cantidad:             parseNum(f['Cantidad']),
+    descuento:            parseNum(f['Descuento']),
+    descuento_financiero: parseNum(f['DescuentoFinanciero']),
+    descuento_porc:       parseNum(f['Descuento_Porc']),
+    otros_descuentos:     parseNum(f['Otros_Descuentos']),
+    barriles:             parseNum(f['Barriles']),
+    created_at:           new Date().toISOString(),
+  }));
+
+  console.log('✅ Primera fila mapeada:', JSON.stringify(rows[0]));
+
+  // Schema de la tabla cubo_ventas
+  const cuboSchema = [
+    { name: 'fecha_emision',        type: 'STRING' },
+    { name: 'documento',            type: 'STRING' },
+    { name: 'tipo_venta',           type: 'STRING' },
+    { name: 'termino_pago_resumen', type: 'STRING' },
+    { name: 'documento_id',         type: 'STRING' },
+    { name: 'moneda',               type: 'STRING' },
+    { name: 'tipo_cambio',          type: 'FLOAT64' },
+    { name: 'precio',               type: 'FLOAT64' },
+    { name: 'almacen',              type: 'STRING' },
+    { name: 'anio',                 type: 'INT64' },
+    { name: 'mes_texto',            type: 'STRING' },
+    { name: 'dia_num',              type: 'INT64' },
+    { name: 'numero_legal',         type: 'STRING' },
+    { name: 'fecha_vencimiento',    type: 'STRING' },
+    { name: 'dias_vencimiento',     type: 'INT64' },
+    { name: 'fise',                 type: 'STRING' },
+    { name: 'precio_antes_dscto',   type: 'FLOAT64' },
+    { name: 'sucursal',             type: 'STRING' },
+    { name: 'producto_id',          type: 'STRING' },
+    { name: 'unidad_medida',        type: 'STRING' },
+    { name: 'producto',             type: 'STRING' },
+    { name: 'categoria',            type: 'STRING' },
+    { name: 'familia',              type: 'STRING' },
+    { name: 'sub_familia',          type: 'STRING' },
+    { name: 'linea',                type: 'STRING' },
+    { name: 'marca',                type: 'STRING' },
+    { name: 'grupo_producto',       type: 'STRING' },
+    { name: 'cliente_id',           type: 'STRING' },
+    { name: 'cliente',              type: 'STRING' },
+    { name: 'zona_id',              type: 'STRING' },
+    { name: 'zona',                 type: 'STRING' },
+    { name: 'cliente_categoria',    type: 'STRING' },
+    { name: 'distrito',             type: 'STRING' },
+    { name: 'provincia',            type: 'STRING' },
+    { name: 'departamento',         type: 'STRING' },
+    { name: 'pais',                 type: 'STRING' },
+    { name: 'vendedor',             type: 'STRING' },
+    { name: 'analista',             type: 'STRING' },
+    { name: 'supervisor',           type: 'STRING' },
+    { name: 'gerencia',             type: 'STRING' },
+    { name: 'unidad_negocio',       type: 'STRING' },
+    { name: 'grupo_unidad_negocio', type: 'STRING' },
+    { name: 'tipo_gerencia',        type: 'STRING' },
+    { name: 'procedencia',          type: 'STRING' },
+    { name: 'total_con_impuesto',   type: 'FLOAT64' },
+    { name: 'galones',              type: 'FLOAT64' },
+    { name: 'total_costo',          type: 'FLOAT64' },
+    { name: 'total_sin_impuesto',   type: 'FLOAT64' },
+    { name: 'cantidad',             type: 'FLOAT64' },
+    { name: 'descuento',            type: 'FLOAT64' },
+    { name: 'descuento_financiero', type: 'FLOAT64' },
+    { name: 'descuento_porc',       type: 'FLOAT64' },
+    { name: 'otros_descuentos',     type: 'FLOAT64' },
+    { name: 'barriles',             type: 'FLOAT64' },
+    { name: 'created_at',           type: 'TIMESTAMP' },
+  ];
+
+  try {
+    const dataset = bigquery.dataset('facturas_dataset');
+    const table   = dataset.table('cubo_ventas');
+
+    // Crear tabla automáticamente si no existe
+    const [exists] = await table.exists();
+    if (!exists) {
+      console.log('📦 Tabla cubo_ventas no existe, creando...');
+      await dataset.createTable('cubo_ventas', { schema: cuboSchema });
+      console.log('✅ Tabla cubo_ventas creada.');
+    }
+    // Insertar en lotes de 500 para evitar timeout
+    const BATCH = 500;
+    for (let i = 0; i < rows.length; i += BATCH) {
+      await bigquery
+        .dataset('facturas_dataset')
+        .table('cubo_ventas')
+        .insert(rows.slice(i, i + BATCH));
+    }
+    return res.json({ success: true, inserted: rows.length });
+  } catch (err) {
+    console.error('BigQuery insert error:', err?.errors ?? err);
+    const msg = err?.errors?.[0]?.errors?.[0]?.message ?? err.message;
+    return res.status(500).json({ error: msg });
+  }
+});
+
 exports.uploadExcelToBigQuery = onRequest({
   cors: true,
   memory: "512MiB",
@@ -281,7 +462,7 @@ exports.queryFacturas = onRequest({
   const apiKey = geminiApiKey.value();
   if (!apiKey) return res.status(500).json({ error: 'API Key no configurada' });
 
-  const TABLE = '`portfolio-app-9a4bc.facturas_dataset.facturas`';
+  /*const TABLE = '`portfolio-app-9a4bc.facturas_dataset.facturas`';
   const SCHEMA = `
     Tabla BigQuery: ${TABLE}
     Columnas:
@@ -292,6 +473,53 @@ exports.queryFacturas = onRequest({
     - doc_total (FLOAT): monto total de la factura
     - doc_currency (STRING): moneda (S/ = soles, USD = dólares)
     - doc_status (STRING): estado (C = cerrada/pagada, O = abierta/pendiente)
+    - created_at (TIMESTAMP): fecha de carga al sistema
+  `;*/
+  // ✅ NUEVO — apunta a cubo_ventas
+  const TABLE = '`portfolio-app-9a4bc.facturas_dataset.cubo_ventas`';
+  const SCHEMA = `
+    Tabla BigQuery: ${TABLE}
+    Columnas principales:
+    - fecha_emision (STRING): fecha de emisión del documento
+    - anio (INTEGER): año de la venta
+    - mes_texto (STRING): mes en texto (Enero, Febrero, etc.)
+    - moneda (STRING): moneda (PEN = soles, USD = dólares)
+    - tipo_cambio (FLOAT): tipo de cambio aplicado
+    - numero_legal (STRING): número legal de la factura
+    - fecha_vencimiento (STRING): fecha de vencimiento
+    - dias_vencimiento (INTEGER): días hasta el vencimiento
+    - sucursal (STRING): sucursal de venta
+    - producto_id (STRING): código del producto
+    - producto (STRING): nombre del producto
+    - unidad_medida (STRING): unidad de medida
+    - categoria (STRING): categoría del producto
+    - familia (STRING): familia del producto
+    - sub_familia (STRING): subfamilia del producto
+    - linea (STRING): línea del producto
+    - marca (STRING): marca del producto
+    - grupo_producto (STRING): grupo del producto
+    - cliente_id (STRING): código del cliente
+    - cliente (STRING): nombre del cliente
+    - zona (STRING): zona del cliente
+    - cliente_categoria (STRING): categoría del cliente
+    - distrito (STRING): distrito
+    - departamento (STRING): departamento
+    - vendedor (STRING): vendedor responsable
+    - supervisor (STRING): supervisor
+    - gerencia (STRING): gerencia
+    - unidad_negocio (STRING): unidad de negocio
+    - total_con_impuesto (FLOAT): total con impuesto
+    - total_sin_impuesto (FLOAT): total sin impuesto
+    - total_costo (FLOAT): costo total
+    - cantidad (FLOAT): cantidad vendida
+    - galones (FLOAT): cantidad en galones
+    - precio (FLOAT): precio unitario
+    - precio_antes_dscto (FLOAT): precio antes de descuento
+    - descuento (FLOAT): descuento aplicado
+    - descuento_porc (FLOAT): porcentaje de descuento
+    - tipo_venta (STRING): tipo de venta
+    - termino_pago_resumen (STRING): término de pago
+    - procedencia (STRING): procedencia del pedido
     - created_at (TIMESTAMP): fecha de carga al sistema
   `;
 

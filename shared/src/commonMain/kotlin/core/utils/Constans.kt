@@ -18,8 +18,8 @@ object Constans {
     // ✅ Cloud Function Firebase — consultas BigQuery con Gemini (Agente Comercial)
     const val QUERY_FACTURAS_URL = "https://queryfacturas-766ctyoljq-uc.a.run.app"
 
-    // ✅ Ollama/FastAPI local (WiFi) — modo Ollama local
-    const val OLLAMA_FACTURAS_URL  = "http://192.168.1.4:8000/query/"
+    // ✅ Ollama/FastAPI local (WiFi) — reemplaza con tu IP local: e.g. http://192.168.x.x:8000/query/
+    const val OLLAMA_FACTURAS_URL  = "http://TU_IP_LOCAL:8000/query/"
 }
 
 

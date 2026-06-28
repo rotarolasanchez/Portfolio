@@ -2,7 +2,7 @@
 <network-security-config>
     <!-- Permite HTTP (cleartext) solo para IP local de desarrollo -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">192.168.1.4</domain>
+        <domain includeSubdomains="false">TU_IP_LOCAL</domain>
         <domain includeSubdomains="false">10.0.2.2</domain>
     </domain-config>
     <!-- Todo lo demás requiere HTTPS -->

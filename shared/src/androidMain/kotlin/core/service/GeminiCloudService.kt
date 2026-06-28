@@ -160,8 +160,11 @@ class GeminiCloudServiceImpl : GeminiCloudService {
 
     override suspend fun queryOllama(question: String): String {
         return try {
+            // Verificar conectividad antes de intentar la consulta
+            checkOllamaHealth()
             callOllamaWithRetry(question, maxRetries = 3)
         } catch (e: Exception) {
+            Log.e("GeminiCloudService", "queryOllama error: ${e.javaClass.simpleName} — ${e.message}", e)
             when {
                 e.message?.contains("400") == true ->
                     "❌ El agente no pudo generar una consulta válida para esa pregunta. Intenta reformularla de otra forma."
@@ -170,13 +173,44 @@ class GeminiCloudServiceImpl : GeminiCloudService {
                     "⏱️ La consulta tardó demasiado. Intenta con una pregunta más específica."
                 e.message?.contains("401") == true ->
                     "🔐 Error de autenticación. Vuelve a iniciar sesión."
+                e.message?.contains("servidor no disponible", ignoreCase = true) == true ||
+                e.message?.contains("unreachable", ignoreCase = true) == true ->
+                    "🔌 Servidor Ollama no disponible en ${Constans.OLLAMA_FACTURAS_URL}\nVerifica que el servidor esté corriendo y que el celular esté en la misma red WiFi."
+                e.message?.contains("ConnectException", ignoreCase = true) == true ||
+                e.message?.contains("Failed to connect", ignoreCase = true) == true ->
+                    "🔌 No se pudo conectar al servidor Ollama (${Constans.OLLAMA_FACTURAS_URL.substringBefore("/query/")}).\nVerifica que: 1) el servidor FastAPI esté corriendo, 2) el celular esté en la misma WiFi, 3) la IP sea correcta."
                 e.message?.contains("abort", ignoreCase = true) == true ||
                 e.message?.contains("reset", ignoreCase = true) == true ||
                 e.message?.contains("connection", ignoreCase = true) == true ->
-                    "🔄 La conexión con el agente fue interrumpida. Intenta de nuevo."
+                    "🔄 Conexión interrumpida con el servidor Ollama.\nURL: ${Constans.OLLAMA_FACTURAS_URL}\nDetalle: ${e.message}"
                 else ->
-                    "❌ Error al consultar Ollama: ${e.message}"
+                    "❌ Error al consultar Ollama: ${e.javaClass.simpleName} — ${e.message}"
             }
+        }
+    }
+
+    private suspend fun checkOllamaHealth(): Unit = withContext(Dispatchers.IO) {
+        val healthUrl = Constans.OLLAMA_FACTURAS_URL
+            .substringBefore("/query/")
+            .let { base -> "$base/health" }
+        try {
+            val request = Request.Builder()
+                .url(healthUrl)
+                .get()
+                .build()
+            val response = OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .build()
+                .newCall(request).execute()
+            response.close()
+            if (!response.isSuccessful && response.code != 404) {
+                // 404 es aceptable (el servidor existe pero el endpoint /health no)
+                Log.w("GeminiCloudService", "Health check respondió ${response.code} — continuando de todas formas")
+            }
+        } catch (e: Exception) {
+            Log.e("GeminiCloudService", "Health check falló: ${e.message}")
+            throw Exception("servidor no disponible: ${e.message}")
         }
     }
 

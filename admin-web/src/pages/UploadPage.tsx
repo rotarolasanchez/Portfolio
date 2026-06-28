@@ -6,72 +6,163 @@ import { signOut } from 'firebase/auth'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 
-interface FacturaRow {
-  doc_num: number
-  doc_date: string
-  card_code: string
-  card_name: string
-  doc_total: number
-  doc_currency: string
-  doc_status: string
+interface CuboVentasRow {
+  FechaEmision: string
+  Documento: string
+  TipoVenta: string
+  TerminoPago_Resumen: string
+  Documento_ID: string
+  Moneda: string
+  Tipo_Cambio: number
+  Precio: number
+  Almacen: string
+  Anio: number
+  Mes_Texto: string
+  Dia_Num: number
+  NumeroLegal: string
+  FechaVencimiento: string
+  DiasVencimiento: number
+  FISE: string
+  PrecioAntesDscto: number
+  Sucursal: string
+  Producto_ID: string
+  UnidadMedida: string
+  Producto: string
+  Categoria: string
+  Familia: string
+  SubFamilia: string
+  Linea: string
+  Marca: string
+  GrupoProducto: string
+  Cliente_ID: string
+  Cliente: string
+  Zona_ID: string
+  Zona: string
+  Cliente_Categoria: string
+  Distrito: string
+  Provincia: string
+  Departamento: string
+  Pais: string
+  Vendedor: string
+  Analista: string
+  Supervisor: string
+  Gerencia: string
+  UnidadNegocio: string
+  GrupoUnidadNegocio: string
+  TipoGerencia: string
+  Procedencia: string
+  Total_con_Impuesto: number
+  Galones: number
+  Total_Costo: number
+  Total_sin_Impuesto: number
+  Cantidad: number
+  Descuento: number
+  DescuentoFinanciero: number
+  Descuento_Porc: number
+  Otros_Descuentos: number
+  Barriles: number
   [key: string]: unknown
 }
 
 export default function UploadPage() {
-  const [rows, setRows]         = useState<FacturaRow[]>([])
+  const [rows, setRows]         = useState<CuboVentasRow[]>([])
   const [fileName, setFileName] = useState('')
   const [loading, setLoading]   = useState(false)
   const [result, setResult]     = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-const handleFile = (file: File) => {
-  setFileName(file.name)
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    const data = new Uint8Array(e.target?.result as ArrayBuffer)
-    const workbook = XLSX.read(data, { type: 'array' })
-    const sheet = workbook.Sheets[workbook.SheetNames[0]]
+  const handleFile = (file: File) => {
+    setFileName(file.name)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target?.result as ArrayBuffer)
+      // Separador ; para CSV tipo cubo SAP
+      const workbook = XLSX.read(data, { type: 'array', FS: ';' })
+      const sheet = workbook.Sheets[workbook.SheetNames[0]]
+      const rawOriginal = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false, defval: '' })
 
-    const raw = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false })
+      if (rawOriginal.length === 0) { setResult('❌ Archivo vacío o sin datos'); return }
 
-    if (raw.length === 0) { setResult('❌ Excel vacío o sin datos'); return }
+      // Normalizar claves: eliminar espacios al inicio y al final
+      const raw = rawOriginal.map(row =>
+        Object.fromEntries(Object.entries(row).map(([k, v]) => [k.trim(), v]))
+      )
 
-    // Mostrar claves reales del Excel para debug
-    const firstRowKeys = Object.keys(raw[0])
-    console.log('🔍 Claves reales del Excel:', firstRowKeys)
-    console.log('🔍 Primera fila completa:', raw[0])
+      console.log('🔍 Claves normalizadas:', Object.keys(raw[0]))
+      console.log('🔍 Primera fila:', raw[0])
 
-    const parseN = (v: unknown) => {
-      if (v === undefined || v === null) return 0
-      const n = Number(String(v).replace(/,/g, '').trim())
-      return isNaN(n) ? 0 : n
+      const parseN = (v: unknown) => {
+        if (v === undefined || v === null || v === '') return 0
+        const n = Number(String(v).replace(/,/g, '').trim())
+        return isNaN(n) ? 0 : n
+      }
+      const parseS = (v: unknown) => (v !== undefined && v !== null ? String(v).trim() : '')
+      const parseI = (v: unknown) => Math.round(parseN(v))
+
+      const mapped: CuboVentasRow[] = raw.map((f) => ({
+        FechaEmision:        parseS(f['FechaEmision']),
+        Documento:           parseS(f['Documento']),
+        TipoVenta:           parseS(f['TipoVenta']),
+        TerminoPago_Resumen: parseS(f['TerminoPago_Resumen']),
+        Documento_ID:        parseS(f['Documento_ID']),
+        Moneda:              parseS(f['Moneda']),
+        Tipo_Cambio:         parseN(f['Tipo_Cambio']),
+        Precio:              parseN(f['Precio']),
+        Almacen:             parseS(f['Almacen']),
+        Anio:                parseI(f['Anio']),
+        Mes_Texto:           parseS(f['Mes_Texto']),
+        Dia_Num:             parseI(f['Dia_Num']),
+        NumeroLegal:         parseS(f['NumeroLegal']),
+        FechaVencimiento:    parseS(f['FechaVencimiento']),
+        DiasVencimiento:     parseI(f['DiasVencimiento']),
+        FISE:                parseS(f['FISE']),
+        PrecioAntesDscto:    parseN(f['PrecioAntesDscto']),
+        Sucursal:            parseS(f['Sucursal']),
+        Producto_ID:         parseS(f['Producto_ID']),
+        UnidadMedida:        parseS(f['UnidadMedida']),
+        Producto:            parseS(f['Producto']),
+        Categoria:           parseS(f['Categoria']),
+        Familia:             parseS(f['Familia']),
+        SubFamilia:          parseS(f['SubFamilia']),
+        Linea:               parseS(f['Linea']),
+        Marca:               parseS(f['Marca']),
+        GrupoProducto:       parseS(f['GrupoProducto']),
+        Cliente_ID:          parseS(f['Cliente_ID']),
+        Cliente:             parseS(f['Cliente']),
+        Zona_ID:             parseS(f['Zona_ID']),
+        Zona:                parseS(f['Zona']),
+        Cliente_Categoria:   parseS(f['Cliente_Categoria']),
+        Distrito:            parseS(f['Distrito']),
+        Provincia:           parseS(f['Provincia']),
+        Departamento:        parseS(f['Departamento']),
+        Pais:                parseS(f['Pais']),
+        Vendedor:            parseS(f['Vendedor']),
+        Analista:            parseS(f['Analista']),
+        Supervisor:          parseS(f['Supervisor']),
+        Gerencia:            parseS(f['Gerencia']),
+        UnidadNegocio:       parseS(f['UnidadNegocio']),
+        GrupoUnidadNegocio:  parseS(f['GrupoUnidadNegocio']),
+        TipoGerencia:        parseS(f['TipoGerencia']),
+        Procedencia:         parseS(f['Procedencia']),
+        Total_con_Impuesto:  parseN(f['Total_con_Impuesto']),
+        Galones:             parseN(f['Galones']),
+        Total_Costo:         parseN(f['Total_Costo']),
+        Total_sin_Impuesto:  parseN(f['Total_sin_Impuesto']),
+        Cantidad:            parseN(f['Cantidad']),
+        Descuento:           parseN(f['Descuento']),
+        DescuentoFinanciero: parseN(f['DescuentoFinanciero']),
+        Descuento_Porc:      parseN(f['Descuento_Porc']),
+        Otros_Descuentos:    parseN(f['Otros_Descuentos']),
+        Barriles:            parseN(f['Barriles']),
+      }))
+
+      console.log('✅ Primera fila mapeada:', mapped[0])
+      setRows(mapped)
+      setResult(null)
     }
-    const parseS = (v: unknown) => v !== undefined && v !== null ? String(v).trim() : ''
-
-    const mapped = raw.map((f) => ({
-      DocNum:    parseN(f['DocNum']    ?? f['doc_num']),
-      DocDate:   parseS(f['DocDate']   ?? f['doc_date']),
-      CardCode:  parseS(f['CardCode']  ?? f['card_code']),
-      CardName:  parseS(f['CardName']  ?? f['card_name']),
-      DocTotal:  parseN(f['DocTotal']  ?? f['doc_total']),
-      DocCur:    parseS(f['DocCur']    ?? f['DocCurrency'] ?? 'PEN'),
-      DocStatus: parseS(f['DocStatus'] ?? f['doc_status']  ?? 'O'),
-    }))
-
-    console.log('✅ Primera fila mapeada:', mapped[0])
-    setRows(mapped as unknown as FacturaRow[])
-    setResult(null)
+    reader.readAsArrayBuffer(file)
   }
-  reader.readAsArrayBuffer(file)
-}
 
-{/* DEBUG TEMPORAL — muestra qué se va a enviar */}
-{rows.length > 0 && (
-  <div style={{ marginTop: 12, padding: 12, background: '#fff3e0', borderRadius: 6, fontSize: 12, fontFamily: 'monospace' }}>
-    <strong>🔍 Debug primera fila (lo que se enviará):</strong>
-    <pre>{JSON.stringify(rows[0], null, 2)}</pre>
-  </div>
-)}
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -91,13 +182,13 @@ const handleFile = (file: File) => {
     setResult(null)
     try {
       const token = await auth.currentUser?.getIdToken()
-      const res = await fetch(`${API_BASE}/uploadExcelToBigQuery`, {
+      const res = await fetch(`${API_BASE}/uploadCuboVentas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ facturas: rows }),
+        body: JSON.stringify({ ventas: rows }),
       })
       const json = await res.json()
       if (res.ok) {
@@ -138,7 +229,7 @@ const handleFile = (file: File) => {
       >
         {fileName
           ? `📄 ${fileName} — ${rows.length} filas detectadas`
-          : '📂 Arrastra tu Excel aquí o haz clic para seleccionar'}
+          : '📂 Arrastra tu CSV/Excel aquí o haz clic para seleccionar'}
         <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv"
           style={{ display: 'none' }} onChange={handleInputChange} />
       </div>

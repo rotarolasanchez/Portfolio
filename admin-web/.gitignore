@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Datos de ventas reales — no subir al repo
+*.CSV
+*.csv
