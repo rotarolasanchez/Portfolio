@@ -57,6 +57,14 @@
             </PendingDiffInfo>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/admin-web/bigquery_cubo_ventas_schema.sql">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/admin-web/bigquery_cubo_ventas_schema.sql" />
+              <option name="updatedContent" value="-- Ejecutar en BigQuery Console → proyecto portfolio-app-9a4bc&#10;-- Dataset: facturas_dataset&#10;&#10;CREATE TABLE IF NOT EXISTS `portfolio-app-9a4bc.facturas_dataset.cubo_ventas` (&#10;  fecha_emision        STRING,&#10;  documento            STRING,&#10;  tipo_venta           STRING,&#10;  termino_pago_resumen STRING,&#10;  documento_id         STRING,&#10;  moneda               STRING,&#10;  tipo_cambio          FLOAT64,&#10;  precio               FLOAT64,&#10;  almacen              STRING,&#10;  anio                 INT64,&#10;  mes_texto            STRING,&#10;  dia_num              INT64,&#10;  numero_legal         STRING,&#10;  fecha_vencimiento    STRING,&#10;  dias_vencimiento     INT64,&#10;  fise                 STRING,&#10;  precio_antes_dscto   FLOAT64,&#10;  sucursal             STRING,&#10;  producto_id          STRING,&#10;  unidad_medida        STRING,&#10;  producto             STRING,&#10;  categoria            STRING,&#10;  familia              STRING,&#10;  sub_familia          STRING,&#10;  linea                STRING,&#10;  marca                STRING,&#10;  grupo_producto       STRING,&#10;  cliente_id           STRING,&#10;  cliente              STRING,&#10;  zona_id              STRING,&#10;  zona                 STRING,&#10;  cliente_categoria    STRING,&#10;  distrito             STRING,&#10;  provincia            STRING,&#10;  departamento         STRING,&#10;  pais                 STRING,&#10;  vendedor             STRING,&#10;  analista             STRING,&#10;  supervisor           STRING,&#10;  gerencia             STRING,&#10;  unidad_negocio       STRING,&#10;  grupo_unidad_negocio STRING,&#10;  tipo_gerencia        STRING,&#10;  procedencia          STRING,&#10;  total_con_impuesto   FLOAT64,&#10;  galones              FLOAT64,&#10;  total_costo          FLOAT64,&#10;  total_sin_impuesto   FLOAT64,&#10;  cantidad             FLOAT64,&#10;  descuento            FLOAT64,&#10;  descuento_financiero FLOAT64,&#10;  descuento_porc       FLOAT64,&#10;  otros_descuentos     FLOAT64,&#10;  barriles             FLOAT64,&#10;  created_at           TIMESTAMP&#10;);&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
