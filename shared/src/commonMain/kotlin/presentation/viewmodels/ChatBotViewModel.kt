@@ -15,11 +15,17 @@ import kotlinx.coroutines.launch
 import presentation.state.ChatBotUiState
 import presentation.state.ScanState
 import core.model.PlatformBitmap
+import domain.usecases.QueryFacturasUseCase
+import domain.usecases.QueryOllamaUseCase
+import presentation.state.ChatMode
+
 
 class ChatBotViewModel(
     private val analyzeImageUseCase: AnalyzeImageUseCase,
     private val solveProblemUseCase: SolveProblemUseCase,
-    private val continueChatUseCase: ContinueChatUseCase
+    private val continueChatUseCase: ContinueChatUseCase,
+    private val queryFacturasUseCase: QueryFacturasUseCase,
+    private val queryOllamaUseCase: QueryOllamaUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatBotUiState())
@@ -101,7 +107,7 @@ class ChatBotViewModel(
         _uiState.value = _uiState.value.copy(error = null)
     }
 
-    fun sendMessage(text: String) {
+    /*fun sendMessage(text: String) {
         if (text.isBlank()) return
 
         viewModelScope.launch {
@@ -132,6 +138,64 @@ class ChatBotViewModel(
                 }
             }
         }
+    }*/
+
+    // toggleMode puede quedar o eliminarse — ya no se usa en la UI
+    fun toggleMode() {
+        val newMode = when (_uiState.value.chatMode) {
+            ChatMode.LIBRE   -> ChatMode.AGENTE
+            ChatMode.AGENTE  -> ChatMode.OLLAMA
+            ChatMode.OLLAMA  -> ChatMode.LIBRE
+        }
+        setMode(newMode)
     }
+
+    fun sendMessage(text: String) {
+        if (text.isBlank()) return
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+                val userMessage = ChatBotMessage(text, isFromUser = true)
+                _uiState.update { it.copy(messages = it.messages + userMessage) }
+
+                val response = when (_uiState.value.chatMode) {
+                    ChatMode.LIBRE   -> continueChatUseCase(_uiState.value.messages, text)
+                    ChatMode.AGENTE  -> queryFacturasUseCase(text)
+                    ChatMode.OLLAMA  -> queryOllamaUseCase(text)  // ← NUEVO
+                }
+
+                _uiState.update {
+                    it.copy(
+                        messages = it.messages + ChatBotMessage(response, isFromUser = false),
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        messages = it.messages + ChatBotMessage("Error: ${e.message}", isFromUser = false),
+                        isLoading = false
+                    )
+                }
+            }
+        }
+    }
+
+    // Selección directa de modo (para SegmentedButton)
+    fun setMode(mode: ChatMode) {
+        val modeMessage = when (mode) {
+            ChatMode.LIBRE   -> "💬 Modo Libre activado. Puedo responder cualquier pregunta con Gemini."
+            ChatMode.AGENTE  -> "🏢 Modo Agente Comercial activado. Consultando BigQuery (Cloud)."
+            ChatMode.OLLAMA  -> "🦙 Modo Ollama activado. Consultando facturas con IA local."
+        }
+        _uiState.update {
+            it.copy(
+                chatMode = mode,
+                messages = it.messages + ChatBotMessage(modeMessage, isFromUser = false)
+            )
+        }
+    }
+
+
 
 }

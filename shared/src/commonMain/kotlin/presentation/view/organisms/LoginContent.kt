@@ -12,7 +12,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +35,6 @@ fun LoginContent(
     onUserCodeChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: (String, String) -> Unit,
-    onGuestClick: () -> Unit,
     rememberCredentials: Boolean = false,
     onRememberCredentialsChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
@@ -136,16 +134,6 @@ fun LoginContent(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Botón de invitado
-        TextButton(onClick = onGuestClick) {
-            Text(
-                text = "Continuar como invitado",
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Número de versión
         Text(

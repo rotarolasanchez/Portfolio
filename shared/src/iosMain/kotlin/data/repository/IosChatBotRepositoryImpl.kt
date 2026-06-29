@@ -52,5 +52,14 @@ class IosChatBotRepositoryImpl(
     ): String {
         return geminiService.continueChat(messages, newMessage)
     }
+
+    override suspend fun queryFacturas(question: String): String {
+        return geminiService.queryFacturas(question)
+    }
+
+    override suspend fun queryOllama(question: String): String {
+        return geminiService.queryOllama(question)
+    }
+
 }
 

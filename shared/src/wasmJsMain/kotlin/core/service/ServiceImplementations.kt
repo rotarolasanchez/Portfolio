@@ -63,14 +63,9 @@ class GeminiCloudServiceImpl : GeminiCloudService {
 
     override suspend fun continueChat(messages: List<ChatBotMessage>, newMessage: String): String {
         return try {
-            val historyText = if (messages.isNotEmpty()) {
-                messages.joinToString("\n") { msg ->
-                    if (msg.isFromUser) "Usuario: ${msg.text}" else "Asistente: ${msg.text}"
-                } + "\n\n"
-            } else ""
-
-            val prompt = "${historyText}Nueva pregunta: $newMessage\n\nResponde de manera educativa."
-            callCloudFunction(prompt, messages)
+            // Pasar solo el nuevo mensaje; el Cloud Function construye el prompt
+            // completo a partir del conversationHistory array (evita duplicar historia)
+            callCloudFunction(newMessage, messages)
         } catch (e: Exception) {
             "Error al procesar la consulta: ${e.message}"
         }
@@ -161,5 +156,39 @@ class GeminiCloudServiceImpl : GeminiCloudService {
             else { sb.append(c); i++ }
         }
         return sb.toString()
+    }
+
+    override suspend fun queryFacturas(question: String): String {
+        return try {
+            val idToken = firebaseGetIdToken()
+            val bodyJson = """{"question":"${escapeJson(question)}"}"""
+            val responseText = fetchWithAuth(Constans.QUERY_FACTURAS_URL, idToken, bodyJson)
+            parseAnswerField(responseText)  // busca "answer" en lugar de "response"
+        } catch (e: Exception) {
+            "Error al consultar facturas: ${e.message}"
+        }
+    }
+
+    override suspend fun queryOllama(question: String): String {
+        return try {
+            val bodyJson = """{"pregunta":"${escapeJson(question)}"}"""
+            val responseText = fetchPublic(Constans.OLLAMA_FACTURAS_URL, bodyJson)
+            // Extraer campo "respuesta"
+            val respuesta   = extractJsonField(responseText, "respuesta")
+            val sqlGenerado = extractJsonField(responseText, "sql_generado")
+            buildString {
+                if (respuesta.isNotBlank())   appendLine(respuesta)
+                if (sqlGenerado.isNotBlank()) appendLine("\n📊 SQL: `$sqlGenerado`")
+            }.trim().ifEmpty { responseText }
+        } catch (e: Exception) {
+            "Error al consultar Ollama: ${e.message}"
+        }
+    }
+
+    // Fetch sin auth (Ollama ngrok es público)
+    private suspend fun fetchPublic(url: String, bodyJson: String): String {
+        // Reusar el mismo mecanismo fetch pero sin Authorization header
+        // Ajustar según tu implementación actual de fetchWithAuth
+        return fetchWithAuth(url, null, bodyJson)
     }
 }
