@@ -26,5 +26,9 @@ class WebChatBotRepositoryImpl(
     override suspend fun continueChat(messages: List<ChatBotMessage>, newMessage: String): String {
         return geminiCloudService.continueChat(messages, newMessage)
     }
+
+    override suspend fun queryFacturas(question: String): String {
+        return geminiCloudService.queryFacturas(question)
+    }
 }
 

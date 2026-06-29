@@ -28,7 +28,6 @@ fun LoginContent(
     onUserCodeChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: (String, String) -> Unit,
-    onGuestClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -55,7 +54,6 @@ fun LoginContent(
 
         LoginActions(
             onLoginClick = { onLoginClick(userCode, userPassword) },
-            onGuestClick = onGuestClick,
             modifier = Modifier.padding()
         )
 

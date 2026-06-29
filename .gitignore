@@ -28,3 +28,10 @@ app/google-services-base64.txt
 functions/node_modules/
 functions/lib/
 functions/.env
+
+# Android signing credentials (NO subir al repo)
+app/keystore_properties_base64.txt
+app/keystore_properties_base64.txt~
+app/key/
+*.jks
+*.keystore

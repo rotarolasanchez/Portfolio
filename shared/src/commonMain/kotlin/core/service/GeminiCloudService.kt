@@ -10,5 +10,8 @@ interface GeminiCloudService {
     suspend fun analyzeImage(bitmap: PlatformBitmap): String
     suspend fun solveProblem(problem: String): String
     suspend fun continueChat(messages: List<ChatBotMessage>, newMessage: String): String
+    // ✅ NUEVO: consulta agente comercial → BigQuery
+    suspend fun queryFacturas(question: String): String
+    suspend fun queryOllama(question: String): String  // ← NUEVO
 }
 

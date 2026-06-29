@@ -146,32 +146,80 @@ portafolio_kotlin/
  │
  ├── iosApp/                     # iOS Xcode project
  ├── functions/                  # Firebase Cloud Functions (Gemini proxy)
- └── .github/workflows/ci.yml   # CI/CD pipeline
+ └── .github/workflows/
+      ├── ci.yml             # Quality gate → Firebase QA distribution
+      ├── cd.yml             # Signed AAB → Play Store production
+      └── ios-build.yml      # KMP iOS framework + Xcode build
 ```
 
 ---
 
 ## 🔄 CI/CD Pipeline
 
-Every commit including `Send QA` in the message triggers the full pipeline:
+The project has **three independent pipelines** managed via GitHub Actions.
+
+---
+
+### 1. CI — Quality Gate & QA Delivery (`ci.yml`)
+
+Triggered on **push / PR to `release/*`** branches. The full chain only runs when the commit message contains `Send QA`.
 
 ```
-unit-test ──► instrumentation-test ──► sonarcloud ──► Firebase Distribution
-   │                  │                    │
-   ▼                  ▼                    ▼
-JUnit tests      Espresso on          JaCoCo + Sonar
-(KMP common)    Android API 29        Quality Gate
-                + KVM enabled
+lint ──► unit-test ──► instrumentation-test ──► sonar ──► Firebase Distribution
+  ↑
+  Only when commit message includes "Send QA"
 ```
 
 | Job | Runner | Key steps |
 |-----|--------|-----------|
-| `unit-test` | ubuntu-latest | `./gradlew test --parallel --build-cache` |
-| `instrumentation-test` | ubuntu-latest + KVM | Android emulator API 29, Espresso |
-| `sonarcloud` | ubuntu-latest | Build · JaCoCo · SonarCloud scan · APK upload |
-| `Firebase` | ubuntu-latest | Download APK artifact · Firebase App Distribution |
+| `lint` | ubuntu-latest | `./gradlew lint` · uploads HTML report |
+| `unit-test` | ubuntu-latest | `./gradlew test --parallel --build-cache` · uploads JUnit report |
+| `instrumentation-test` | ubuntu-latest + KVM | Android emulator API 29 (Nexus 6) · Espresso (`connectedCheck`) |
+| `sonar` | ubuntu-latest | JaCoCo coverage · self-hosted **SonarQube** scan · Quality Gate check · APK artifact |
+| `Firebase` | ubuntu-latest | Downloads APK artifact · distributes to **QA group** via Firebase App Distribution |
 
-> All jobs use `setup-java@v4` with built-in **Gradle cache** for faster builds.
+> All jobs inject `google-services.json` from a base64 secret and clean it up in a final `always()` step.
+
+---
+
+### 2. CD — Release to Play Store (`cd.yml`)
+
+Triggered on **push to `main`** (or manually via `workflow_dispatch`).
+
+```
+Checkout
+  └─► Inject secrets (keystore · google-services.json · API keys · Firebase web config)
+        └─► ./gradlew :app:bundleRelease
+              └─► Upload AAB artifact
+                    └─► Publish to Play Store (production track, status: completed)
+```
+
+| Step | Detail |
+|------|--------|
+| Signing | Keystore and `keystore.properties` decoded from base64 secrets |
+| API keys | `GEMINI_API_KEY`, `MODEL_NAME`, `FIREBASE_WEB_API_KEY` injected into `local.properties` |
+| Web target | `firebase-config.js` generated for the **WasmJS** build |
+| Distribution | `r0adkll/upload-google-play@v1.1.3` → `production` track, `inAppUpdatePriority: 2` |
+
+---
+
+### 3. iOS Build & Test (`ios-build.yml`)
+
+Triggered on **push to `main` / `develop`** and PRs to `main`.
+
+```
+Checkout (macOS-14 / Apple M1)
+  └─► KMP framework: iosSimulatorArm64 + iosArm64
+        └─► Xcode build (iphonesimulator · iPhone 15 Pro · Debug)
+              └─► Upload framework artifact (7-day retention)
+```
+
+| Step | Detail |
+|------|--------|
+| Runner | `macos-14` (Apple Silicon — free tier) |
+| Gradle cache | `~/.gradle/caches`, `~/.gradle/wrapper`, `~/.konan` |
+| KMP targets | `linkDebugFrameworkIosSimulatorArm64` + `linkDebugFrameworkIosArm64` |
+| Xcode build | `xcpretty` output, continues on error (`|| true`) |
 
 ---
 

@@ -9,11 +9,10 @@ import presentation.viewmodels.MenuViewModel
 fun ChatBotPage(
     viewModel: ChatBotViewModel,
     menuViewModel: MenuViewModel,
-    onNavigateToSection: (String) -> Unit = {}
-
+    onNavigateToSection: (String) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
-    ChatBotTemplate(viewModel, menuViewModel, onNavigateToSection)
-
+    ChatBotTemplate(viewModel, menuViewModel, onNavigateToSection, onLogout)
 }
 
 

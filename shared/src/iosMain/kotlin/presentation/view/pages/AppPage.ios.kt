@@ -42,6 +42,10 @@ actual fun NavigationMain() {
                     "ChatBot" -> currentScreen = "chatbot"
                     else      -> currentScreen = "development"
                 }
+            },
+            onLogout = {
+                IosViewModelHolder.authViewModel?.logout()
+                currentScreen = "login"
             }
         )
 
@@ -53,6 +57,10 @@ actual fun NavigationMain() {
                 menuViewModel       = menuVm,
                 onNavigateToSection = { section ->
                     currentScreen = if (section == "ChatBot") "chatbot" else "menu"
+                },
+                onLogout = {
+                    IosViewModelHolder.authViewModel?.logout()
+                    currentScreen = "login"
                 }
             )
         }

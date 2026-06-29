@@ -34,6 +34,7 @@ class WebCredentialsStorage : CredentialsStorage {
         if (!enabled) clearCredentials()
     }
 
+
     companion object {
         private const val KEY_EMAIL    = "auth_saved_email"
         private const val KEY_PASSWORD = "auth_saved_password"

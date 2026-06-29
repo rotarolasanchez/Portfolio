@@ -12,20 +12,27 @@ val commonModule = module {
     single { AnalyzeImageUseCase(get()) }
     single { SolveProblemUseCase(get()) }
     single { ContinueChatUseCase(get()) }
+    single { QueryFacturasUseCase(get()) }  // ← AGREGAR
     single { SignInWithEmailUseCase(get()) }
+    single { LogoutUseCase(get()) }
+    single { QueryOllamaUseCase(get()) }  // ← NUEVO
 
     // Presentation Layer - ViewModels
     factory {
         ChatBotViewModel(
-            analyzeImageUseCase = get<AnalyzeImageUseCase>(),
-            solveProblemUseCase = get<SolveProblemUseCase>(),
-            continueChatUseCase = get<ContinueChatUseCase>()
+            analyzeImageUseCase   = get<AnalyzeImageUseCase>(),
+            solveProblemUseCase   = get<SolveProblemUseCase>(),
+            continueChatUseCase   = get<ContinueChatUseCase>(),
+            queryFacturasUseCase  = get(),
+            queryOllamaUseCase    = get()  // ← NUEVO
         )
     }
+
     factory {
         AuthViewModel(
             signWithEmailUseCase = get<SignInWithEmailUseCase>(),
-            credentialsStorage = get<CredentialsStorage>()
+            credentialsStorage = get<CredentialsStorage>(),
+            logoutUseCase = get<LogoutUseCase>()
         )
     }
     factory { MenuViewModel() }

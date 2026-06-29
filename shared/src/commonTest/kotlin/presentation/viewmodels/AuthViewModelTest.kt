@@ -1,3 +1,11 @@
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+            signWithEmailUseCase = SignInWithEmailUseCase(fakeRepository)
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+        viewModel = AuthViewModel(SignInWithEmailUseCase(fakeRepository))
+            signWithEmailUseCase = SignInWithEmailUseCase(fakeRepository)
 package presentation.viewmodels
 
 import domain.model.RequestState

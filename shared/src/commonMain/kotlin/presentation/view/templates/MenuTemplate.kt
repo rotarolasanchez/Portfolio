@@ -31,6 +31,7 @@ import presentation.utils.getResponsivePadding
 fun MenuTemplate(
     viewModel: MenuViewModel,
     onNavigateToSection: (String) -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,7 +63,8 @@ fun MenuTemplate(
             topBar = {
                 MenuTopBar(
                     onMenuClick = { scope.launch { drawerState.open() }},
-                    tittle = "Menu"
+                    tittle = "Menu",
+                    onLogout = onLogout
                 )
             },
             floatingActionButton = {
