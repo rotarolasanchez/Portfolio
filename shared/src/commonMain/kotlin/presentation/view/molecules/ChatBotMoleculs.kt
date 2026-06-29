@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
+import presentation.view.atoms.safeIconPainter
 import domain.model.ChatBotMessage
 import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.outline_robot_2_24
@@ -34,7 +35,7 @@ fun ChatMessageBubble(message: ChatBotMessage) {
     ) {
         if (!message.isFromUser) {
             Icon(
-                painter = painterResource(Res.drawable.outline_robot_2_24),
+                painter = safeIconPainter(Res.drawable.outline_robot_2_24),
                 contentDescription = "AI",
                 modifier = Modifier
                     .size(32.dp)

@@ -18,7 +18,7 @@ internal class FakeChatBotRepository(
     var lastMessages: List<ChatBotMessage>? = null
     var lastNewMessage: String? = null
 
-    override suspend fun analyzeImage(bitmap: presentation.view.organisms.PlatformBitmap): String {
+    override suspend fun analyzeImage(bitmap: core.model.PlatformBitmap): String {
         return analyzeImageResult
     }
 

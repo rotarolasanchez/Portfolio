@@ -18,9 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
 import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.capibara_family_not_background
+import presentation.view.atoms.safeImagePainter
 import portafolio_kotlin.shared.generated.resources.baseline_account_circle_24
 import portafolio_kotlin.shared.generated.resources.baseline_lock_24
 import portafolio_kotlin.shared.generated.resources.outline_login_24
@@ -48,7 +48,10 @@ fun LoginContent(
     ) {
         // Logo responsivo
         Image(
-            painter = painterResource(Res.drawable.capibara_family_not_background),
+            painter = safeImagePainter(
+                Res.drawable.capibara_family_not_background,
+                "drawable/capibara_family_not_background.png"
+            ),
             contentDescription = "Logo",
             contentScale = ContentScale.Fit,
             modifier = Modifier.size(120.dp)

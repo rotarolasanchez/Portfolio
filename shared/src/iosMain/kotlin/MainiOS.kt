@@ -1,51 +1,28 @@
 import androidx.compose.ui.window.ComposeUIViewController
+import di.IosViewModelHolder
 import di.commonModule
 import di.iosModule
 import org.koin.core.context.startKoin
 import platform.UIKit.UIViewController
 
-/**
- * Punto de entrada de Compose Multiplatform para iOS.
- *
- * Este archivo expone MainViewController() al código Swift/Objective-C
- * del proyecto Xcode (iosApp/).
- *
- * Cómo usar desde Swift (AppDelegate.swift o @main ContentView.swift):
- *
- *   import shared
- *
- *   struct ContentView: View {
- *       var body: some View {
- *           ComposeView()
- *               .ignoresSafeArea(.keyboard) // Compose maneja el teclado
- *       }
- *   }
- *
- *   struct ComposeView: UIViewControllerRepresentable {
- *       func makeUIViewController(context: Context) -> UIViewController {
- *           MainViewControllerKt.MainViewController()
- *       }
- *       func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
- *   }
- *
- * Si usas UIKit puro (AppDelegate), en didFinishLaunchingWithOptions:
- *   let composeVC = MainViewControllerKt.MainViewController()
- *   window?.rootViewController = composeVC
- */
-
-private var koinInitialized = false
-
+@Suppress("unused") // llamada desde Swift: MainiOSKt.MainViewController()
 fun MainViewController(): UIViewController {
-    // Inicializar Koin solo una vez (protección ante hot reload)
-    if (!koinInitialized) {
-        startKoin {
+    if (!IosViewModelHolder.isInitialized()) {
+        // La versión ya está inyectada en compile time via SharedBuildConfig.APP_VERSION_NAME
+        // NO llamar AppInfo.initialize() aquí — el Info.plist de Xcode tiene "1.0" y sobreescribiría "3.3.0"
+
+        val koin = startKoin {
             modules(commonModule, iosModule)
-        }
-        koinInitialized = true
+        }.koin
+
+        IosViewModelHolder.authViewModel    = koin.get()
+        IosViewModelHolder.chatBotViewModel = koin.get()
+        IosViewModelHolder.menuViewModel    = koin.get()
+
+        IosViewModelHolder.preloadBitmaps()
     }
 
     return ComposeUIViewController {
         App()
     }
 }
-

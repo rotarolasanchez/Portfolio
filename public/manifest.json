@@ -1,0 +1,71 @@
+{
+    "name": "Portafolio Kotlin ChatBot",
+    "short_name": "Kotlin ChatBot",
+    "description": "ChatBot AI desarrollado con Kotlin Compose Multiplatform - Aplicación web responsiva",
+    "start_url": "/",
+    "display": "standalone",
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+    "background_color": "#667eea",
+    "theme_color": "#6200EE",
+    "orientation": "any",
+    "categories": ["education", "productivity", "utilities"],
+    "lang": "es-ES",
+    "scope": "/",
+    "id": "portafolio-kotlin-chatbot",
+    "icons": [
+        {
+            "src": "icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshot-wide.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Vista desktop del ChatBot"
+        },
+        {
+            "src": "screenshot-mobile.png",
+            "sizes": "375x812",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Vista móvil del ChatBot"
+        }
+    ],
+    "features": [
+        "ChatBot AI",
+        "Reconocimiento de texto",
+        "Análisis de imágenes",
+        "Interfaz responsiva",
+        "Soporte offline"
+    ],
+    "prefer_related_applications": false,
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "related_applications": [],
+    "shortcuts": [
+        {
+            "name": "Nuevo Chat",
+            "short_name": "Chat",
+            "description": "Iniciar nueva conversación con el ChatBot",
+            "url": "/chatbot",
+            "icons": [
+                {
+                    "src": "icon-192x192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}

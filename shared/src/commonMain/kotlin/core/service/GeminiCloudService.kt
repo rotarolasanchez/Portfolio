@@ -1,7 +1,7 @@
 package core.service
 
 import domain.model.ChatBotMessage
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 
 /**
  * Servicio para interactuar con la API de Gemini para análisis de imágenes y chat

@@ -5,7 +5,7 @@ import core.interop.fetchWithAuth
 import core.interop.firebaseGetIdToken
 import core.utils.Constans
 import domain.model.ChatBotMessage
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 
 /**
  * Implementación de TextRecognitionService para Web

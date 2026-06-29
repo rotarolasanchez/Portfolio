@@ -1,5 +1,7 @@
 package utils
 
+import core.storage.CredentialsStorage
+import core.storage.SavedCredentials
 import domain.model.ChatBotMessage
 import domain.model.UserModel
 import domain.repositories.AuthRepository
@@ -9,6 +11,40 @@ import presentation.view.organisms.PlatformBitmap
 // ─────────────────────────────────────────────
 //  Fakes reutilizables para todos los tests
 // ─────────────────────────────────────────────
+
+/**
+ * Fake de CredentialsStorage para tests (sin persistencia real).
+ */
+class FakeCredentialsStorage(
+    private var rememberEnabled: Boolean = false,
+    private var savedCredentials: SavedCredentials? = null
+) : CredentialsStorage {
+
+    var saveCallCount = 0
+    var loadCallCount = 0
+    var clearCallCount = 0
+
+    override fun saveCredentials(email: String, password: String) {
+        saveCallCount++
+        savedCredentials = SavedCredentials(email, password)
+    }
+
+    override fun loadCredentials(): SavedCredentials? {
+        loadCallCount++
+        return savedCredentials
+    }
+
+    override fun clearCredentials() {
+        clearCallCount++
+        savedCredentials = null
+    }
+
+    override fun isRememberEnabled(): Boolean = rememberEnabled
+
+    override fun setRememberEnabled(enabled: Boolean) {
+        rememberEnabled = enabled
+    }
+}
 
 /**
  * Fake de AuthRepository configurable para distintos escenarios de tests.

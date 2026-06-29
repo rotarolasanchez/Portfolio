@@ -14,9 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.rotarola.portafolio_kotlin.presentation.view.molecules.LoginActions
 import com.rotarola.portafolio_kotlin.presentation.view.molecules.LoginForm
 import core.utils.AppInfo
-import org.jetbrains.compose.resources.painterResource
 import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.capibara_family_not_background
+import presentation.view.atoms.safeImagePainter
 
 private val CONTENT_PADDING = 20.dp
 private val LOGO_BOTTOM_PADDING = 24.dp
@@ -37,7 +37,10 @@ fun LoginContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(Res.drawable.capibara_family_not_background),
+            painter = safeImagePainter(
+                Res.drawable.capibara_family_not_background,
+                "drawable/capibara_family_not_background.png"
+            ),
             contentDescription = "Logo",
             modifier = Modifier.padding(bottom = LOGO_BOTTOM_PADDING)
         )

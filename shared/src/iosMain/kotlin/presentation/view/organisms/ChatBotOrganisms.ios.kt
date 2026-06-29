@@ -15,10 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import core.model.PlatformBitmap
 import presentation.state.CameraUiState
 
 // Placeholder para iOS - implementación real requiere código nativo
-actual class PlatformBitmap
 
 @Composable
 actual fun CameraWithOverlaySection(

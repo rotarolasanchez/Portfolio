@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import core.utils.correctImageOrientation
 import core.utils.cropBitmapToGuideRect
+import core.model.PlatformBitmap
 import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.outline_photo_camera_24
 import presentation.state.CameraState
@@ -65,8 +66,6 @@ import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 
-// Typealias para Bitmap de Android
-actual typealias PlatformBitmap = Bitmap
 
 @Composable
 actual fun CameraWithOverlaySection(

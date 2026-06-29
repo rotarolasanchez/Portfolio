@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import presentation.view.atoms.safeIconPainter
 
 @Composable
 fun ElevatedButtonM3(
@@ -84,9 +85,8 @@ fun ButtonM3(
             if (leadingIconStatus)
             {
                 Icon(
-                    painter = painterResource(leadingiconResourceId),
+                    painter = safeIconPainter(leadingiconResourceId),
                     contentDescription = "Agregar", tint = Color.White
-                    //,modifier = Modifier.weight(1f)
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))

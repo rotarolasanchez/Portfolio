@@ -63,7 +63,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 26
-        versionName = "3.2.0"
+        versionName = "3.4.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -108,7 +108,6 @@ android {
             property("sonar.projectKey", "Portfolio_kotlin")
             property("sonar.organization", "")
             property("sonar.host.url", "https://sonarqube.capibarafamily.online/")
-            property("sonar.token", "SONAR_TOKEN")
             property("sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml").get().asFile.absolutePath)
             property("sonar.junit.reportPaths", layout.buildDirectory.dir("test-results/test").get().asFile.absolutePath)
         }

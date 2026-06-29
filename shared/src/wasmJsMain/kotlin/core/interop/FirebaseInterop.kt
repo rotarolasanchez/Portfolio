@@ -1,128 +1,70 @@
-package core.interop
-
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-
+﻿package core.interop
+import kotlinx.coroutines.delay
 /**
- * Interop con Firebase JS SDK y fetch API desde Kotlin/Wasm
- * Las funciones JS están definidas en index.html como propiedades de window
+ * Interop con Firebase JS SDK y fetch API desde Kotlin/Wasm.
+ *
+ * REGLAS para @JsFun en WasmJs (Kotlin 2.1.20):
+ * - Tipos de retorno nullable: usar JsAny? (NO JsString? ni String?)
+ * - NO pasar tipos de funcion Kotlin como parametros en external fun
+ * - Usar polling con delay() para Promises (no callbacks)
  */
-
 // ============ Declaraciones externas JS ============
-
 @JsFun("(email, password) => window.firebaseSignIn(email, password)")
-external fun firebaseSignInJs(email: String, password: String): JsAny // Returns Promise<String>
-
+external fun firebaseSignInJs(email: String, password: String): JsAny
 @JsFun("() => window.firebaseGetIdToken()")
-external fun firebaseGetIdTokenJs(): JsAny // Returns Promise<String>
-
+external fun firebaseGetIdTokenJs(): JsAny
 @JsFun("() => window.firebaseSignOut()")
-external fun firebaseSignOutJs(): JsAny // Returns Promise
-
+external fun firebaseSignOutJs(): JsAny
+// FIX: JsAny? en lugar de JsString? - los nullable JS deben ser JsAny? en WasmJs 2.1.20
 @JsFun("() => window.firebaseGetCurrentUser()")
-external fun firebaseGetCurrentUserJs(): JsString? // Returns String? (JSON)
-
+external fun firebaseGetCurrentUserJs(): JsAny?
 @JsFun("(url, token, body) => window.fetchWithAuth(url, token, body)")
 external fun fetchWithAuthJs(url: String, token: String, body: String): JsAny
-
 @JsFun("(url, secret, body) => window.fetchWithSecret(url, secret, body)")
 external fun fetchWithSecretJs(url: String, secret: String, body: String): JsAny
-
 @JsFun("(url, token, message, imageBase64, mimeType) => window.fetchImageWithAuth(url, token, message, imageBase64, mimeType)")
 external fun fetchImageWithAuthJs(url: String, token: String, message: String, imageBase64: String, mimeType: String): JsAny
-
 @JsFun("() => window.pickImageFile()")
-external fun pickImageFileJs(): JsAny // Returns Promise<String> (data URL base64)
-
-// ============ Helper para convertir Promise JS a suspend ============
-
-@JsFun("(promise, onResolve, onReject) => promise.then(v => onResolve(v), e => onReject(String(e)))")
-external fun thenPromise(promise: JsAny, onResolve: (JsString) -> Unit, onReject: (JsString) -> Unit)
-
-@JsFun("(promise, onResolve, onReject) => promise.then(() => onResolve(), e => onReject(String(e)))")
-external fun thenPromiseUnit(promise: JsAny, onResolve: () -> Unit, onReject: (JsString) -> Unit)
-
+external fun pickImageFileJs(): JsAny
+// FIX: JsAny? en lugar de JsString? para return type nullable
+@JsFun("(promise) => window._ktRegisterPromise(promise)")
+private external fun registerPromiseJs(promise: JsAny): Int
+@JsFun("(id) => window._ktPollPromise(id)")
+private external fun pollPromiseJs(id: Int): JsAny?
 // ============ Funciones suspend Kotlin ============
-
-suspend fun firebaseSignIn(email: String, password: String): String {
-    val promise = firebaseSignInJs(email, password)
-    return awaitJsPromise(promise)
-}
-
-suspend fun firebaseGetIdToken(): String {
-    val promise = firebaseGetIdTokenJs()
-    return awaitJsPromise(promise)
-}
-
+suspend fun firebaseSignIn(email: String, password: String): String =
+    awaitJsPromise(firebaseSignInJs(email, password))
+suspend fun firebaseGetIdToken(): String =
+    awaitJsPromise(firebaseGetIdTokenJs())
 suspend fun firebaseSignOut() {
-    val promise = firebaseSignOutJs()
-    awaitJsPromiseUnit(promise)
+    awaitJsPromise(firebaseSignOutJs())
 }
-
-fun firebaseGetCurrentUser(): String? {
-    return firebaseGetCurrentUserJs()?.toString()
+// FIX: uso de JsAny? en lugar de JsString?
+fun firebaseGetCurrentUser(): String? =
+    firebaseGetCurrentUserJs()?.toString()
+suspend fun fetchWithAuth(url: String, token: String, body: String): String =
+    awaitJsPromise(fetchWithAuthJs(url, token, body))
+suspend fun fetchWithSecret(url: String, secret: String, body: String): String =
+    awaitJsPromise(fetchWithSecretJs(url, secret, body))
+suspend fun fetchImageWithAuth(
+    url: String, token: String, message: String,
+    imageBase64: String, mimeType: String
+): String = awaitJsPromise(fetchImageWithAuthJs(url, token, message, imageBase64, mimeType))
+suspend fun pickImageFile(): String? = try {
+    awaitJsPromise(pickImageFileJs())
+} catch (e: Exception) {
+    null
 }
-
-suspend fun fetchWithAuth(url: String, token: String, body: String): String {
-    val promise = fetchWithAuthJs(url, token, body)
-    return awaitJsPromise(promise)
-}
-
-suspend fun fetchWithSecret(url: String, secret: String, body: String): String {
-    val promise = fetchWithSecretJs(url, secret, body)
-    return awaitJsPromise(promise)
-}
-
-/**
- * Envía una imagen base64 a la Cloud Function usando JSON.stringify en JS,
- * evitando construir el string JSON enorme en Kotlin/Wasm.
- */
-suspend fun fetchImageWithAuth(url: String, token: String, message: String, imageBase64: String, mimeType: String): String {
-    val promise = fetchImageWithAuthJs(url, token, message, imageBase64, mimeType)
-    return awaitJsPromise(promise)
-}
-
-/**
- * Abre el selector de archivos del navegador para elegir una imagen.
- * Retorna la imagen como data URL (data:image/...;base64,...) o null si se cancela.
- */
-suspend fun pickImageFile(): String? {
-    return try {
-        val promise = pickImageFileJs()
-        awaitJsPromise(promise)
-    } catch (e: Exception) {
-        null // Cancelado o error
-    }
-}
-
-// ============ Await helpers ============
-
+// ============ Await helper via polling ============
 private suspend fun awaitJsPromise(promise: JsAny): String {
-    return suspendCancellableCoroutine { cont ->
-        thenPromise(
-            promise,
-            onResolve = { value ->
-                cont.resume(value.toString())
-            },
-            onReject = { error ->
-                cont.resumeWithException(Exception(error.toString()))
-            }
-        )
+    val id = registerPromiseJs(promise)
+    while (true) {
+        val result = pollPromiseJs(id)
+        if (result != null) {
+            val str = result.toString()
+            return if (str.startsWith("E:")) throw Exception(str.removePrefix("E:"))
+            else str.removePrefix("S:")
+        }
+        delay(1)
     }
 }
-
-private suspend fun awaitJsPromiseUnit(promise: JsAny) {
-    return suspendCancellableCoroutine { cont ->
-        thenPromiseUnit(
-            promise,
-            onResolve = {
-                cont.resume(Unit)
-            },
-            onReject = { error ->
-                cont.resumeWithException(Exception(error.toString()))
-            }
-        )
-    }
-}
-

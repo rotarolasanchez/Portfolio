@@ -1,194 +1,190 @@
 package core.service
 
-import domain.model.ChatBotMessage
-import kotlinx.cinterop.BetaInteropApi
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.usePinned
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import platform.Foundation.NSData
-import platform.Foundation.NSMutableURLRequest
-import platform.Foundation.NSString
-import platform.Foundation.NSURL
-import platform.Foundation.NSURLSession
-import platform.Foundation.dataUsingEncoding
-import platform.Foundation.NSUTF8StringEncoding
-import platform.Foundation.NSHTTPURLResponse
-import platform.Foundation.create
-import platform.Foundation.setHTTPBody
-import platform.Foundation.setHTTPMethod
-import platform.Foundation.setValue
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 import core.utils.Constans
-import kotlin.coroutines.resume
+import di.IosViewModelHolder
+import domain.model.ChatBotMessage
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.darwin.Darwin
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 /**
  * Implementación iOS de TextRecognitionService.
  * Stub funcional — para OCR real usar Vision framework con wrapper Swift.
  */
 class TextRecognitionServiceImpl : TextRecognitionService {
-    override suspend fun recognizeText(imageData: ByteArray): String {
-        return "Texto extraído vía Vision (iOS) - pendiente de integración nativa"
-    }
+    override suspend fun recognizeText(imageData: ByteArray): String =
+        "Texto extraído vía Vision (iOS) - pendiente de integración nativa"
 }
 
 /**
- * Implementación iOS de GeminiCloudService.
- * Usa NSURLSession (API nativa iOS/macOS) para llamar a la Cloud Function.
+ * Implementación iOS de GeminiCloudService usando Ktor (Darwin engine).
+ * Autentica con email+password directamente en la Cloud Function
+ * (no requiere Firebase SDK en iOS).
  */
-@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 class GeminiCloudServiceImpl : GeminiCloudService {
 
-    override suspend fun analyzeImage(bitmap: PlatformBitmap): String {
-        return try {
-            val prompt = """
-            Analiza esta imagen y describe su contenido de manera educativa.
-            Si contiene texto, extráelo. Si contiene problemas, resuélvelos paso a paso.
-            """.trimIndent()
-            callCloudFunction(prompt, emptyList())
-        } catch (e: Exception) {
-            "Error al analizar la imagen en iOS: ${e.message}"
+    private val client = HttpClient(Darwin) {
+        engine {
+            configureRequest {
+                setTimeoutInterval(30.0)
+            }
         }
     }
 
-    override suspend fun solveProblem(problem: String): String {
-        return try {
-            callCloudFunction(
-                "Resuelve el siguiente problema de manera clara y paso a paso:\n\n$problem",
-                emptyList()
-            )
-        } catch (e: Exception) {
-            "Error al resolver el problema en iOS: ${e.message}"
-        }
-    }
+    override suspend fun analyzeImage(bitmap: PlatformBitmap): String =
+        callCloudFunction(
+            "Analiza esta imagen y describe su contenido de manera educativa.",
+            emptyList()
+        )
+
+    override suspend fun solveProblem(problem: String): String =
+        callCloudFunction(problem, emptyList())
 
     override suspend fun continueChat(
         messages: List<ChatBotMessage>,
         newMessage: String
-    ): String {
-        return try {
-            val historyText = messages.joinToString("\n") { msg ->
-                if (msg.isFromUser) "Usuario: ${msg.text}" else "Asistente: ${msg.text}"
-            }
-            val prompt = if (historyText.isNotEmpty()) {
-                "$historyText\n\nNueva pregunta: $newMessage\n\nResponde de manera educativa."
-            } else {
-                "Pregunta: $newMessage\n\nResponde de manera educativa."
-            }
-            callCloudFunction(prompt, messages)
-        } catch (e: Exception) {
-            "Error al procesar la consulta en iOS: ${e.message}"
-        }
-    }
+    ): String = callCloudFunction(newMessage, messages)
 
-    /**
-     * Llama a la Cloud Function usando NSURLSession con API correcta de Kotlin/Native.
-     */
+    // ── Internals ─────────────────────────────────────────────────────────────
+
     private suspend fun callCloudFunction(
-        prompt: String,
-        conversationHistory: List<ChatBotMessage>
-    ): String = withContext(Dispatchers.Default) {
+        message: String,
+        history: List<ChatBotMessage>
+    ): String {
+        val email    = IosViewModelHolder.savedEmail
+        val password = IosViewModelHolder.savedPassword
+        val idToken  = IosViewModelHolder.firebaseIdToken
 
-        val url = NSURL.URLWithString(Constans.GEMINI_FUNCTION_URL)
-            ?: throw Exception("URL inválida: ${Constans.GEMINI_FUNCTION_URL}")
+        println("[iOS] callCloudFunction: email=$email, hasPassword=${password != null}, hasToken=${idToken != null}")
 
-        val request = NSMutableURLRequest.requestWithURL(url) as NSMutableURLRequest
-        request.setHTTPMethod("POST")
-        request.setValue("application/json", forHTTPHeaderField = "Content-Type")
+        if (email == null || password == null) {
+            return "Error: inicia sesión primero."
+        }
 
-        val historyJson = if (conversationHistory.isNotEmpty()) {
-            val items = conversationHistory.joinToString(",") { msg ->
-                """{"text":"${escapeJson(msg.text)}","isUser":${msg.isFromUser}}"""
+        return try {
+            // Primero intentar con Bearer token si está disponible
+            if (idToken != null) {
+                println("[iOS] Intentando con Bearer token...")
+                val response = client.post(Constans.GEMINI_FUNCTION_URL) {
+                    contentType(ContentType.Application.Json)
+                    headers { append(HttpHeaders.Authorization, "Bearer $idToken") }
+                    setBody(buildRequestJsonBearer(message, history))
+                }
+
+                val responseText = response.bodyAsText()
+                println("[iOS] Bearer response: ${response.status.value} — ${responseText.take(150)}")
+
+                if (response.status.isSuccess()) {
+                    return parseResponseField(responseText)
+                }
+
+                // Si falla con 401, el token es inválido - limpiar y usar fallback
+                if (response.status.value == 401) {
+                    println("[iOS] Bearer token inválido/expirado, usando fallback email+password")
+                    IosViewModelHolder.firebaseIdToken = null
+                }
             }
-            ""","conversationHistory":[$items]"""
-        } else ""
 
-        val bodyJson = """{"message":"${escapeJson(prompt)}"$historyJson}"""
+            // Fallback: usar email+password en el body
+            println("[iOS] Usando fallback email+password...")
+            val bodyJson = buildRequestJson(message, email, password, history)
+            println("[iOS] Fallback body: ${bodyJson.take(200)}...")
 
-        // Convertir String de Kotlin a NSData via ByteArray
-        val bodyBytes = bodyJson.encodeToByteArray()
-        val bodyData = bodyBytes.usePinned { pinned ->
-            NSData.create(
-                bytes = pinned.addressOf(0),
-                length = bodyBytes.size.toULong()
-            )
-        }
-        request.setHTTPBody(bodyData)
-
-        // Ejecutar la petición HTTP con callback suspendible
-        val (data, response, error) = suspendNSURLSession(request)
-
-        if (error != null) {
-            throw Exception("Error de red iOS: ${error.localizedDescription}")
-        }
-
-        val httpResponse = response as? NSHTTPURLResponse
-        val statusCode = httpResponse?.statusCode?.toInt() ?: 0
-        if (statusCode != 200) {
-            throw Exception("HTTP $statusCode desde Cloud Function")
-        }
-
-        // Convertir NSData a String de Kotlin via ByteArray
-        val responseString = data?.let { nsData ->
-            val bytes = ByteArray(nsData.length.toInt())
-            bytes.usePinned { pinned ->
-                platform.posix.memcpy(pinned.addressOf(0), nsData.bytes, nsData.length)
+            val response = client.post(Constans.GEMINI_FUNCTION_URL) {
+                contentType(ContentType.Application.Json)
+                setBody(bodyJson)
             }
-            bytes.decodeToString()
-        } ?: throw Exception("Respuesta vacía del servidor")
 
-        parseResponseField(responseString)
+            val responseText = response.bodyAsText()
+            println("[iOS] Fallback response: ${response.status.value} — ${responseText.take(200)}")
+
+            if (response.status.isSuccess()) {
+                parseResponseField(responseText)
+            } else {
+                "Error del servidor (${response.status.value}): $responseText"
+            }
+        } catch (e: Exception) {
+            println("[iOS] GeminiService error: ${e.message}")
+            "Error al contactar con Gemini: ${e.message}"
+        }
     }
 
-    private fun escapeJson(text: String): String = text
-        .replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
+    private fun buildRequestJsonBearer(
+        message: String,
+        history: List<ChatBotMessage>
+    ): String {
+        fun esc(s: String) = s
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
 
-    private fun parseResponseField(jsonText: String): String {
-        val key = "\"response\":"
-        val start = jsonText.indexOf(key)
-        if (start == -1) throw Exception("Respuesta inesperada: $jsonText")
-        val vStart = start + key.length
-        if (vStart >= jsonText.length || jsonText[vStart] != '"')
-            throw Exception("Formato inesperado en respuesta iOS")
-        var i = vStart + 1
-        val sb = StringBuilder()
-        while (i < jsonText.length) {
-            val c = jsonText[i]
-            if (c == '\\' && i + 1 < jsonText.length) {
-                when (jsonText[i + 1]) {
-                    '"'  -> { sb.append('"');  i += 2 }
-                    '\\' -> { sb.append('\\'); i += 2 }
-                    'n'  -> { sb.append('\n'); i += 2 }
-                    'r'  -> { sb.append('\r'); i += 2 }
-                    't'  -> { sb.append('\t'); i += 2 }
-                    else -> { sb.append(c); i++ }
-                }
-            } else if (c == '"') break
-            else { sb.append(c); i++ }
+        val histJson = buildString {
+            append("[")
+            history.forEachIndexed { i, m ->
+                if (i > 0) append(",")
+                append("""{"text":"${esc(m.text)}","isUser":${m.isFromUser}}""")
+            }
+            append("]")
         }
-        return sb.toString()
+        return """{"message":"${esc(message)}","conversationHistory":$histJson}"""
+    }
+
+    private fun buildRequestJson(
+        message: String,
+        email: String,
+        password: String,
+        history: List<ChatBotMessage>
+    ): String {
+        fun esc(s: String) = s
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+
+        val histJson = buildString {
+            append("[")
+            history.forEachIndexed { i, m ->
+                if (i > 0) append(",")
+                append("""{"text":"${esc(m.text)}","isUser":${m.isFromUser}}""")
+            }
+            append("]")
+        }
+        return """{"message":"${esc(message)}","email":"${esc(email)}","password":"${esc(password)}","conversationHistory":$histJson}"""
+    }
+
+    /** Extrae el valor del campo "response" del JSON de respuesta */
+    private fun parseResponseField(json: String): String {
+        val key = "\"response\":"
+        val keyIdx = json.indexOf(key).takeIf { it >= 0 } ?: return json
+        val q1 = json.indexOf('"', keyIdx + key.length).takeIf { it >= 0 } ?: return json
+        val sb = StringBuilder()
+        var i = q1 + 1
+        while (i < json.length) {
+            when {
+                json[i] == '\\' && i + 1 < json.length -> {
+                    sb.append(when (json[i + 1]) {
+                        '"'  -> '"'
+                        'n'  -> '\n'
+                        '\\' -> '\\'
+                        't'  -> '\t'
+                        'r'  -> '\r'
+                        else -> json[i + 1]
+                    })
+                    i += 2
+                }
+                json[i] == '"' -> break
+                else -> { sb.append(json[i]); i++ }
+            }
+        }
+        return sb.toString().ifEmpty { json }
     }
 }
-
-/**
- * Wrapper de corrutina para NSURLSessionDataTask con completionHandler.
- * Usa la sobrecarga correcta de dataTaskWithRequest que acepta lambda.
- */
-@OptIn(ExperimentalForeignApi::class)
-private suspend fun suspendNSURLSession(
-    request: NSMutableURLRequest
-): Triple<NSData?, platform.Foundation.NSURLResponse?, platform.Foundation.NSError?> =
-    suspendCancellableCoroutine { continuation ->
-        NSURLSession.sharedSession.dataTaskWithRequest(
-            request = request,
-            completionHandler = { data, response, error ->
-                continuation.resume(Triple(data, response, error))
-            }
-        ).resume()
-    }

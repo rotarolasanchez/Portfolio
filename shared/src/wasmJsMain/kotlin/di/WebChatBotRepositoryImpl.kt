@@ -4,7 +4,7 @@ import core.service.GeminiCloudService
 import core.service.TextRecognitionService
 import domain.model.ChatBotMessage
 import domain.repositories.ChatBotRepository
-import presentation.view.organisms.PlatformBitmap
+import core.model.PlatformBitmap
 
 /**
  * Implementación del ChatBotRepository para Web/WASM

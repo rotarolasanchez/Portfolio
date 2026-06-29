@@ -18,8 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import presentation.view.atoms.safeIconPainter
 import portafolio_kotlin.shared.generated.resources.Res
 import portafolio_kotlin.shared.generated.resources.capibara_family_not_background
+import presentation.view.atoms.safeImagePainter
 
 @Composable
 fun MenuDrawerContent(
@@ -40,7 +42,10 @@ fun MenuDrawerContent(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(Res.drawable.capibara_family_not_background),
+                painter = safeImagePainter(
+                    Res.drawable.capibara_family_not_background,
+                    "drawable/capibara_family_not_background.png"
+                ),
                 contentDescription = "Logo"
             )
         }
@@ -53,7 +58,7 @@ fun MenuDrawerContent(
             NavigationDrawerItem(
                 icon = {
                     Icon(
-                        painter = painterResource(icon),
+                        painter = safeIconPainter(icon),
                         contentDescription = item,
                         tint = MaterialTheme.colorScheme.primary
                     )
