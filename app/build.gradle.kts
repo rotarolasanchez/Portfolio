@@ -62,7 +62,7 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 36
-        versionCode = 27
+        versionCode = 28
         versionName = "3.5.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
