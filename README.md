@@ -4,13 +4,15 @@
 
 ### Kotlin Multiplatform · Compose Multiplatform · Clean Architecture
 
-[![CI](https://github.com/Vistony/Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/Vistony/Portfolio/actions/workflows/ci.yml)
+[![CI](https://github.com/rotarolasanchez/Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/rotarolasanchez/Portfolio/actions/workflows/ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.7.1-4285F4?logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/lp/compose-multiplatform/)
 [![Android](https://img.shields.io/badge/Android-API_24+-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A **Kotlin Multiplatform** portfolio application targeting **Android**, **iOS**, **Desktop** and **Web (WasmJS)**, built with modern architecture patterns and a full CI/CD pipeline.
+
+[📦 Ver repositorio](https://github.com/rotarolasanchez/Portfolio) · [📱 Descargar en Play Store](https://play.google.com/store/apps/details?id=com.rotarola.portafolio_kotlin)
 
 </div>
 
@@ -234,7 +236,7 @@ Checkout (macOS-14 / Apple M1)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Vistony/Portfolio.git
+git clone https://github.com/rotarolasanchez/Portfolio.git
 cd Portfolio
 ```
 
