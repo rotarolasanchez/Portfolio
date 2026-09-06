@@ -35,3 +35,6 @@ app/keystore_properties_base64.txt~
 app/key/
 *.jks
 *.keystore
+
+# Archivos de datos sensibles
+admin-web/*.xlsx

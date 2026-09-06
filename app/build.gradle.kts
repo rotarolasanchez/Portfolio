@@ -56,12 +56,12 @@ if (localPropertiesFile.exists()) {
 
 android {
     namespace = "com.rotarola.portafolio_kotlin"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 27
         versionName = "3.5.0"
         multiDexEnabled = true
