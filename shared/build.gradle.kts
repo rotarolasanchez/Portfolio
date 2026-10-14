@@ -186,6 +186,8 @@ kotlin {
             implementation(libs.material)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            // activity-compose: rememberLauncherForActivityResult (permiso de cámara en runtime)
+            implementation(libs.androidx.activity.compose)
 
             // Firebase (solo Android)
             implementation(platform("com.google.firebase:firebase-bom:33.4.0"))

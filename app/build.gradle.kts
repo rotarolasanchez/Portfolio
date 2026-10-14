@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.ksp)
     id("org.sonarqube") version libs.versions.sonarqube.get()
     id("jacoco")
@@ -62,8 +63,8 @@ android {
         applicationId = "com.rotarola.portafolio_kotlin"
         minSdk = 24
         targetSdk = 36
-        versionCode = 28
-        versionName = "3.5.0"
+        versionCode = 30
+        versionName = "3.5.1"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -207,6 +208,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-crashlytics")
 
     // Google sign-in vía Credential Manager
     implementation("androidx.credentials:credentials:1.3.0")
