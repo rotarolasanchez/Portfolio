@@ -1,0 +1,158 @@
+name: SDD Generar specs desde código
+
+# Dispara manualmente (desde el portal cloud, botón "📖 Generar specs desde
+# código") para que Claude Code explore el código YA EXISTENTE en este repo
+# y escriba, retroactivamente, un spec SDD por cada feature que encuentre
+# implementada — útil para un repo que nunca tuvo specs. Abre un PR con los
+# specs nuevos para revisar antes de mergear (nunca commit directo).
+#
+# Requiere el secret CLAUDE_CODE_OAUTH_TOKEN en este repo (mismo que usa
+# "⚡ Procesar"), generado con `claude setup-token`.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generar-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar git
+        run: |
+          git config user.name "sdd-platform-bot"
+          git config user.email "noreply@anthropic.com"
+
+      - name: Instalar Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Armar prompt
+        id: prompt
+        run: |
+          SPECS_DIR="docs/specs"
+          mkdir -p "$SPECS_DIR"
+
+          CONSTITUCION=""
+          if [ -f "$SPECS_DIR/constitution.md" ]; then
+            CONSTITUCION="$(cat "$SPECS_DIR/constitution.md")"
+          fi
+
+          EXISTENTES="(ningún spec todavía en $SPECS_DIR)"
+          if ls "$SPECS_DIR"/*.md "$SPECS_DIR"/*/spec.md >/dev/null 2>&1; then
+            EXISTENTES="Ya hay specs en $SPECS_DIR — no los dupliques, mirá sus títulos "
+            EXISTENTES+="antes de proponer uno nuevo que cubra lo mismo."
+          fi
+
+          {
+            if [ -n "$CONSTITUCION" ]; then
+              echo "Reglas globales del proyecto — aplican SIEMPRE."
+              echo "--- CONSTITUCIÓN DEL PROYECTO ---"
+              echo "$CONSTITUCION"
+              echo "--- FIN DE LA CONSTITUCIÓN ---"
+              echo
+            fi
+            echo "Este repo ya tiene código (puede no tener specs, o tener specs"
+            echo "incompletos frente al código real). NO toques el código fuente."
+            echo "Tu única tarea es documentar retroactivamente, como specs SDD,"
+            echo "las features/módulos que YA ESTÁN IMPLEMENTADOS."
+            echo
+            echo "$EXISTENTES"
+            echo
+            echo "Por cada feature o módulo que identifiques (agrupá por"
+            echo "funcionalidad de negocio/usuario, no 1 archivo = 1 spec), creá"
+            echo "un archivo nuevo en:"
+            echo "  $SPECS_DIR/<slug-de-la-feature>/spec.md"
+            echo "con EXACTAMENTE esta estructura (reemplazando el contenido entre"
+            echo "corchetes, sin dejar los corchetes):"
+            echo
+            cat <<'TEMPLATE'
+# Spec: [Título de la feature]
+
+> Metodología: Spec-First | Estado: [Completo o Parcial] | Fecha: [fecha de hoy YYYY-MM-DD]
+
+---
+
+## 1. Visión del Producto
+
+[Qué problema resuelve esta feature, en 1-2 frases]
+
+**Problema que resuelve:** [mismo problema, resumido]
+
+---
+
+## 2. Usuarios y Casos de Uso
+
+| Usuario | Acción | Resultado esperado |
+| --- | --- | --- |
+| [usuario principal] | Utiliza la feature | Resultado correcto |
+
+**Usuario principal:** [usuario principal]
+
+---
+
+## 3. Funcionalidades
+
+### En scope ✅
+- [funcionalidad concreta 1, lo que el código efectivamente hace]
+- [funcionalidad concreta 2]
+
+### Fuera de scope ❌
+-
+
+---
+
+## 4. Requisitos No Funcionales
+
+_(completar según la feature)_
+
+---
+
+## 5. Criterios de Éxito
+
+- [ ] [criterio verificable 1, 1 a 1 con la funcionalidad 1]
+- [ ] [criterio verificable 2, 1 a 1 con la funcionalidad 2]
+
+---
+
+## 7. Archivos implementados
+
+- [listar los archivos reales del repo que implementan esta feature]
+TEMPLATE
+            echo
+            echo "Usá Estado 'Completo' si la funcionalidad está terminada en el"
+            echo "código, o 'Parcial' si está incompleta. No crees plan.md — solo"
+            echo "spec.md. No modifiques ningún otro archivo del repo."
+          } > /tmp/prompt.txt
+
+      - name: Generar specs con Claude Code
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: claude -p --dangerously-skip-permissions --verbose < /tmp/prompt.txt
+
+      - name: Commit y push
+        id: commit
+        run: |
+          BRANCH="specs/desde-codigo-${{ github.run_number }}"
+          git checkout -b "$BRANCH"
+          git add -A -- "docs/specs"
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "specs: documentar retroactivamente features existentes del código"
+            git push origin "$BRANCH"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Abrir Pull Request
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf 'Specs generados automáticamente por Claude Code a partir del código ya existente en el repo — revisalos y editalos antes de mergear.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n' > /tmp/pr-body.txt
+          gh pr create --title "specs: generados desde código existente" --body-file /tmp/pr-body.txt --base main --head "${{ steps.commit.outputs.branch }}" --assignee rotarolasanchez
