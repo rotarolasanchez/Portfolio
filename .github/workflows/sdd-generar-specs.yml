@@ -70,59 +70,57 @@ jobs:
             echo "con EXACTAMENTE esta estructura (reemplazando el contenido entre"
             echo "corchetes, sin dejar los corchetes):"
             echo
-            cat <<'TEMPLATE'
-# Spec: [Título de la feature]
-
-> Metodología: Spec-First | Estado: [Completo o Parcial] | Fecha: [fecha de hoy YYYY-MM-DD]
-
----
-
-## 1. Visión del Producto
-
-[Qué problema resuelve esta feature, en 1-2 frases]
-
-**Problema que resuelve:** [mismo problema, resumido]
-
----
-
-## 2. Usuarios y Casos de Uso
-
-| Usuario | Acción | Resultado esperado |
-| --- | --- | --- |
-| [usuario principal] | Utiliza la feature | Resultado correcto |
-
-**Usuario principal:** [usuario principal]
-
----
-
-## 3. Funcionalidades
-
-### En scope ✅
-- [funcionalidad concreta 1, lo que el código efectivamente hace]
-- [funcionalidad concreta 2]
-
-### Fuera de scope ❌
--
-
----
-
-## 4. Requisitos No Funcionales
-
-_(completar según la feature)_
-
----
-
-## 5. Criterios de Éxito
-
-- [ ] [criterio verificable 1, 1 a 1 con la funcionalidad 1]
-- [ ] [criterio verificable 2, 1 a 1 con la funcionalidad 2]
-
----
-
-## 7. Archivos implementados
-
-- [listar los archivos reales del repo que implementan esta feature]
-TEMPLATE
+            echo "# Spec: [Título de la feature]"
+            echo
+            echo "> Metodología: Spec-First | Estado: [Completo o Parcial] | Fecha: [fecha de hoy YYYY-MM-DD]"
+            echo
+            echo "---"
+            echo
+            echo "## 1. Visión del Producto"
+            echo
+            echo "[Qué problema resuelve esta feature, en 1-2 frases]"
+            echo
+            echo "**Problema que resuelve:** [mismo problema, resumido]"
+            echo
+            echo "---"
+            echo
+            echo "## 2. Usuarios y Casos de Uso"
+            echo
+            echo "| Usuario | Acción | Resultado esperado |"
+            echo "| --- | --- | --- |"
+            echo "| [usuario principal] | Utiliza la feature | Resultado correcto |"
+            echo
+            echo "**Usuario principal:** [usuario principal]"
+            echo
+            echo "---"
+            echo
+            echo "## 3. Funcionalidades"
+            echo
+            echo "### En scope ✅"
+            echo "- [funcionalidad concreta 1, lo que el código efectivamente hace]"
+            echo "- [funcionalidad concreta 2]"
+            echo
+            echo "### Fuera de scope ❌"
+            echo "-"
+            echo
+            echo "---"
+            echo
+            echo "## 4. Requisitos No Funcionales"
+            echo
+            echo "_(completar según la feature)_"
+            echo
+            echo "---"
+            echo
+            echo "## 5. Criterios de Éxito"
+            echo
+            echo "- [ ] [criterio verificable 1, 1 a 1 con la funcionalidad 1]"
+            echo "- [ ] [criterio verificable 2, 1 a 1 con la funcionalidad 2]"
+            echo
+            echo "---"
+            echo
+            echo "## 7. Archivos implementados"
+            echo
+            echo "- [listar los archivos reales del repo que implementan esta feature]"
             echo
             echo "Usá Estado 'Completo' si la funcionalidad está terminada en el"
             echo "código, o 'Parcial' si está incompleta. No crees plan.md — solo"
